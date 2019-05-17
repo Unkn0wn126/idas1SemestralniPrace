@@ -39,9 +39,6 @@ import model.Uzivatel;
  */
 public class FXMLMainSceneController implements Initializable {
 
-    @FXML
-    private SubScene leftSection;
-
     private DatabaseHelper db; // pro předávání dat z databáze
 
     // Controllers
@@ -61,7 +58,7 @@ public class FXMLMainSceneController implements Initializable {
     private FXMLAddFieldController addFieldController;
 
     // Sub-scene nodes
-    private Parent contactsMenu;
+    private GridPane contactsMenu;
     private GridPane conversationMenu;
     private GridPane groupFeedMenu;
     private GridPane accountMenu;
@@ -98,9 +95,6 @@ public class FXMLMainSceneController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
-        leftSection.widthProperty().bind(paneLeft.widthProperty());
-        leftSection.heightProperty().bind(paneLeft.heightProperty());
     }
 
     public void loadContactsMenu() {
@@ -108,23 +102,34 @@ public class FXMLMainSceneController implements Initializable {
         try {
             // Načtení panelu s kontakty a skupinami
             loader.setLocation(getClass().getResource("FXMLContacts.fxml"));
-            contactsMenu = (Parent) loader.load();
+            contactsMenu = loader.load();
             contactsController = loader.getController();
 
-            leftSection.setRoot(contactsMenu);
-            contactsController.setContactChangedAction((t) -> {
+            // automatická změna velikosti při změně velikosti okna start
+            paneLeft.widthProperty().addListener((observable, oldValue, newValue) -> {
+                contactsMenu.setPrefWidth((double) newValue);
+            });
+            
+            paneLeft.heightProperty().addListener((observable, oldValue, newValue) -> {
+                contactsMenu.setPrefHeight((double) newValue);
+            });
+            // automatická změna velikosti při změně velikosti okna end
+            
+            paneLeft.getChildren().add(contactsMenu);
+            
+            contactsController.setSelectedContactChangedAction((t) -> {
                 loadConversationMenu();
                 updateConversation();
             });
-
-            contactsController.setGroupChangedAction((t) -> {
+            
+            contactsController.setSelectedGroupChangedAction((t) -> {
                 loadGroupFeedMenu();
             });
 
             contactsController.setContextMenuShowProfileAction((t) -> {
                 loadAccountMenu(contactsController.getLastRightMouseSelected().getUzivatel());
             });
-            
+
             contactsController.setUzivatelManager(db.getUzivatelManager());
             contactsController.setContactDataSet(db.getKontaktManager().selectKontakty(db.getUzivatelManager().getCurrentUser().getIdUzivatele()));
 
@@ -155,12 +160,15 @@ public class FXMLMainSceneController implements Initializable {
                 conversationController = loader.getController();
                 conversationController.setUzivatelManager(db.getUzivatelManager());
 
+                // automatická změna velikosti při změně velikosti okna start
                 paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
                     conversationMenu.setPrefWidth((double) newValue);
                 });
+                
                 paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
                     conversationMenu.setPrefHeight((double) newValue);
                 });
+                // automatická změna velikosti při změně velikosti okna end
             } catch (IOException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -186,12 +194,15 @@ public class FXMLMainSceneController implements Initializable {
                 groupFeedMenu = loader.load();
                 groupFeedController = loader.getController();
 
+                // automatická změna velikosti při změně velikosti okna start
                 paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
                     groupFeedMenu.setPrefWidth((double) newValue);
                 });
+                
                 paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
                     groupFeedMenu.setPrefHeight((double) newValue);
                 });
+                // automatická změna velikosti při změně velikosti okna end
 
             } catch (IOException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
@@ -201,6 +212,7 @@ public class FXMLMainSceneController implements Initializable {
         if (!paneCenter.getChildren().contains(groupFeedMenu)) {
             paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
             paneCenter.getChildren().add(groupFeedMenu);
+            groupFeedController.updateFeed();
 
             groupFeedMenu.setPrefWidth(paneCenter.getWidth());
             groupFeedMenu.setPrefHeight(paneCenter.getHeight());

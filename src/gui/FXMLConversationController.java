@@ -5,17 +5,24 @@
  */
 package gui;
 
+import gui.customcells.MessageListCell;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import model.UzivatelManager;
+import model.Zprava;
 
 /**
  * FXML Controller class
@@ -28,39 +35,34 @@ public class FXMLConversationController implements Initializable {
     private TextArea tAMessage;
 
     private Random rand = new Random();
-    @FXML
-    private ScrollPane scrollPane;
-    @FXML
-    private VBox vBox;
     
     private UzivatelManager uzivManager;
+    @FXML
+    private ListView<Zprava> listView;
+    
+    private ObservableList<Zprava> zpravy = FXCollections.observableArrayList();
+    @FXML
+    private Label lblName;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        scrollPane.widthProperty().addListener((observable) -> {
-            vBox.setPrefWidth(scrollPane.getWidth());
+        listView.setItems(zpravy);
+        listView.setCellFactory((param) -> {
+            return new MessageListCell();
         });
-        
-        scrollPane.heightProperty().addListener((observable) -> {
-            vBox.setPrefWidth(scrollPane.getWidth());
-        });
-        
-        vBox.heightProperty().addListener((observable, oldValue, newValue) -> {
-            scrollPane.setVvalue((Double) newValue);
-        });
+        listView.setSelectionModel(null);
     }
 
     @FXML
     private void handleBtnOdeslatAction(ActionEvent event) {
         if (tAMessage.getText() != "" && tAMessage.getText().length() > 0) {
-            MessageBox msg = new MessageBox(tAMessage.getText(), uzivManager.getCurrentUser().getJmeno(), Pos.CENTER_RIGHT);
+            Zprava zprava = new Zprava(1, tAMessage.getText(), LocalDateTime.now(), uzivManager.getCurrentUser().getJmeno());
             tAMessage.clear();
-
-            vBox.getChildren().add(msg);           
-            
+            zpravy.add(zprava);
+            listView.scrollTo(zpravy.size()-1);
         }
     }
     
@@ -69,18 +71,16 @@ public class FXMLConversationController implements Initializable {
     }
 
     public void generateTexts() {
-
-        vBox.getChildren().remove(0, vBox.getChildren().size());
+        zpravy.clear();
         int r = rand.nextInt((30 - 10 + 1) + 10);
 
         for (int i = 0; i < r; i++) {
-            int side = rand.nextInt(10);
-            Pos position = (side >= 5) ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT;
-            MessageBox msg = new MessageBox("Message", "Test", position);
-
-            vBox.getChildren().add(msg);
-
+            
+            Zprava zprava = new Zprava(i, "Message", LocalDateTime.now(), "Test");
+            
+            zpravy.add(zprava);
         }
+        listView.scrollTo(zpravy.size()-1);
     }
 
 }

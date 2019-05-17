@@ -17,7 +17,6 @@
   <rowConstraints>
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -27,75 +26,65 @@
    <children>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0">
          <children>
-            <Label text="Id:" />
+            <Label text="Jméno:" />
          </children>
       </FlowPane>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
          <children>
-            <Label fx:id="lblId" text="N/A" />
+            <Label fx:id="lblJmeno" text="N/A" />
          </children>
       </FlowPane>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
          <children>
-            <Label text="Jméno:" />
+            <Label text="Příjmení:" />
          </children>
       </FlowPane>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
          <children>
-            <Label fx:id="lblJmeno" text="N/A" />
+            <Label fx:id="lblPrijmeni" text="N/A" />
          </children>
       </FlowPane>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="2">
          <children>
-            <Label text="Příjmení:" />
+            <Label text="E-mail:" />
          </children>
       </FlowPane>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
          <children>
-            <Label fx:id="lblPrijmeni" text="N/A" />
+            <Label fx:id="lblEmail" text="N/A" />
          </children>
       </FlowPane>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="3">
          <children>
-            <Label text="E-mail:" />
+            <Label text="Rok studia:" />
          </children>
       </FlowPane>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
          <children>
-            <Label fx:id="lblEmail" text="N/A" />
+            <Label fx:id="lblRokStudia" text="N/A" />
          </children>
       </FlowPane>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="4">
          <children>
-            <Label text="Rok studia:" />
+            <Label text="Kontakty:" />
          </children>
       </FlowPane>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
          <children>
-            <Label fx:id="lblRokStudia" text="N/A" />
+            <ListView fx:id="listViewKontakty" minHeight="0.0" minWidth="0.0" prefHeight="47.0" prefWidth="286.0" />
          </children>
       </FlowPane>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="5">
          <children>
-            <Label text="Kontakty:" />
+            <Label text="Poznámka:" />
          </children>
       </FlowPane>
       <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
          <children>
-            <ListView fx:id="listViewKontakty" minHeight="0.0" minWidth="0.0" prefHeight="47.0" prefWidth="286.0" />
-         </children>
-      </FlowPane>
-      <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="6">
-         <children>
-            <Label text="Poznámka:" />
-         </children>
-      </FlowPane>
-      <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
-         <children>
             <Label fx:id="lblPoznamka" text="N/A" />
          </children>
       </FlowPane>
-      <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="7">
+      <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="6">
          <children>
             <Button fx:id="btnUpravit" mnemonicParsing="false" onAction="#handleBtnUpravitAction" text="Upravit" visible="false" />
          </children>

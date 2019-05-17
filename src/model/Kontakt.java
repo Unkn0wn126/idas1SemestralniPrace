@@ -52,7 +52,10 @@ public class Kontakt {
         return poznamka;
     }
     
-    
+    @Override
+    public String toString(){
+        return Integer.toString(platnost);
+    }
     
     
 }

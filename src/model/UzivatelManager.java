@@ -127,6 +127,7 @@ public class UzivatelManager {
      */
     public void setCurrentUser(Uzivatel user) {
         this.currentUser = user;
+        currentUser.setOnline(1);
     }
 
     /**

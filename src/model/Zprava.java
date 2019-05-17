@@ -25,4 +25,16 @@ public class Zprava {
         this.casOdeslani = casOdeslani;
         this.autor = autor;
     }
+    
+    public String getObsahZpravy(){
+        return obsahZpravy;
+    }
+    
+    public String getAutor(){
+        return autor;
+    }
+    
+    public LocalDateTime getCasOdeslani(){
+        return this.casOdeslani;
+    }
 }

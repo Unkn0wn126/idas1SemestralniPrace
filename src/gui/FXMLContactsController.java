@@ -5,6 +5,8 @@
  */
 package gui;
 
+import gui.customcells.GroupListCell;
+import gui.customcells.KontaktListCell;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
@@ -12,18 +14,17 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.GridPane;
 import model.Kontakt;
+import model.Skupina;
 import model.Uzivatel;
 import model.UzivatelManager;
 
@@ -34,22 +35,24 @@ import model.UzivatelManager;
  */
 public class FXMLContactsController implements Initializable {
 
-    private ContactView selected;
-    private final SimpleBooleanProperty selectedContactChanged = new SimpleBooleanProperty(false);
-    private final SimpleBooleanProperty selectedGroupChanged = new SimpleBooleanProperty(false);
-    private Consumer onContactChanged;
-    private Consumer onGroupChanged;
     private Consumer<ActionEvent> showProfileAction;
     private Consumer<ActionEvent> showGroupMembersAction;
+    private Consumer<ActionEvent> selectedContactChangedAction;
+    private Consumer<ActionEvent> selectedGroupChangedAction;
     private ContactView lastRightMouseSelected;
-    @FXML
-    private VBox vBox;
-    @FXML
-    private ScrollPane scrollPane;
 
     private ObservableList<Kontakt> kontakty = FXCollections.observableArrayList();
+    private ObservableList<Uzivatel> uzivatele = FXCollections.observableArrayList();
+    private ObservableList<Skupina> skupiny = FXCollections.observableArrayList();
 
     private UzivatelManager uzivatelManager;
+
+    @FXML
+    private GridPane gridPane;
+    @FXML
+    private ListView<Uzivatel> listViewKontakty;
+    @FXML
+    private ListView<Skupina> listViewGroups;
 
     /**
      * Initializes the controller class.
@@ -59,31 +62,45 @@ public class FXMLContactsController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        scrollPane.widthProperty().addListener((observable, oldValue, newValue) -> {
-            vBox.setPrefWidth((Double) newValue);
+        listViewKontakty.setItems(uzivatele);
+
+        listViewKontakty.setCellFactory((param) -> {
+            return new KontaktListCell();
+        });
+        
+        listViewKontakty.getSelectionModel().selectedItemProperty().addListener((observable) -> {
+            if (selectedContactChangedAction != null) {
+                selectedContactChangedAction.accept(null);
+            }
+        });
+        
+        listViewGroups.getSelectionModel().selectedItemProperty().addListener((observable) -> {
+            if (selectedGroupChangedAction != null) {
+                selectedGroupChangedAction.accept(null);
+            }
+        });
+        
+        listViewGroups.setItems(skupiny);
+        
+        listViewGroups.setCellFactory((param) -> {
+            return new GroupListCell();
         });
 
-        vBox.getChildren().add(new Label("---Kontakty---"));
         try {
             fillContactSection();
         } catch (SQLException ex) {
             Logger.getLogger(FXMLContactsController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        vBox.getChildren().add(new Label("---Skupiny---"));
         fillGroupSection();
 
-        selectedContactChanged.addListener((observable) -> {
-            if (onContactChanged != null) {
-                onContactChanged.accept(observable);
-            }
-        });
+    }
 
-        selectedGroupChanged.addListener((observable) -> {
-            if (onGroupChanged != null) {
-                onGroupChanged.accept(observable);
-            }
-        });
+    public void setSelectedContactChangedAction(Consumer<ActionEvent> selectedContactChangedAction) {
+        this.selectedContactChangedAction = selectedContactChangedAction;
+    }
 
+    public void setSelectedGroupChangedAction(Consumer<ActionEvent> selectedGroupChangedAction) {
+        this.selectedGroupChangedAction = selectedGroupChangedAction;
     }
 
     /**
@@ -120,89 +137,33 @@ public class FXMLContactsController implements Initializable {
         return contextMenu;
     }
 
-    /**
-     * Nastaví akci, která se provede při překliknutí na jiný kontakt
-     *
-     * @param onContactChanged akce, která se má provést
-     */
-    public void setContactChangedAction(Consumer onContactChanged) {
-        this.onContactChanged = onContactChanged;
-    }
-
     public void setContextMenuShowProfileAction(Consumer<ActionEvent> showProfileAction) {
         this.showProfileAction = showProfileAction;
     }
 
-    /**
-     * Nastaví akci, která se provede při překliknutí na jinou skupiny
-     *
-     * @param onGroupChanged akce, která se má provést
-     */
-    public void setGroupChangedAction(Consumer onGroupChanged) {
-        this.onGroupChanged = onGroupChanged;
-    }
-
-    /**
-     * Aktualizuje, který panel je současně vybrán
-     *
-     * @param panel panel, který bude nastaven jako vybraný
-     * @param isGroup určuje, jestli se jedná o panel skupiny
-     */
-    private void replaceSelected(ContactView panel, boolean isGroup) {
-        if (selected != null) {
-            selected.setStyle("-fx-background-color: #f4f4f4");
-        }
-        selected = panel;
-        if (isGroup) {
-            selectedGroupChanged.set(!selectedGroupChanged.getValue());
-        } else {
-            selectedContactChanged.set(!selectedContactChanged.getValue());
-        }
-
-        selected.setStyle("-fx-background-color: #c6c6c6");
-    }
-
     private void fillGroupSection() {
-        for (int i = 0; i < 10; i++) {
-            ContactView group = new ContactView("Skupina", "" + (i + 1), addContextMenuGroup());
-            group.setLeftMouseAction((t) -> {
-                replaceSelected(group, true);
-            });
-
-            group.setRightMouseAction((t) -> {
-                group.showContextMenu(t);
-            });
-
-            vBox.getChildren().add(group);
+        for (int i = 0; i < 20; i++) {
+            skupiny.add(new Skupina(i, i));
         }
     }
 
     /**
      * Naplní sekci s kontakty kontakty
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     private void fillContactSection() throws SQLException {
         if (uzivatelManager != null) {
+//            uzivatele.clear();
             for (int i = 0; i < kontakty.size(); i++) {
                 Uzivatel uzivatel = uzivatelManager.selectUzivatelById(kontakty.get(i).getIdKontaktu());
-                ContactView contact = new ContactView(uzivatel.getJmeno(), uzivatel.getPrijmeni(), addContextMenuContact());
-                contact.setLeftMouseAction((t) -> {
-                    replaceSelected(contact, false);
-                });
-                
-                contact.setUzivatel(uzivatel);
-
-                contact.setRightMouseAction((t) -> {
-                    lastRightMouseSelected = contact;
-                    contact.showContextMenu(t);
-                });
-                vBox.getChildren().add(1, contact);
+                uzivatele.add(uzivatel);
             }
-        }
 
+        }
     }
-    
-    public ContactView getLastRightMouseSelected(){
+
+    public ContactView getLastRightMouseSelected() {
         return lastRightMouseSelected;
     }
 

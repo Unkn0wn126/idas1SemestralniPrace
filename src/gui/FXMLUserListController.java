@@ -5,6 +5,7 @@
  */
 package gui;
 
+import gui.customcells.KontaktListCell;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -40,6 +41,9 @@ public class FXMLUserListController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         listViewUzivatele.setItems(dataset);
+        listViewUzivatele.setCellFactory((param) -> {
+            return new KontaktListCell();
+        });
     }
     
     public void setDataSet(List<Uzivatel> uzivatele) {

@@ -1,29 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.FXMLGroupFeedController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
   </columnConstraints>
   <rowConstraints>
+      <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" vgrow="SOMETIMES" />
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" percentHeight="40.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="40.0" vgrow="SOMETIMES" />
+    <RowConstraints minHeight="10.0" percentHeight="25.0" prefHeight="30.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <ScrollPane fx:id="scrollPaneMain" prefHeight="200.0" prefWidth="200.0">
-         <content>
-            <VBox fx:id="vBoxMain" minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="100.0" />
-         </content>
-      </ScrollPane>
-      <ScrollPane fx:id="scrollPanePin" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
-         <content>
-            <VBox fx:id="vBoxPin" minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="100.0" />
-         </content>
-      </ScrollPane>
+      <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="2">
+         <children>
+            <Label text="Důležité příspěvky">
+               <font>
+                  <Font size="14.0" />
+               </font></Label>
+         </children>
+      </FlowPane>
+      <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0">
+         <children>
+            <Label text="Příspěvky skupiny">
+               <font>
+                  <Font size="14.0" />
+               </font></Label>
+         </children>
+      </FlowPane>
+      <ListView fx:id="listViewPrispevkyRegular" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" />
+      <ListView fx:id="listViewPrispevkyPinned" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="3" />
    </children>
 </GridPane>

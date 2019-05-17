@@ -31,5 +31,20 @@ public class Prispevek {
         this.komentare = komentare;
     }
     
+    public String getObsahPrispevku(){
+        return this.obsahPrispevku;
+    }
+    
+    public LocalDateTime getCasOdeslani(){
+        return this.casOdeslani;
+    }
+    
+    public String getNazev(){
+        return this.nazev;
+    }
+    
+    public List<Prispevek> getKomentare(){
+        return this.komentare;
+    }
     
 }

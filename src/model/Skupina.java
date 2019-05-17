@@ -17,4 +17,9 @@ public class Skupina {
         this.idPrispevku = idPrispevku;
         this.idStudijnihoPlanu = idStudijnihoPlanu;
     }
+    
+    @Override
+    public String toString(){
+        return "Skupina";
+    }
 }

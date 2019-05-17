@@ -23,6 +23,7 @@ public class Uzivatel {
     private int blokace;
     private List<Kontakt> kontakty;
     private String poznamka;
+    private int online = 0;
 
     public Uzivatel(String idUzivatele, String jmeno, String prijmeni, String email, String login, int rokStudia, int blokace, String poznamka) {
         this.idUzivatele = idUzivatele;
@@ -67,11 +68,19 @@ public class Uzivatel {
     public String getPoznamka() {
         return poznamka;
     }
+
+    public int isOnline() {
+        return online;
+    }
+
+    public void setOnline(int online) {
+        this.online = online;
+    }
     
     @Override
     public String toString(){
-        return String.format("ID: %s, Jméno: %s, Příjmení: %s, E-mail: %s, "
-                + "Rok studia: %d, Blokace: %d, Poznámka: %s", idUzivatele, 
-                jmeno, prijmeni, email, rokStudia, blokace, poznamka);
+        return String.format("Jméno: %s, Příjmení: %s, E-mail: %s, "
+                + "Rok studia: %d, Blokace: %d, Poznámka: %s", jmeno, prijmeni, 
+                email, rokStudia, blokace, poznamka);
     }
 }

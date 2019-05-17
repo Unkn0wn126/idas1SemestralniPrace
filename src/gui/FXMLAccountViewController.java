@@ -6,8 +6,11 @@
 package gui;
 
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,7 +21,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import model.Kontakt;
+import model.KontaktManager;
 import model.Uzivatel;
+import model.UzivatelManager;
 
 /**
  * FXML Controller class
@@ -27,8 +32,6 @@ import model.Uzivatel;
  */
 public class FXMLAccountViewController implements Initializable {
 
-    @FXML
-    private Label lblId;
     @FXML
     private Label lblJmeno;
     @FXML
@@ -43,6 +46,9 @@ public class FXMLAccountViewController implements Initializable {
     private Label lblPoznamka;
     
     private Uzivatel uzivatel;
+    
+    private UzivatelManager uzivatelManager;
+    private KontaktManager kontaktManager;
     
     private ObservableList<Kontakt> kontakty = FXCollections.observableArrayList();
     
@@ -80,9 +86,11 @@ public class FXMLAccountViewController implements Initializable {
     
     public void updateView(Uzivatel uzivatel){
         setUzivatel(uzivatel);
-        kontakty.clear();
-        kontakty.addAll(uzivatel.getKontakty());
-        lblId.setText(uzivatel.getIdUzivatele());
+        try {
+            loadUserContacts();
+        } catch (SQLException ex) {
+            Logger.getLogger(FXMLAccountViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         lblJmeno.setText(uzivatel.getJmeno());
         lblPrijmeni.setText(uzivatel.getPrijmeni());
         lblEmail.setText(uzivatel.getEmail());
@@ -90,8 +98,24 @@ public class FXMLAccountViewController implements Initializable {
         lblPoznamka.setText(uzivatel.getPoznamka());
     }
     
+    private void loadUserContacts() throws SQLException{
+        kontakty.clear();
+        if (kontaktManager != null && uzivatelManager != null) {
+            kontakty.addAll(kontaktManager.selectKontakty(uzivatel.getIdUzivatele()));
+        }
+    }
+    
     public void setUzivatel(Uzivatel uzivatel){
         this.uzivatel = uzivatel;
+    }
+    
+    
+    public void setUzivatelManager(UzivatelManager uzivatelManager){
+        this.uzivatelManager = uzivatelManager;
+    }
+    
+    public void setKontaktManager(KontaktManager kontaktManager){
+        this.kontaktManager = kontaktManager;
     }
     
     public void setEnableButton(boolean expression){
