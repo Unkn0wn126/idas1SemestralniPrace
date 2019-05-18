@@ -130,6 +130,13 @@ public class UzivatelManager {
         currentUser.setOnline(1);
     }
 
+    public void unsetCurrentUser() {
+        if (currentUser != null) {
+            currentUser.setOnline(0);
+            this.currentUser = null;
+        }
+    }
+
     /**
      * Vrátí současného uživatele
      *

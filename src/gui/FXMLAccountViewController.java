@@ -5,8 +5,10 @@
  */
 package gui;
 
+import gui.customcells.UzivatelListCell;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -41,7 +43,7 @@ public class FXMLAccountViewController implements Initializable {
     @FXML
     private Label lblRokStudia;
     @FXML
-    private ListView<Kontakt> listViewKontakty;
+    private ListView<Uzivatel> listViewKontakty;
     @FXML
     private Label lblPoznamka;
     
@@ -50,7 +52,7 @@ public class FXMLAccountViewController implements Initializable {
     private UzivatelManager uzivatelManager;
     private KontaktManager kontaktManager;
     
-    private ObservableList<Kontakt> kontakty = FXCollections.observableArrayList();
+    private ObservableList<Uzivatel> kontakty = FXCollections.observableArrayList();
     
     private SimpleBooleanProperty enableEditButton;
     
@@ -58,6 +60,12 @@ public class FXMLAccountViewController implements Initializable {
     
     @FXML
     private Button btnUpravit;
+    @FXML
+    private Label tfRole;
+    @FXML
+    private Label tfBan;
+    @FXML
+    private Label lblUzivatel;
 
     /**
      * Initializes the controller class.
@@ -71,6 +79,9 @@ public class FXMLAccountViewController implements Initializable {
         });
         
         listViewKontakty.setItems(kontakty);
+        listViewKontakty.setCellFactory((param) -> {
+            return new UzivatelListCell(null);
+        });
     }    
 
     @FXML
@@ -91,6 +102,7 @@ public class FXMLAccountViewController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(FXMLAccountViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        lblUzivatel.setText(uzivatel.getJmeno() + " " + uzivatel.getPrijmeni());
         lblJmeno.setText(uzivatel.getJmeno());
         lblPrijmeni.setText(uzivatel.getPrijmeni());
         lblEmail.setText(uzivatel.getEmail());
@@ -100,8 +112,9 @@ public class FXMLAccountViewController implements Initializable {
     
     private void loadUserContacts() throws SQLException{
         kontakty.clear();
-        if (kontaktManager != null && uzivatelManager != null) {
-            kontakty.addAll(kontaktManager.selectKontakty(uzivatel.getIdUzivatele()));
+        if (kontaktManager != null && uzivatelManager != null) { // TODO: předělat na joiny kontaktů, které skutečně uživateli patří
+            List<Kontakt> kont = kontaktManager.selectKontakty(uzivatel.getIdUzivatele());
+            kontakty.addAll(uzivatelManager.selectUzivatele());
         }
     }
     

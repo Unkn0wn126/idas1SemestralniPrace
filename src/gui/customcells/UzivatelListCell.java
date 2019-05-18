@@ -5,33 +5,34 @@
  */
 package gui.customcells;
 
-import java.util.function.Consumer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import model.Uzivatel;
 
 /**
  *
  * @author Lukas
  */
-public class KontaktListCell extends ListCell<Uzivatel> {
+public class UzivatelListCell extends ListCell<Uzivatel> {
 
     @FXML
     private Label lblName;
     @FXML
     private Label lblSurname;
     @FXML
-    private ImageView imageView;
+    private Label lblRocnik;
     @FXML
-    private Circle circleOnline;
+    private Label lblBan;
+    @FXML
+    private Label lblRole;
+    @FXML
+    private ImageView imageView;
     @FXML
     private GridPane gridPane;
 
@@ -41,7 +42,7 @@ public class KontaktListCell extends ListCell<Uzivatel> {
 
     private ContextMenu contextMenu;
 
-    public KontaktListCell(ContextMenu contextMenu) {
+    public UzivatelListCell(ContextMenu contextMenu) {
         super();
 
         this.contextMenu = contextMenu;
@@ -57,7 +58,7 @@ public class KontaktListCell extends ListCell<Uzivatel> {
             setGraphic(null);
         } else {
             if (loader == null) {
-                loader = new FXMLLoader(getClass().getResource("ListCellKontakt.fxml"));
+                loader = new FXMLLoader(getClass().getResource("ListCellUzivatel.fxml"));
                 loader.setController(this);
 
                 try {
@@ -71,11 +72,11 @@ public class KontaktListCell extends ListCell<Uzivatel> {
                 uzivatel = item;
             }
 
-            setOnlineCircleColor();
-
             lblName.setText(item.getJmeno());
             lblSurname.setText(item.getPrijmeni());
-
+            lblRocnik.setText(Integer.toString(item.getRokStudia()));
+            lblBan.setText("0"); // TODO: napojit na skutečná data
+            lblRole.setText("Uzivatel"); // TODO: napojit na skutečná data
             setGraphic(gridPane);
             setPrefHeight(gridPane.getPrefHeight());
         }
@@ -87,19 +88,6 @@ public class KontaktListCell extends ListCell<Uzivatel> {
      */
     public Uzivatel getUzivatel() {
         return this.uzivatel;
-    }
-
-    /**
-     * Nastaví barvu indikátoru online stavu
-     * Pokud je daný uživatel offline - červená
-     * Pokud je daný uživatel online - zelená
-     */
-    private void setOnlineCircleColor() {
-        if (uzivatel.isOnline() == 0) {
-            circleOnline.setFill(Color.RED);
-        } else {
-            circleOnline.setFill(Color.GREENYELLOW);
-        }
     }
 
 }

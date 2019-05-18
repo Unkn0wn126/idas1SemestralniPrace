@@ -7,22 +7,24 @@ package gui;
 
 import gui.customcells.MessageListCell;
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.VBox;
 import model.UzivatelManager;
 import model.Zprava;
+import model.ZpravaManager;
 
 /**
  * FXML Controller class
@@ -37,6 +39,7 @@ public class FXMLConversationController implements Initializable {
     private Random rand = new Random();
     
     private UzivatelManager uzivManager;
+    private ZpravaManager zpravaManager;
     @FXML
     private ListView<Zprava> listView;
     
@@ -57,11 +60,14 @@ public class FXMLConversationController implements Initializable {
     }
 
     @FXML
-    private void handleBtnOdeslatAction(ActionEvent event) {
+    private void handleBtnOdeslatAction(ActionEvent event) throws SQLException {
         if (tAMessage.getText() != "" && tAMessage.getText().length() > 0) {
             Zprava zprava = new Zprava(1, tAMessage.getText(), LocalDateTime.now(), uzivManager.getCurrentUser().getJmeno());
             tAMessage.clear();
             zpravy.add(zprava);
+            if (zpravaManager != null) {
+                zpravaManager.insertZprava("Název", zprava.getObsahZpravy(), zprava.getAutor());
+            }
             listView.scrollTo(zpravy.size()-1);
         }
     }
@@ -69,17 +75,22 @@ public class FXMLConversationController implements Initializable {
     public void setUzivatelManager(UzivatelManager uzivManager){
         this.uzivManager = uzivManager;
     }
-
-    public void generateTexts() {
+    
+    public void setZpravaManager(ZpravaManager zpravaManager){
+        this.zpravaManager = zpravaManager;
+    }
+    
+    public void updateMessages(){ // TODO: napojit na databázi tak, aby se zobrazovaly zprávy s daným kontaktem
         zpravy.clear();
-        int r = rand.nextInt((30 - 10 + 1) + 10);
-
-        for (int i = 0; i < r; i++) {
-            
-            Zprava zprava = new Zprava(i, "Message", LocalDateTime.now(), "Test");
-            
-            zpravy.add(zprava);
+        if (zpravaManager != null) {
+            try {
+                List<Zprava> zpr = zpravaManager.selectZpravy();
+                zpravy.addAll(zpr);
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLConversationController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        
         listView.scrollTo(zpravy.size()-1);
     }
 

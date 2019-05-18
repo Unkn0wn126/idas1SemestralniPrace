@@ -5,7 +5,12 @@
  */
 package gui.customcells;
 
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,14 +23,15 @@ import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import model.Prispevek;
-import model.Zprava;
+import model.PrispevekManager;
 
 /**
  *
  * @author Lukas
  */
-public class PostListCell extends ListCell<Prispevek>{
-        @FXML
+public class PostListCell extends ListCell<Prispevek> {
+
+    @FXML
     private Label lblPostName;
     @FXML
     private Label lblName;
@@ -37,7 +43,7 @@ public class PostListCell extends ListCell<Prispevek>{
     private TextArea taReply;
     @FXML
     private ListView listViewReplies;
-    
+
     @FXML
     private ImageView imageView;
     @FXML
@@ -46,8 +52,9 @@ public class PostListCell extends ListCell<Prispevek>{
     private FXMLLoader loader;
 
     private Prispevek prispevek;
-    
+
     private ObservableList<Prispevek> komentare = FXCollections.observableArrayList();
+    private PrispevekManager prispevekManager;
 
     @Override
     protected void updateItem(Prispevek item, boolean empty) {
@@ -87,9 +94,21 @@ public class PostListCell extends ListCell<Prispevek>{
             setPrefHeight(gridPane.getPrefHeight());
         }
     }
-    
+
     @FXML
-    private void handleBtnOdeslatAction(ActionEvent event){
-        System.out.println("Click!");
+    private void handleBtnOdeslatAction(ActionEvent event) {
+        if (taReply.getText().length() > 0) {
+            if (prispevekManager != null) {
+                Prispevek pr = new Prispevek(1, taReply.getText(), LocalDateTime.now(), "Nazev", 0, "Koment", new ArrayList<Prispevek>());
+                komentare.add(pr);
+                taReply.setText(null);
+                try {
+                    prispevekManager.insertPrispevek(pr.getNazev(), pr.getObsahPrispevku(), pr.getNazev(), pr.getNazev());
+                } catch (SQLException ex) {
+                    Logger.getLogger(PostListCell.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+        }
     }
 }

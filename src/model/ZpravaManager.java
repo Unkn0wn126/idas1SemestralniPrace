@@ -42,7 +42,7 @@ public class ZpravaManager {
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {
-            listSelect.add(new Zprava(result.getInt("id_zpravy"), result.getString("nazev"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getString("odesilatel")));
+            listSelect.add(new Zprava(result.getInt("id_zpravy"), result.getString("obsah_zpravy"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getString("odesilatel")));
 
         }
         return listSelect;

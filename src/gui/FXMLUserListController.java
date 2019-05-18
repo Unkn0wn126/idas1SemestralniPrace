@@ -6,6 +6,7 @@
 package gui;
 
 import gui.customcells.KontaktListCell;
+import gui.customcells.UzivatelListCell;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -15,8 +16,10 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import model.Uzivatel;
 
 /**
@@ -33,7 +36,8 @@ public class FXMLUserListController implements Initializable {
     
     private ObservableList<Uzivatel> dataset = FXCollections.observableArrayList();
     
-    private Consumer<ActionEvent> addToContactsAction;
+    private Consumer<Uzivatel> addToContactsAction;
+    private Consumer<Uzivatel> showProfileAction;
 
     /**
      * Initializes the controller class.
@@ -42,7 +46,7 @@ public class FXMLUserListController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         listViewUzivatele.setItems(dataset);
         listViewUzivatele.setCellFactory((param) -> {
-            return new KontaktListCell();
+            return new UzivatelListCell(addContextMenuContact());
         });
     }
     
@@ -51,18 +55,46 @@ public class FXMLUserListController implements Initializable {
         dataset.addAll(uzivatele);
     }
     
-    public void setAddToContactsAction(Consumer<ActionEvent> addToContactsAction){
+    public void setAddToContactsAction(Consumer<Uzivatel> addToContactsAction){
         this.addToContactsAction = addToContactsAction;
     }
     
     public Uzivatel getSelected(){
         return listViewUzivatele.getSelectionModel().getSelectedItem();
     }
+    
+        public void setContextMenuShowProfileAction(Consumer<Uzivatel> showProfileAction) {
+        this.showProfileAction = showProfileAction;
+    }
+        
+            /**
+     * Vytvoří kontextové menu pro daný panel kontaktu
+     *
+     * @return
+     */
+    private ContextMenu addContextMenuContact() {
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem showDetails = new MenuItem("Zobrazit profil");
+        showDetails.setOnAction((event) -> {
+            if (showProfileAction != null) {
+                showProfileAction.accept(listViewUzivatele.getSelectionModel().getSelectedItem());
+            }
+        });
+        
+        MenuItem addToContacts = new MenuItem("Přidat do kontaktů");
+        addToContacts.setOnAction((event) -> {
+            if (addToContactsAction != null) {
+                addToContactsAction.accept(listViewUzivatele.getSelectionModel().getSelectedItem());
+            }
+        });
+        contextMenu.getItems().addAll(showDetails, addToContacts);
+        return contextMenu;
+    }
 
     @FXML
     private void handleBtnPridatDoKontaktuAction(ActionEvent event) {
         if (addToContactsAction != null) {
-            addToContactsAction.accept(event);
+            addToContactsAction.accept(listViewUzivatele.getSelectionModel().getSelectedItem());
         }
     }
 }

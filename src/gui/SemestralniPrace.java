@@ -45,8 +45,12 @@ public class SemestralniPrace extends Application {
      */
     private void setUpConnection() {
         try {
+            // Credentials pro navázání spojení
             OracleConnector.setUpConnection("fei-sql1.upceucebny.cz", 1521,
                     "IDAS", "st55419", "Salem3l139");
+            
+            // Vytvoření instance třídy pro ovládání databáze
+            // Ve zbytku aplikace řešeno dependency injection
             dbHelper = new DatabaseHelper(OracleConnector.getConnection());
             uzivManager = dbHelper.getUzivatelManager();
         } catch (SQLException ex) {
@@ -66,18 +70,25 @@ public class SemestralniPrace extends Application {
      * @throws IOException když se menu nepodaří načíst ze souboru
      */
     private void loadLoginScene(Stage stage) throws IOException {
+        // Načtení layoutu přihlášení start
         FXMLLoader loader = new FXMLLoader(getClass().getResource("FXMLLogin.fxml"));
         Parent root = (Parent) loader.load();
         FXMLLoginController controller = loader.getController();
         controller.setStage(stage);
+        // Načtení layoutu přihlášení end
 
+        // Nastavení akce kliknutí na tlačítko přihlásit tak,
+        // aby se aplikace pokusila o přihlášení uživatele
+        // a následné zobrazení hlavní scény aplikace
         controller.setBtnPrihlasitAction((t) -> {
             String login = controller.getJmeno();
             String heslo = controller.getHeslo();
             login(login, heslo, stage);
             stage.setResizable(true);
         });
-
+        
+        // Nastavení akce pokusu o zavření okna tak, 
+        // aby byl současný uživatel odhlášen a spojení s databází bylo ukončeno
         controller.setCloseAction((t) -> {
             logout(t);
         });
@@ -111,7 +122,7 @@ public class SemestralniPrace extends Application {
     }
 
     /**
-     * Odhlásí uživatele
+     * Odhlásí uživatele, a ukončí spojení s databází a poté i aplikaci
      * @param t event zavření okna
      */
     private void logout(WindowEvent t) {
@@ -119,11 +130,13 @@ public class SemestralniPrace extends Application {
         alert.setTitle("Ukončit aplikaci?");
         alert.setHeaderText("Skutečně chcete ukončit aplikaci?");
         alert.setContentText(null);
+        
         Optional<ButtonType> result = alert.showAndWait();
         if (!result.get().equals(ButtonType.OK)) {
             t.consume();
         } else {
             try {
+                uzivManager.unsetCurrentUser();
                 OracleConnector.closeConnection(true);
             } catch (SQLException ex) {
                 Logger.getLogger(SemestralniPrace.class.getName()).log(Level.SEVERE, null, ex);
@@ -138,15 +151,23 @@ public class SemestralniPrace extends Application {
      * @throws IOException
      */
     private void loadMainScene(Stage stage) throws IOException {
+        // Načtení layoutu hlavní scény start
         FXMLLoader loader = new FXMLLoader(getClass().getResource("FXMLMainScene.fxml"));
         Parent root = loader.load();
         FXMLMainSceneController controller = loader.getController();
+        // Načtení layoutu hlavní scény end
+        
+        // Předání database helperu do hlavní scény pomocí dependency injection
         controller.setDatabaseHelper(dbHelper);
+        
+        // Načte do levého panelu kontakty lokálního uživatele
         controller.loadContactsMenu();
+        
+        // Nastavení akce menu odhlásit tak, aby byl současný uživatel odhlášen
+        // a aplikace se vrátila na přihlašovací obrazovku
         controller.setLogoutAction((t) -> {
             try {
-                uzivManager.setCurrentUser(null);
-                System.out.println(uzivManager.getCurrentUser());
+                uzivManager.unsetCurrentUser();
                 loadLoginScene(stage);
                 stage.setResizable(false);
             } catch (IOException ex) {

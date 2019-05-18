@@ -119,7 +119,7 @@ public class FXMLMainSceneController implements Initializable {
             
             contactsController.setSelectedContactChangedAction((t) -> {
                 loadConversationMenu();
-                updateConversation();
+                conversationController.updateMessages();
             });
             
             contactsController.setSelectedGroupChangedAction((t) -> {
@@ -127,7 +127,14 @@ public class FXMLMainSceneController implements Initializable {
             });
 
             contactsController.setContextMenuShowProfileAction((t) -> {
-                loadAccountMenu(contactsController.getLastRightMouseSelected().getUzivatel());
+                loadAccountMenu(contactsController.getSelectedUsers().get(0));
+            });
+
+            contactsController.setContextMenuSendMessageAction((t) -> {
+                List<Uzivatel> users = contactsController.getSelectedUsers();
+                for (Object user : users) {
+                    System.out.println(user);
+                }
             });
 
             contactsController.setUzivatelManager(db.getUzivatelManager());
@@ -159,6 +166,7 @@ public class FXMLMainSceneController implements Initializable {
                 conversationMenu = loader.load();
                 conversationController = loader.getController();
                 conversationController.setUzivatelManager(db.getUzivatelManager());
+                conversationController.setZpravaManager(db.getZpravaManager());
 
                 // automatická změna velikosti při změně velikosti okna start
                 paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -220,10 +228,6 @@ public class FXMLMainSceneController implements Initializable {
 
     }
 
-    private void updateConversation() {
-        conversationController.generateTexts();
-    }
-
     /**
      * Nastaví pomocnou třídu pro získání dat z databáze
      *
@@ -263,6 +267,8 @@ public class FXMLMainSceneController implements Initializable {
         }
 
         accountController.setEnableButton(uzivatel.getIdUzivatele().equals(db.getUzivatelManager().getCurrentUser().getIdUzivatele()));
+        accountController.setKontaktManager(db.getKontaktManager());
+        accountController.setUzivatelManager(db.getUzivatelManager());
         accountController.updateView(uzivatel);
 
         accountController.setEditButtonAction((t) -> {
@@ -287,17 +293,23 @@ public class FXMLMainSceneController implements Initializable {
                     userListMenu.setPrefHeight((double) newValue);
                 });
 
-                userListController.setAddToContactsAction((t) -> {
-                    Uzivatel kontakt = userListController.getSelected();
+                userListController.setAddToContactsAction((t) -> { // TODO: better
                     Uzivatel uzivatel = db.getUzivatelManager().getCurrentUser();
-                    if (kontakt != null && !kontakt.equals(uzivatel)) {
+                    if (t != null && !t.getIdUzivatele().equals(uzivatel.getIdUzivatele())) {
                         try {
-                            db.getKontaktManager().insertKontakt(kontakt.getIdUzivatele(),
+                            db.getKontaktManager().insertKontakt(t.getIdUzivatele(),
                                     uzivatel.getIdUzivatele(), LocalDate.now(),
                                     LocalDate.now().plusYears(3), "Kontakt");
+                            db.getKontaktManager().insertKontakt(uzivatel.getIdUzivatele(),
+                                    t.getIdUzivatele(), LocalDate.now(),
+                                    LocalDate.now().plusYears(3), "Kontakt");
+                            
+                            contactsController.setContactDataSet(db.getKontaktManager().selectKontakty(uzivatel.getIdUzivatele()));
                         } catch (SQLException ex) {
-                            Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+                            showAlert(ex.getLocalizedMessage());
                         }
+                    }else if (t.getIdUzivatele().equals(uzivatel.getIdUzivatele())) {
+                        showAlert("Sebe sama nelze přidat do kontaktů!");
                     }
                 });
             } catch (IOException ex) {
@@ -502,6 +514,12 @@ public class FXMLMainSceneController implements Initializable {
 
             editUserMenu.setPrefWidth(paneCenter.getWidth());
             editUserMenu.setPrefHeight(paneCenter.getHeight());
+        }
+        
+        try {
+            editUserController.updateViews(uzivatel);
+        } catch (SQLException ex) {
+            Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
