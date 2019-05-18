@@ -19,9 +19,10 @@ import java.util.List;
 public class PredmetManager {
 
     private Connection con;
+    // TODO: Předělat selecty tak, aby používaly pohledy
     private final String SELECT_PREDMETY = "SELECT * FROM PREDMETY";
     private final String SELECT_PREDMET = "SELECT * FROM PREDMETY WHERE id_predmetu = ?";
-    private final String SELECT_PREDMET_BY_ATTRIBUTE = "SELECT * FROM PREDMETY WHERE zkratka_predmetu = ? OR nazev_predmetu = ?";
+    private final String SELECT_PREDMET_BY_ATTRIBUTE = "SELECT * FROM PREDMETY WHERE zkratka_predmetu LIKE ? OR nazev_predmetu LIKE ?";
     private final String INSERT_PREDMET = "INSERT INTO PREDMETY(nazev_predmetu,zkratka_predmetu,popis) VALUES (?,?,?)";
     private final String DELETE = "DELETE FROM PREDMETY WHERE id_predmetu = ?";
     private final String UPDATE_NAZEV = "UPDATE PREDMETY SET nazev_predmetu = ? where id_predmetu = ?";
@@ -33,8 +34,9 @@ public class PredmetManager {
 
     /**
      * Vybere všechny předměty z databáze
+     *
      * @return seznam předmětů
-     * @throws SQLException 
+     * @throws SQLException
      */
     public List<Predmet> selectPredmety() throws SQLException {
         List<Predmet> listSelect = new ArrayList<>();
@@ -50,9 +52,10 @@ public class PredmetManager {
 
     /**
      * Vybere předmět podle id
+     *
      * @param idPredmetu id předmětu
      * @return předmět podle id
-     * @throws SQLException 
+     * @throws SQLException
      */
     public Predmet selectPredmet(int idPredmetu) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(SELECT_PREDMET);
@@ -65,14 +68,16 @@ public class PredmetManager {
 
     /**
      * Vybere předmět podle zkratky nebo názvu
+     *
      * @param attribute zkratka nebo název
      * @return předmět dle atributu
-     * @throws SQLException 
+     * @throws SQLException
      */
     public List<Predmet> selectPredmetyByAttribute(String attribute) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(SELECT_PREDMET_BY_ATTRIBUTE);
-        prepare.setString(1, attribute);
-        prepare.setString(2, attribute);
+        String attr = "%" + attribute + "%";
+        prepare.setString(1, attr);
+        prepare.setString(2, attr);
         List<Predmet> listSelect = new ArrayList<>();
         ResultSet result = prepare.executeQuery();
 
@@ -86,10 +91,11 @@ public class PredmetManager {
 
     /**
      * Vloží předmět do databáze
+     *
      * @param nazev název předmětu
      * @param zkratka zkratka předmětu
      * @param popis popis předmětu
-     * @throws SQLException 
+     * @throws SQLException
      */
     public void insertPredmet(String nazev, String zkratka, String popis) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(INSERT_PREDMET);
@@ -102,8 +108,9 @@ public class PredmetManager {
 
     /**
      * Vymaže předmět z databáze
+     *
      * @param idPredmetu id předmětu pro smazání
-     * @throws SQLException 
+     * @throws SQLException
      */
     public void deletePredmet(int idPredmetu) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(DELETE);
@@ -114,11 +121,12 @@ public class PredmetManager {
 
     /**
      * Aktualizuje předmět dle parametrů
+     *
      * @param nazevPredmetu název předmětu
      * @param zkratkaPredmetu zkratka předmětu
      * @param popis popis předmětu
      * @param idPredmetu id předmětu
-     * @throws SQLException 
+     * @throws SQLException
      */
     public void updatePredmet(String nazevPredmetu, String zkratkaPredmetu, String popis, int idPredmetu) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(UPDATE_PREDMET);

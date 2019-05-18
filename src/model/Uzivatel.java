@@ -22,6 +22,7 @@ public class Uzivatel {
     private int rokStudia;
     private int blokace;
     private List<Kontakt> kontakty;
+    private List<Role> role;
     private String poznamka;
     private int online = 0;
     private boolean admin;
@@ -81,6 +82,10 @@ public class Uzivatel {
 
     public boolean isAdmin() {
         return admin;
+    }
+    
+    public List<Role> getRole(){
+        return role;
     }
     
     @Override

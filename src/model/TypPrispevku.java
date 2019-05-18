@@ -10,6 +10,7 @@ package model;
  * @author Lukas
  */
 public class TypPrispevku {
+    //TODO: DELETE
     private int idTypuPrispevku;
     private String nazev;
     private String zkratka;

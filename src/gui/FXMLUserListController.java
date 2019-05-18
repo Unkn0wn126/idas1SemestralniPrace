@@ -28,14 +28,14 @@ import model.Uzivatel;
  * @author Lukas
  */
 public class FXMLUserListController implements Initializable {
-    
+
     @FXML
     private ListView<Uzivatel> listViewUzivatele;
     @FXML
     private Label lblTitle;
-    
+
     private ObservableList<Uzivatel> dataset = FXCollections.observableArrayList();
-    
+
     private Consumer<Uzivatel> addToContactsAction;
     private Consumer<Uzivatel> showProfileAction;
 
@@ -49,25 +49,25 @@ public class FXMLUserListController implements Initializable {
             return new UzivatelListCell(addContextMenuContact());
         });
     }
-    
+
     public void setDataSet(List<Uzivatel> uzivatele) {
         dataset.clear();
         dataset.addAll(uzivatele);
     }
-    
-    public void setAddToContactsAction(Consumer<Uzivatel> addToContactsAction){
+
+    public void setAddToContactsAction(Consumer<Uzivatel> addToContactsAction) {
         this.addToContactsAction = addToContactsAction;
     }
-    
-    public Uzivatel getSelected(){
+
+    public Uzivatel getSelected() {
         return listViewUzivatele.getSelectionModel().getSelectedItem();
     }
-    
-        public void setContextMenuShowProfileAction(Consumer<Uzivatel> showProfileAction) {
+
+    public void setContextMenuShowProfileAction(Consumer<Uzivatel> showProfileAction) {
         this.showProfileAction = showProfileAction;
     }
-        
-            /**
+
+    /**
      * Vytvoří kontextové menu pro daný panel kontaktu
      *
      * @return
@@ -80,7 +80,7 @@ public class FXMLUserListController implements Initializable {
                 showProfileAction.accept(listViewUzivatele.getSelectionModel().getSelectedItem());
             }
         });
-        
+
         MenuItem addToContacts = new MenuItem("Přidat do kontaktů");
         addToContacts.setOnAction((event) -> {
             if (addToContactsAction != null) {
@@ -89,12 +89,5 @@ public class FXMLUserListController implements Initializable {
         });
         contextMenu.getItems().addAll(showDetails, addToContacts);
         return contextMenu;
-    }
-
-    @FXML
-    private void handleBtnPridatDoKontaktuAction(ActionEvent event) {
-        if (addToContactsAction != null) {
-            addToContactsAction.accept(listViewUzivatele.getSelectionModel().getSelectedItem());
-        }
     }
 }

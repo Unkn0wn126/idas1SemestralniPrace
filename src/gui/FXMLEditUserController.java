@@ -7,6 +7,7 @@ package gui;
 
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import javafx.collections.FXCollections;
@@ -18,11 +19,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import model.KontaktManager;
 import model.StudijniPlan;
 import model.StudijniPlanManager;
 import model.Uzivatel;
-import model.UzivatelManager;
 
 /**
  * FXML Controller class
@@ -31,12 +30,9 @@ import model.UzivatelManager;
  */
 public class FXMLEditUserController implements Initializable {
     
-    private Consumer<ActionEvent> btnCancelEvent;
+    private Consumer<Uzivatel> btnCancelEvent;
     private Consumer<ActionEvent> btnSaveEvent;
-    private UzivatelManager uzivatelManager;
     private Uzivatel uzivatel;
-    private KontaktManager kontaktManager;
-    private StudijniPlanManager studijniPlanManager;
     
     @FXML
     private TextField tfJmeno;
@@ -57,6 +53,8 @@ public class FXMLEditUserController implements Initializable {
     
     private ObservableList<StudijniPlan> studijniPlany = FXCollections.observableArrayList();
     private ObservableList<Integer> rocniky = FXCollections.observableArrayList();
+    @FXML
+    private TextField tfStareHeslo;
 
     /**
      * Initializes the controller class.
@@ -68,12 +66,8 @@ public class FXMLEditUserController implements Initializable {
         cbPlan.setItems(studijniPlany);
     }    
     
-    public void updateViews(Uzivatel uzivatel) throws SQLException{ // TODO: dodělat zobrazení studijních plánů
+    public void updateViews(Uzivatel uzivatel){ // TODO: dodělat zobrazení studijních plánů
         this.uzivatel = uzivatel;
-        if (studijniPlanManager != null) {
-            studijniPlany.clear();
-            studijniPlany.addAll(studijniPlanManager.selectStudijniPlany());
-        }
         tfEmail.setText(uzivatel.getEmail());
         tfJmeno.setText(uzivatel.getJmeno());
         tfPrijmeni.setText(uzivatel.getPrijmeni());
@@ -84,11 +78,16 @@ public class FXMLEditUserController implements Initializable {
     @FXML
     private void handleBtnZrusitAction(ActionEvent event) {
         if (btnCancelEvent != null) {
-            btnCancelEvent.accept(event);
+            btnCancelEvent.accept(uzivatel);
         }
     }
     
-    public void setBtnCancelEvent(Consumer<ActionEvent> btnCancelEvent){
+    public void updateStudijniPlany(List<StudijniPlan> plany){
+        studijniPlany.clear();
+        studijniPlany.addAll(plany);
+    }
+    
+    public void setBtnCancelEvent(Consumer<Uzivatel> btnCancelEvent){
         this.btnCancelEvent = btnCancelEvent;
     }
 

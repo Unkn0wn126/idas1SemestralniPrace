@@ -19,8 +19,10 @@ import java.util.List;
 public class StudijniPlanManager {
 
     private Connection con;
+    // TODO: Předělat selecty tak, aby používaly pohledy
     private final String SELECT_STUDIJNI_PLANY = "SELECT * FROM STUDIJNI_PLANY";
     private final String SELECT_STUDIJNI_PLAN = "SELECT * FROM STUDIJNI_PLANY WHERE id_planu = ?";
+    private final String SELECT_STUDIJNI_PLAN_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_PLANY WHERE nazev LIKE ?";
     private final String INSERT_STUDIJNI_PLAN = "INSERT INTO STUDIJNI_PLANY(id_planu,studijni_obory_id_oboru, popis) VALUES (?,?,?)";
     private final String DELETE = "DELETE FROM STUDIJNI_PLANY WHERE id_planu = ?";
     private final String UPDATE_STUDIJNI_PLAN = "UPDATE STUDIJNI_PLANY SET nazev = ?, popis = ? where id_planu = ?";
@@ -50,16 +52,27 @@ public class StudijniPlanManager {
         return plan;
     }
 
-    public void insertStudijniPlan(String nazev, StudijniObor obor, String popis) throws SQLException {
+    public List<StudijniPlan> selectStudijniPlanByAttribute(String nazev) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SELECT_STUDIJNI_PLAN_BY_ATTRIBUTE);
+        prepare.setString(1, "%" + nazev + "%");
+        List<StudijniPlan> listSelect = new ArrayList<>();
+        ResultSet result = prepare.executeQuery();
+        while (result.next()) {
+            listSelect.add(new StudijniPlan(result.getInt("id_planu"), result.getString("nazev"), result.getInt("id_oboru"), result.getString("popis")));
+        }
+        return listSelect;
+    }
+
+    public void insertStudijniPlan(String nazev, int idOboru, String popis) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(INSERT_STUDIJNI_PLAN);
         prepare.setString(1, nazev);
-        prepare.setInt(2, obor.getIdOboru());
+        prepare.setInt(2, idOboru);
         prepare.setString(3, popis);
         prepare.execute();
         con.commit();
     }
-    
-        /**
+
+    /**
      * Vymaže obor z databáze
      *
      * @param idOboru id oboru pro smazání

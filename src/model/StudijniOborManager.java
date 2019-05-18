@@ -21,9 +21,10 @@ import java.util.List;
 public class StudijniOborManager {
 
     private Connection con;
+    // TODO: Předělat selecty tak, aby používaly pohledy
     private final String SELECT_STUDIJNI_OBORY = "SELECT * FROM STUDIJNI_OBORY";
     private final String SELECT_STUDIJNI_OBOR = "SELECT * FROM STUDIJNI_OBORY WHERE id_oboru = ?";
-    private final String SELECT_STUDIJNI_OBORY_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_OBORY WHERE nazev = ? OR zkratka_oboru = ?";
+    private final String SELECT_STUDIJNI_OBORY_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_OBORY WHERE nazev LIKE ? OR zkratka_oboru LIKE ?";
     private final String INSERT_STUDIJNI_OBOR = "INSERT INTO STUDIJNI_OBORY(NAZEV, ZKRATKA_OBORU, POPIS, AKREDITACE_DO) VALUES (?,?,?,?)";
     private final String DELETE = "DELETE FROM STUDIJNI_OBORY WHERE id_oboru = ?";
     private final String UPDATE_OBOR = "UPDATE STUDIJNI_OBORY SET nazev = ?, popis = ?, akreditace_do = ?  where id_oboru = ?";
@@ -62,8 +63,9 @@ public class StudijniOborManager {
     public List<StudijniObor> selectStudijniOboryByAttribute(String attribute) throws SQLException {
         List<StudijniObor> listSelect = new ArrayList<>();
         PreparedStatement prepare = con.prepareStatement(SELECT_STUDIJNI_OBORY_BY_ATTRIBUTE);
-        prepare.setString(1, attribute);
-        prepare.setString(2, attribute);
+        String attr = "%" + attribute + "%";
+        prepare.setString(1, attr);
+        prepare.setString(2, attr);
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {

@@ -21,6 +21,7 @@ import java.util.List;
 public class KontaktManager {
 
     private Connection con;
+    // TODO: Předělat selecty tak, aby používaly pohledy
     private final String SELECT_KONTAKTY = "SELECT * FROM KONTAKTY WHERE uzivatele_id_uzivatele = ?";
     private final String SELECT_KONTAKT = "SELECT * FROM KONTAKTY WHERE id_kontaktu = ? AND uzivatele_id_uzivatele = ?";
     private final String INSERT_KONTAKT = "INSERT INTO KONTAKTY(id_kontaktu,uzivatele_id_uzivatele,datum_od, datum_do, platnost, poznamka) VALUES (?,?,?,?,?,?)";
@@ -32,9 +33,10 @@ public class KontaktManager {
 
     /**
      * Vybere všechny kontakty daného uživatele
+     *
      * @param id_uzivatele id uživatele
      * @return seznam kontaktů uživatele
-     * @throws SQLException 
+     * @throws SQLException
      */
     public List<Kontakt> selectKontakty(String id_uzivatele) throws SQLException {
         List<Kontakt> listSelect = new ArrayList<>();
@@ -54,10 +56,11 @@ public class KontaktManager {
 
     /**
      * Vybere kontakt uživatele
+     *
      * @param id_kontaktu id kontaktu
      * @param id_uzivatele id uživatele
      * @return kontakt
-     * @throws SQLException 
+     * @throws SQLException
      */
     public Kontakt selectKontakt(String id_kontaktu, String id_uzivatele) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(SELECT_KONTAKT);
@@ -74,12 +77,13 @@ public class KontaktManager {
 
     /**
      * Vloží kontakt do databáze
+     *
      * @param id_kontaktu id kontaktu
      * @param id_uzivatele id uživatele
      * @param datumOd počáteční platnost
      * @param datumDo koncová platnost
      * @param poznamka poznámka
-     * @throws SQLException 
+     * @throws SQLException
      */
     public void insertKontakt(String id_kontaktu, String id_uzivatele, LocalDate datumOd, LocalDate datumDo, String poznamka) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(INSERT_KONTAKT);
@@ -96,9 +100,10 @@ public class KontaktManager {
 
     /**
      * Smaže kontakt z databáze
+     *
      * @param idKontaktu id kontaktu
      * @param idUzivatele id uživatele
-     * @throws SQLException 
+     * @throws SQLException
      */
     public void deleteKontakt(String idKontaktu, String idUzivatele) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(DELETE);

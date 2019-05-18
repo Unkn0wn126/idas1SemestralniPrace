@@ -24,7 +24,7 @@
       <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
    </rowConstraints>
    <children>
-      <TabPane GridPane.rowIndex="1">
+      <TabPane fx:id="tabPane" GridPane.rowIndex="1">
          <tabs>
             <Tab closable="false" text="Základní informace">
                <content>
@@ -113,12 +113,12 @@
                               </FlowPane>
                               <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                                  <children>
-                                    <Label fx:id="tfRole" text="N/A" />
+                                    <Label fx:id="lblRole" text="N/A" />
                                  </children>
                               </FlowPane>
                               <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                  <children>
-                                    <Label fx:id="tfBan" text="N/A" />
+                                    <Label fx:id="lblBan" text="N/A" />
                                  </children>
                               </FlowPane>
                            </children>

@@ -68,7 +68,7 @@ public class StudijniObor {
     
     @Override
     public String toString(){
-        return String.format("Název: %s, Zkratka: %s, Popis: %s, Akreditace do: %s", nazev, zkratka, popis, akreditaceDo.toString());
+        return String.format("%s", nazev);
     }
     
     

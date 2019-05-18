@@ -20,10 +20,10 @@ public class UzivatelManager {
 
     private Connection con;
     private Uzivatel currentUser;
-
+    // TODO: Předělat selecty tak, aby používaly pohledy
     private final String SELECT_UZIVATELE = "SELECT * FROM UZIVATELE";
     private final String SELECT_UZIVATEL_BY_ID = "SELECT * FROM UZIVATELE WHERE id_uzivatele = ?";
-    private final String SELECT_UZIVATEL_BY_ATTRIBUTE = "SELECT * FROM UZIVATELE WHERE id_uzivatele = ? OR jmeno = ? OR prijmeni = ?";
+    private final String SELECT_UZIVATEL_BY_ATTRIBUTE = "SELECT * FROM UZIVATELE WHERE jmeno LIKE ? OR prijmeni LIKE ?";
     private final String SELECT_UZIVATEL_LOGIN = "SELECT * FROM UZIVATELE WHERE login = ? AND heslo = ?";
     private final String SELECT_COUNT = "SELECT COUNT(*) from UZIVATELE";
     private final String INSERT_UZIVATEL = "INSERT INTO UZIVATELE(login, heslo, jmeno, prijmeni, rok_studia, eml, blokace, poznamka) VALUES (?,?,?,?,?,?,?,?)";
@@ -80,9 +80,8 @@ public class UzivatelManager {
     public List<Uzivatel> selectUzivateleByAttributes(String attribut) throws SQLException {
         List<Uzivatel> listSelect = new ArrayList<>();
         PreparedStatement prepare = con.prepareStatement(SELECT_UZIVATEL_BY_ATTRIBUTE);
-        prepare.setString(1, attribut);
-        prepare.setString(2, attribut);
-        prepare.setString(3, attribut);
+        prepare.setString(1, "%" + attribut + "%");
+        prepare.setString(2, "%" + attribut + "%");
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {

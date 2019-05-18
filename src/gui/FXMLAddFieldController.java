@@ -49,23 +49,41 @@ public class FXMLAddFieldController implements Initializable {
         this.btnCancelAction = btnCancelAction;
     }
 
-    public String getNazev() {
+    public String getNazev() throws IllegalArgumentException {
+        String nazev = tfNazev.getText();
+        if (nazev.length() > 50 || nazev.length() == 0) {
+            throw new IllegalArgumentException("Název musí být maximálně 50 "
+                    + "znaků dlouhý a nesmí být prázdný");
+        }
         return tfNazev.getText();
     }
 
-    public String getZkratka() {
+    public String getZkratka() throws IllegalArgumentException {
+        String zkratka = tfZkratkaOboru.getText();
+        if (zkratka.length() > 5 || zkratka.length() == 0) {
+            throw new IllegalArgumentException("Zkratka musí být maximálně 5 "
+                    + "znaků dlouhý a nesmí být prázdná");
+        }
         return tfZkratkaOboru.getText();
     }
 
-    public String getPopis() {
+    public String getPopis() throws IllegalArgumentException {
+        String popis = tfPopis.getText();
+        if (popis.length() > 300) {
+            throw new IllegalArgumentException("Popis musí být maximálně 300 "
+                    + "znaků dlouhý");
+        }
         return tfPopis.getText();
     }
 
-    public LocalDate getAkreditaceDo() {
+    public LocalDate getAkreditaceDo() throws IllegalArgumentException {
+        if (dpAkreditace.getValue() == null) {
+            throw new IllegalArgumentException("Neplatné datum");
+        }
         return dpAkreditace.getValue();
     }
-    
-    public void clearInputs(){
+
+    public void clearInputs() {
         tfNazev.setText(null);
         tfPopis.setText(null);
         tfZkratkaOboru.setText(null);

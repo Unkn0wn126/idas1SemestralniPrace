@@ -38,9 +38,10 @@ public class FXMLContactsController implements Initializable {
 
     private Consumer<Uzivatel> showProfileAction;
     private Consumer<List<Uzivatel>> sendMessageAction;
-    private Consumer<ActionEvent> showGroupMembersAction;
-    private Consumer<ActionEvent> selectedContactChangedAction;
-    private Consumer<ActionEvent> selectedGroupChangedAction;
+    private Consumer<Skupina> showGroupMembersAction;
+    private Consumer<Uzivatel> selectedContactChangedAction;
+    private Consumer<Uzivatel> removeContactAction;
+    private Consumer<Skupina> selectedGroupChangedAction;
 
     private ObservableList<Kontakt> kontakty = FXCollections.observableArrayList();
     private ObservableList<Uzivatel> uzivatele = FXCollections.observableArrayList();
@@ -71,17 +72,25 @@ public class FXMLContactsController implements Initializable {
 
         listViewKontakty.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-        listViewKontakty.getSelectionModel().selectedItemProperty().addListener((observable) -> {
-            if (selectedContactChangedAction != null) {
-                listViewGroups.getSelectionModel().select(null);
-                selectedContactChangedAction.accept(null);
+        listViewKontakty.setOnMousePressed((event) -> {
+            switch (event.getButton()) {
+                case PRIMARY:
+                    if (selectedContactChangedAction != null) {
+                        selectedContactChangedAction.accept(listViewKontakty.getSelectionModel().getSelectedItem());
+                    }
+                    break;
             }
+
         });
 
-        listViewGroups.getSelectionModel().selectedItemProperty().addListener((observable) -> {
-            if (selectedGroupChangedAction != null) {
-                listViewKontakty.getSelectionModel().select(null);
-                selectedGroupChangedAction.accept(null);
+        listViewGroups.setOnMousePressed((event) -> {
+            switch (event.getButton()) {
+                case PRIMARY:
+                    if (selectedGroupChangedAction != null) {
+                        listViewKontakty.getSelectionModel().select(null);
+                        selectedGroupChangedAction.accept(listViewGroups.getSelectionModel().getSelectedItem());
+                    }
+                    break;
             }
         });
 
@@ -100,12 +109,16 @@ public class FXMLContactsController implements Initializable {
 
     }
 
-    public void setSelectedContactChangedAction(Consumer<ActionEvent> selectedContactChangedAction) {
+    public void setSelectedContactChangedAction(Consumer<Uzivatel> selectedContactChangedAction) {
         this.selectedContactChangedAction = selectedContactChangedAction;
     }
 
-    public void setSelectedGroupChangedAction(Consumer<ActionEvent> selectedGroupChangedAction) {
+    public void setSelectedGroupChangedAction(Consumer<Skupina> selectedGroupChangedAction) {
         this.selectedGroupChangedAction = selectedGroupChangedAction;
+    }
+
+    public void setShowGroupMembersAction(Consumer<Skupina> showGroupMembersAction) {
+        this.showGroupMembersAction = showGroupMembersAction;
     }
 
     /**
@@ -118,7 +131,7 @@ public class FXMLContactsController implements Initializable {
         MenuItem showMembers = new MenuItem("Zobrazit členy skupiny");
         showMembers.setOnAction((event) -> {
             if (showGroupMembersAction != null) {
-                showGroupMembersAction.accept(event);
+                showGroupMembersAction.accept(listViewGroups.getSelectionModel().getSelectedItem());
             }
         });
         contextMenu.getItems().addAll(showMembers);
@@ -147,11 +160,12 @@ public class FXMLContactsController implements Initializable {
         });
 
         MenuItem removeContact = new MenuItem("Odebrat kontakt");
-        sendMessage.setOnAction((event) -> {
-            if (sendMessageAction != null) {
-                sendMessageAction.accept(listViewKontakty.getSelectionModel().getSelectedItems());
+        removeContact.setOnAction((event) -> {
+            if (removeContactAction != null) {
+                removeContactAction.accept(listViewKontakty.getSelectionModel().getSelectedItem());
             }
         });
+        
         contextMenu.getItems().addAll(showDetails, sendMessage, removeContact);
         return contextMenu;
     }
@@ -162,6 +176,10 @@ public class FXMLContactsController implements Initializable {
 
     public void setContextMenuSendMessageAction(Consumer<List<Uzivatel>> sendMessageAction) {
         this.sendMessageAction = sendMessageAction;
+    }
+
+    public void setRemoveContactAction(Consumer<Uzivatel> removeContactAction) {
+        this.removeContactAction = removeContactAction;
     }
 
     private void fillGroupSection() {

@@ -50,15 +50,29 @@ public class FXMLAddCurriculumController implements Initializable {
         studijniObory.addAll(obory);
     }
 
-    public String getNazev() {
+    public String getNazev() throws IllegalArgumentException{
+        String nazev = tfNazev.getText();
+        if (nazev.length() > 50 || nazev.length() == 0) {
+            throw new IllegalArgumentException("Název nesmí být prázdný "
+                    + "a musí být do 50 znaků včetně");
+        }
         return tfNazev.getText();
     }
 
-    public String getPopis() {
+    public String getPopis() throws IllegalArgumentException{
+        String popis = tfPopis.getText();
+        if (popis.length() > 300) {
+            throw new IllegalArgumentException("Popis musí být dlouhý"
+                    + " do 300 znaků včetně");
+        }
         return tfPopis.getText();
     }
 
-    public StudijniObor getObor() {
+    public StudijniObor getObor() throws IllegalArgumentException{
+        StudijniObor obor = cbObor.getValue();
+        if (obor == null) {
+            throw new IllegalArgumentException("Neplatný obor");
+        }
         return cbObor.getValue();
     }
 
@@ -68,6 +82,12 @@ public class FXMLAddCurriculumController implements Initializable {
 
     public void setBtnCancelAction(Consumer<ActionEvent> btnCancelAction) {
         this.btnCancelAction = btnCancelAction;
+    }
+    
+    public void clearInputs(){
+        tfNazev.setText(null);
+        tfPopis.setText(null);
+        cbObor.getSelectionModel().clearSelection();
     }
     
 

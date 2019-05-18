@@ -19,7 +19,9 @@ import java.util.List;
  * @author Lukas
  */
 public class ZpravaManager {
-        private Connection con;
+
+    private Connection con;
+    // TODO: Předělat selecty tak, aby používaly pohledy
     private final String SELECT_ZPRAVY = "SELECT * FROM ZPRAVY";
     private final String SELECT_ZPRAVA = "SELECT * FROM ZPRAVY WHERE id_zpravy = ?";
     private final String INSERT_ZPRAVA = "INSERT INTO ZPRAVY(nazev,obsah_zpravy,cas_odeslani, odesilatel) VALUES (?,?,?,?)";
@@ -60,9 +62,9 @@ public class ZpravaManager {
         prepare.setInt(1, idRole);
         Zprava zprava;
         ResultSet result = prepare.executeQuery();
-        zprava = new Zprava(result.getInt("id_zpravy"), 
-                result.getString("nazev"), 
-                result.getTimestamp("cas_odeslani").toLocalDateTime(), 
+        zprava = new Zprava(result.getInt("id_zpravy"),
+                result.getString("nazev"),
+                result.getTimestamp("cas_odeslani").toLocalDateTime(),
                 result.getString("odesilatel"));
         return zprava;
     }
@@ -98,13 +100,13 @@ public class ZpravaManager {
         con.commit();
     }
 
-    
     /**
      * Aktualizuje zprávu dle parametrů
+     *
      * @param nazev název zprávy
      * @param obsah obsah zprávy
      * @param idZpravy id zprávy
-     * @throws SQLException 
+     * @throws SQLException
      */
     public void updateZprava(String nazev, String obsah, int idZpravy) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(UPDATE_ZPRAVA);

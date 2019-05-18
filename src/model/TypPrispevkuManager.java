@@ -17,6 +17,7 @@ import java.util.List;
  * @author Lukas
  */
 public class TypPrispevkuManager {
+    // TODO: DELETE
         private Connection con;
     private final String SELECT_TYPY_PRISPEVKU = "SELECT * FROM TYPY_PRISPEVKU";
     private final String SELECT_TYP_PRISPEVKU = "SELECT * FROM TYPY_PRISPEVKU WHERE id_typ_prispevku = ?";

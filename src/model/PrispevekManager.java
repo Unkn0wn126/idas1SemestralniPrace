@@ -19,6 +19,7 @@ import java.util.List;
 public class PrispevekManager {
 
     private Connection con;
+    // TODO: Předělat selecty tak, aby používaly pohledy
     private final String SELECT_PRISPEVKY = "SELECT * FROM PRISPEVKY";
     private final String SELECT_PRISPEVEK = "SELECT * FROM PRISPEVKY WHERE id_prispevku = ?";
     private final String SELECT_KOMENTARE = "SELECT p.* FROM PRISPEVKY, c.* FROM PRISPEVKY,  WHERE p.prispevky_id_prispevku = c.id_prispevku AND p.prispevky_id_prispevku = ?";
@@ -113,15 +114,15 @@ public class PrispevekManager {
         prepare.execute();
         con.commit();
     }
-    
-    
+
     /**
      * Aktualizuje příspěvek
+     *
      * @param nazev název příspěvku
      * @param obsah obsah příspěvku
      * @param blokace blokace příspěvku
      * @param id_prispevku id příspěvku
-     * @throws SQLException 
+     * @throws SQLException
      */
     public void updatePrispevek(String nazev, String obsah, int blokace, int id_prispevku) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(UPDATE_PRISPEVEK);

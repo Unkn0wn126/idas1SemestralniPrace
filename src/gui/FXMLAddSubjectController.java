@@ -26,7 +26,7 @@ public class FXMLAddSubjectController implements Initializable {
     private TextField tfZkratkaPredmetu;
     @FXML
     private TextField tfNazevPredmetu;
-    
+
     private Consumer<ActionEvent> btnSaveAction;
     private Consumer<ActionEvent> btnCancelAction;
 
@@ -37,16 +37,37 @@ public class FXMLAddSubjectController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
     }
 
-    public String getPopis() {
-        return tfPopis.getText();
+    public String getPopis() throws IllegalArgumentException {
+        String popis = tfPopis.getText();
+        if (popis.length() > 300) {
+            throw new IllegalArgumentException("Popis může být dlouhý "
+                    + "maximálně 300 znaků včetně");
+        }
+        return popis;
     }
 
-    public String getZkratkaPredmetu() {
-        return tfZkratkaPredmetu.getText();
+    public String getZkratkaPredmetu() throws IllegalArgumentException {
+        String zkratka = tfZkratkaPredmetu.getText();
+        if (zkratka.length() > 5 || zkratka.length() == 0) {
+            throw new IllegalArgumentException("Zkratka může být dlouhá "
+                    + "maximálně 5 znaků včetně a nesmí být prázdná");
+        }
+        return zkratka;
     }
 
-    public String getNazevPredmetu() {
-        return tfNazevPredmetu.getText();
+    public String getNazevPredmetu() throws IllegalArgumentException {
+        String nazev = tfNazevPredmetu.getText();
+        if (nazev.length() > 100 || nazev.length() == 0) {
+            throw new IllegalArgumentException("Název může být dlouhý "
+                    + "maximálně 100 znaků včetně a nesmí být prázdný");
+        }
+        return nazev;
+    }
+    
+    public void clearInputs(){
+        tfNazevPredmetu.setText(null);
+        tfPopis.setText(null);
+        tfZkratkaPredmetu.setText(null);
     }
 
     public void setBtnSaveAction(Consumer<ActionEvent> btnSaveAction) {

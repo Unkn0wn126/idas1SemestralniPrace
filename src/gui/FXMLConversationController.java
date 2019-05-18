@@ -22,6 +22,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
+import model.Uzivatel;
 import model.UzivatelManager;
 import model.Zprava;
 import model.ZpravaManager;
@@ -80,7 +81,7 @@ public class FXMLConversationController implements Initializable {
         this.zpravaManager = zpravaManager;
     }
     
-    public void updateMessages(){ // TODO: napojit na databázi tak, aby se zobrazovaly zprávy s daným kontaktem
+    public void updateMessages(Uzivatel uzivatel){ // TODO: napojit na databázi tak, aby se zobrazovaly zprávy s daným kontaktem
         zpravy.clear();
         if (zpravaManager != null) {
             try {
