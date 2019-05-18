@@ -172,6 +172,9 @@ public class SemestralniPrace extends Application {
         // Načte do levého panelu kontakty lokálního uživatele
         controller.loadContactsMenu();
         
+        // Zpřístupní nebo zakáže administrátorské funkce
+        controller.setAdminPermissions();
+        
         // Nastavení akce menu odhlásit tak, aby byl současný uživatel odhlášen
         // a aplikace se vrátila na přihlašovací obrazovku
         controller.setLogoutAction((t) -> {
