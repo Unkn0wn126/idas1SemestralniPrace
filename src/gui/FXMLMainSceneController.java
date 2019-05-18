@@ -20,8 +20,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.SubScene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Menu;
 import javafx.scene.control.TextInputDialog;
@@ -39,9 +37,12 @@ import model.Uzivatel;
  */
 public class FXMLMainSceneController implements Initializable {
 
-    private DatabaseHelper db; // pro předávání dat z databáze
+    /**
+     * Instance třídy pro ovládání databáze
+     */
+    private DatabaseHelper db;
 
-    // Controllers
+    // Controllers start
     private FXMLLoader loader;
     private FXMLContactsController contactsController;
     private FXMLConversationController conversationController;
@@ -56,8 +57,9 @@ public class FXMLMainSceneController implements Initializable {
     private FXMLAddSubjectController addSubjectController;
     private FXMLAddCurriculumController addCurriculumController;
     private FXMLAddFieldController addFieldController;
+    // Controllers end
 
-    // Sub-scene nodes
+    // Layouty podscén start
     private GridPane contactsMenu;
     private GridPane conversationMenu;
     private GridPane groupFeedMenu;
@@ -71,20 +73,35 @@ public class FXMLMainSceneController implements Initializable {
     private GridPane addSubjectMenu;
     private GridPane addCurriculumMenu;
     private GridPane addFieldMenu;
+    // Layouty podscén end
 
+    /**
+     * Levý panel
+     */
     @FXML
     private FlowPane paneLeft;
+    /**
+     * Hlavní panel
+     */
     @FXML
     private FlowPane paneCenter;
 
+    /**
+     * Akce, která se má provést pro odhlášení
+     */
     private Consumer<ActionEvent> logoutAction;
+
+    /**
+     * Menu pro přidávání nových záznamů Přístupné pouze uživateli s rolí
+     * administrátora
+     */
     @FXML
-    private Menu menuPridat;
+    private Menu menuPridat; // TODO: Zpřístupnit pouze adminovi
 
     /**
      * Nastaví akci, která se má provést při pokusu o odhlášení uživatele
      *
-     * @param logoutAction akce, která se má provést
+     * @param logoutAction akce, která se má provést pro odhlášení
      */
     public void setLogoutAction(Consumer<ActionEvent> logoutAction) {
         this.logoutAction = logoutAction;
@@ -97,50 +114,111 @@ public class FXMLMainSceneController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
     }
 
+    /**
+     * Nastaví automatickou změnu velikosti potomka podle rodiče
+     * @param parent rodič
+     * @param child potomek
+     */
+    private void setAutoResize(FlowPane parent, GridPane child) {
+        parent.widthProperty().addListener((observable, oldValue, newValue) -> {
+            child.setPrefWidth((double) newValue);
+        });
+
+        parent.heightProperty().addListener((observable, oldValue, newValue) -> {
+            child.setPrefHeight((double) newValue);
+        });
+    }
+
+    /**
+     * Nastaví automatickou změnu velikosti potomka hlavního panelu
+     * @param child potomek hlavního panelu
+     */
+    private void setAutoResizeCenter(GridPane child) {
+        setAutoResize(paneCenter, child);
+    }
+
+    /**
+     * Aktualizuje rozměry potomka podle rodiče
+     * @param parent rodič
+     * @param child potomek
+     */
+    private void updateDimensions(FlowPane parent, GridPane child) {
+        child.setPrefWidth(parent.getWidth());
+        child.setPrefHeight(parent.getHeight());
+    }
+
+    /**
+     * Aktualizuje rozměry potomka hlavního panelu
+     * @param child potomek hlavního panelu
+     */
+    private void updateDimensionsCenter(GridPane child) {
+        updateDimensions(paneCenter, child);
+    }
+
+    /**
+     * Načte současně aktivní menu hlavního panelu
+     * @param child menu pro načtení
+     */
+    private void loadCurrentMenu(GridPane child) {
+        // Menu není načteno v hlavním panelu
+        if (!paneCenter.getChildren().contains(child)) {
+            paneCenter.getChildren().clear();
+            paneCenter.getChildren().add(child);
+
+            updateDimensionsCenter(child);
+        }
+    }
+
+    /**
+     * Načte seznam kontaktů a skupin uživatele do levého panelu
+     */
     public void loadContactsMenu() {
         loader = new FXMLLoader();
         try {
-            // Načtení panelu s kontakty a skupinami
+            // Načtení layoutu kontaktů a skupin start
             loader.setLocation(getClass().getResource("FXMLContacts.fxml"));
             contactsMenu = loader.load();
             contactsController = loader.getController();
 
-            // automatická změna velikosti při změně velikosti okna start
-            paneLeft.widthProperty().addListener((observable, oldValue, newValue) -> {
-                contactsMenu.setPrefWidth((double) newValue);
-            });
-            
-            paneLeft.heightProperty().addListener((observable, oldValue, newValue) -> {
-                contactsMenu.setPrefHeight((double) newValue);
-            });
-            // automatická změna velikosti při změně velikosti okna end
-            
+            setAutoResize(paneLeft, contactsMenu);
+
             paneLeft.getChildren().add(contactsMenu);
-            
+            // Načtení layoutu kontaktů a skupin end
+
+            // Při kliknutí na kontakt se načte konverzace s daným kontaktem
             contactsController.setSelectedContactChangedAction((t) -> {
-                loadConversationMenu();
-                conversationController.updateMessages();
+                loadConversationMenu(); // načtení scény konverzace
+                conversationController.updateMessages(); // update dat
             });
-            
+
+            // Pri kliknutí na skupinu se načte seznam zpráv v dané skupině
             contactsController.setSelectedGroupChangedAction((t) -> {
                 loadGroupFeedMenu();
             });
 
+            // Při kliknutí na kontextovou možnost "zobrazit profil" se
+            // zobrazí informace o profilu vybraného uživatele
             contactsController.setContextMenuShowProfileAction((t) -> {
                 loadAccountMenu(contactsController.getSelectedUsers().get(0));
             });
 
+            // Při kliknutí na kontextovou možnost "poslat zprávu" se zobrazí
+            // menu pro posílání zpráv. Výběrem vícero kontaktů dojde k možnosti
+            // poslat zprávu více kontaktům
             contactsController.setContextMenuSendMessageAction((t) -> {
+                // Získání seznamu vybraných uživatelů
                 List<Uzivatel> users = contactsController.getSelectedUsers();
-                for (Object user : users) {
+                for (Object user : users) { // TODO: Dodělat akci pro zasílání zpráv
                     System.out.println(user);
                 }
             });
 
+            // Vložení potřebné instance třídy pro ovládání tabulky UZIVATELE
             contactsController.setUzivatelManager(db.getUzivatelManager());
-            contactsController.setContactDataSet(db.getKontaktManager().selectKontakty(db.getUzivatelManager().getCurrentUser().getIdUzivatele()));
 
-            // Načtení konverzace
+            // Nastavení dat pro zobrazení
+            // TODO: Předělat, aby používalo joiny (možná bude stačit jenom KontaktManager...)
+            contactsController.setContactDataSet(db.getKontaktManager().selectKontakty(db.getUzivatelManager().getCurrentUser().getIdUzivatele()));
         } catch (IOException ex) {
             Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
@@ -150,7 +228,7 @@ public class FXMLMainSceneController implements Initializable {
 
     @FXML
     private void handleMenuItemLogoutAction(ActionEvent event) {
-        if (logoutAction != null) {
+        if (logoutAction != null) { // Ošetření nullPointerException
             logoutAction.accept(event);
         }
     }
@@ -158,78 +236,55 @@ public class FXMLMainSceneController implements Initializable {
     /**
      * Načte menu s konverzací s kontaktem
      */
-    private void loadConversationMenu() {
-        if (conversationMenu == null) {
+    private void loadConversationMenu() { // TODO: Zjistit, jestli nejde, aby to drželo instanci kontaktu
+        if (conversationMenu == null) { // Ošetření nullPointerException
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLConversation.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLConversation.fxml"));
                 conversationMenu = loader.load();
                 conversationController = loader.getController();
-                conversationController.setUzivatelManager(db.getUzivatelManager());
+                // Načtení layoutu end
+
+                // Nastavení instance třídy pro ovládání tabulky UZIVATELE
+                conversationController.setUzivatelManager(db.getUzivatelManager()); // TODO: Zjistit, jestli by nestačila instance uzivatele
+
+                // Nastavení instance třídy pro ovládání tabulky ZPRAVY
                 conversationController.setZpravaManager(db.getZpravaManager());
 
-                // automatická změna velikosti při změně velikosti okna start
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    conversationMenu.setPrefWidth((double) newValue);
-                });
-                
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    conversationMenu.setPrefHeight((double) newValue);
-                });
-                // automatická změna velikosti při změně velikosti okna end
+                setAutoResizeCenter(conversationMenu);
             } catch (IOException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
 
-        if (!paneCenter.getChildren().contains(conversationMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(conversationMenu);
-
-            conversationMenu.setPrefWidth(paneCenter.getWidth());
-            conversationMenu.setPrefHeight(paneCenter.getHeight());
         }
+        loadCurrentMenu(conversationMenu);
     }
 
     /**
      * Načte menu se zprávami skupiny
      */
-    private void loadGroupFeedMenu() {
-        if (groupFeedMenu == null) {
+    private void loadGroupFeedMenu() { // TODO: Upravit, aby se zobrazovaly skutečné příspěvky dané skupiny...
+        if (groupFeedMenu == null) { // Ošetření nullPointerException
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLGroupFeed.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLGroupFeed.fxml"));
                 groupFeedMenu = loader.load();
                 groupFeedController = loader.getController();
+                // Načtení layoutu end
 
-                // automatická změna velikosti při změně velikosti okna start
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    groupFeedMenu.setPrefWidth((double) newValue);
-                });
-                
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    groupFeedMenu.setPrefHeight((double) newValue);
-                });
-                // automatická změna velikosti při změně velikosti okna end
+                setAutoResizeCenter(groupFeedMenu);
 
             } catch (IOException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
-        if (!paneCenter.getChildren().contains(groupFeedMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(groupFeedMenu);
-            groupFeedController.updateFeed();
-
-            groupFeedMenu.setPrefWidth(paneCenter.getWidth());
-            groupFeedMenu.setPrefHeight(paneCenter.getHeight());
-        }
-
+        loadCurrentMenu(groupFeedMenu); // TODO: Potřeba SkupinaManager(?), PrispevekManager
     }
 
     /**
-     * Nastaví pomocnou třídu pro získání dat z databáze
+     * Nastaví pomocnou třídu pro ovládání databáze
      *
      * @param db
      */
@@ -238,77 +293,90 @@ public class FXMLMainSceneController implements Initializable {
     }
 
     /**
-     * Načte menu s údaji o profilu uživatele
+     * Načte menu profilu uživatele
+     *
+     * @param uzivatel uživatel, jehož profil se má zobrazit
      */
     private void loadAccountMenu(Uzivatel uzivatel) {
-        if (accountMenu == null) {
+        if (accountMenu == null) { // Ošetření nullPointerException
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLAccountView.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLAccountView.fxml"));
                 accountMenu = loader.load();
                 accountController = loader.getController();
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    accountMenu.setPrefWidth((double) newValue);
-                });
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    accountMenu.setPrefHeight((double) newValue);
-                });
+                // Načtení layoutu end
+
+                setAutoResizeCenter(accountMenu);
             } catch (IOException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        loadCurrentMenu(accountMenu);
 
-        if (!paneCenter.getChildren().contains(accountMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(accountMenu);
-
-            accountMenu.setPrefWidth(paneCenter.getWidth());
-            accountMenu.setPrefHeight(paneCenter.getHeight());
-        }
-
+        // Nastaví použitelnost tlačítka pro editaci podle toho,
+        // jestli se jedná o vlastní profil uživatele nebo je uživatel admin
+        // TODO: přidat rozpoznání admina
         accountController.setEnableButton(uzivatel.getIdUzivatele().equals(db.getUzivatelManager().getCurrentUser().getIdUzivatele()));
+
+        // Nastaví instanci třídy pro úpravy tabulky KONTAKTY
         accountController.setKontaktManager(db.getKontaktManager());
+
+        // Nastaví instanci třídy pro úpravy tabulky UZIVATELE
         accountController.setUzivatelManager(db.getUzivatelManager());
+
+        // Updatuje informace profilu podle současného uživatele
         accountController.updateView(uzivatel);
 
+        // Načte menu pro editaci profilu daného uživatele
         accountController.setEditButtonAction((t) -> {
             loadEditUserMenu(uzivatel);
         });
     }
 
     /**
-     * Načte menu se seznamem uživatelů
+     * Načte seznam uživatelů
+     *
+     * @param uzivatele seznam uživatelů, kteří se mají zobrazit
      */
     private void loadUserListMenu(List<Uzivatel> uzivatele) {
         if (userListMenu == null) {
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLUserList.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLUserList.fxml"));
                 userListMenu = loader.load();
                 userListController = loader.getController();
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    userListMenu.setPrefWidth((double) newValue);
-                });
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    userListMenu.setPrefHeight((double) newValue);
-                });
+                // Načtení layoutu end
 
-                userListController.setAddToContactsAction((t) -> { // TODO: better
+                setAutoResizeCenter(userListMenu);
+
+                // Přidá uživateli daného uživatele do kontaktů
+                // Přidanému uživateli se automaticky přidá uživatel,
+                // který si ho přidal také
+                userListController.setAddToContactsAction((t) -> { // TODO: better přes joiny
                     Uzivatel uzivatel = db.getUzivatelManager().getCurrentUser();
+
+                    // Uživatel existuje a není to ten samý uživatel, který
+                    // přidává
                     if (t != null && !t.getIdUzivatele().equals(uzivatel.getIdUzivatele())) {
                         try {
+                            // Přidání uživatele do kontaktů současného uživatele
                             db.getKontaktManager().insertKontakt(t.getIdUzivatele(),
                                     uzivatel.getIdUzivatele(), LocalDate.now(),
                                     LocalDate.now().plusYears(3), "Kontakt");
+
+                            // Přidání současného uživatele do kontaktů přidávaného uživatele
                             db.getKontaktManager().insertKontakt(uzivatel.getIdUzivatele(),
                                     t.getIdUzivatele(), LocalDate.now(),
                                     LocalDate.now().plusYears(3), "Kontakt");
-                            
+
+                            // Aktualizuje seznam kontaktů uživatele
                             contactsController.setContactDataSet(db.getKontaktManager().selectKontakty(uzivatel.getIdUzivatele()));
                         } catch (SQLException ex) {
                             showAlert(ex.getLocalizedMessage());
                         }
-                    }else if (t.getIdUzivatele().equals(uzivatel.getIdUzivatele())) {
+                    } else if (t.getIdUzivatele().equals(uzivatel.getIdUzivatele())) {
                         showAlert("Sebe sama nelze přidat do kontaktů!");
                     }
                 });
@@ -316,132 +384,111 @@ public class FXMLMainSceneController implements Initializable {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        loadCurrentMenu(userListMenu);
 
-        if (!paneCenter.getChildren().contains(userListMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(userListMenu);
-
-            userListMenu.setPrefWidth(paneCenter.getWidth());
-            userListMenu.setPrefHeight(paneCenter.getHeight());
-        }
-
+        // Aktualizuje seznam kontaktů uživatele
         userListController.setDataSet(uzivatele);
     }
 
     /**
-     * Načte menu se seznamem předmětů
+     * Načte menu seznamu předmětů
+     *
+     * @param predmety seznam předmětů pro vypsání
      */
     private void loadSubjectListMenu(List<Predmet> predmety) {
         if (subjectsListMenu == null) {
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLSubjectList.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLSubjectList.fxml"));
                 subjectsListMenu = loader.load();
                 subjectsListController = loader.getController();
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    subjectsListMenu.setPrefWidth((double) newValue);
-                });
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    subjectsListMenu.setPrefHeight((double) newValue);
-                });
+                // Načtení layoutu start
+
+                setAutoResizeCenter(subjectsListMenu);
             } catch (IOException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
-        if (!paneCenter.getChildren().contains(subjectsListMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(subjectsListMenu);
+        loadCurrentMenu(subjectsListMenu);
 
-            subjectsListMenu.setPrefWidth(paneCenter.getWidth());
-            subjectsListMenu.setPrefHeight(paneCenter.getHeight());
-        }
-
+        // Aktualizuje seznam předmětů pro zobrazení
         subjectsListController.setDataSet(predmety);
     }
 
     /**
-     * Načte menu se seznamem oborů
+     * Načte menu seznamu oborů
+     *
+     * @param obory seznam oborů pro zobrazení
      */
     private void loadFieldListMenu(List<StudijniObor> obory) {
         if (fieldListMenu == null) {
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLFieldList.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLFieldList.fxml"));
                 fieldListMenu = loader.load();
                 fieldListController = loader.getController();
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    fieldListMenu.setPrefWidth((double) newValue);
-                });
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    fieldListMenu.setPrefHeight((double) newValue);
-                });
+                // Načtení layoutu end
+
+                setAutoResizeCenter(fieldListMenu);
             } catch (IOException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
-        if (!paneCenter.getChildren().contains(fieldListMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(fieldListMenu);
+        loadCurrentMenu(fieldListMenu);
 
-            fieldListMenu.setPrefWidth(paneCenter.getWidth());
-            fieldListMenu.setPrefHeight(paneCenter.getHeight());
-        }
-
+        // Aktualizuje seznam oborů pro zobrazení
         fieldListController.setDataset(obory);
     }
 
     /**
      * Načte menu se seznamem studijních plánů
+     *
+     * @param plany seznam studijních plánů pro zobrazení
      */
     private void loadCurriculumListMenu(List<StudijniPlan> plany) {
         if (curriculumListMenu == null) {
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLCurriculumList.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLCurriculumList.fxml"));
                 curriculumListMenu = loader.load();
                 curriculumListController = loader.getController();
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    curriculumListMenu.setPrefWidth((double) newValue);
-                });
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    curriculumListMenu.setPrefHeight((double) newValue);
-                });
+                // Načtení layoutu end
+
+                setAutoResizeCenter(curriculumListMenu);
             } catch (IOException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
-        if (!paneCenter.getChildren().contains(curriculumListMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(curriculumListMenu);
+        loadCurrentMenu(curriculumListMenu);
 
-            curriculumListMenu.setPrefWidth(paneCenter.getWidth());
-            curriculumListMenu.setPrefHeight(paneCenter.getHeight());
-        }
-
+        // Aktualizuje seznam studijních plánů
         curriculumListController.setDataset(plany);
     }
 
     /**
      * Načte menu registrace uživatele
+     *
+     * @param obory seznam oborů pro výběr
      */
     private void loadRegisterMenu(List<StudijniObor> obory) {
         if (registerMenu == null) {
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLRegister.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLRegister.fxml"));
                 registerMenu = loader.load();
                 registerController = loader.getController();
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    registerMenu.setPrefWidth((double) newValue);
-                });
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    registerMenu.setPrefHeight((double) newValue);
-                });
+                // Načtení layoutu end
 
-                registerController.setRegisterAction((t) -> {
+                setAutoResizeCenter(registerMenu);
+
+                registerController.setRegisterAction((t) -> { // TODO: ošetřit vstupy (přímo v controlleru(?)), přidat textfield pro původní heslo
                     String jmeno = registerController.getJmeno();
                     String prijmeni = registerController.getPrijmeni();
                     String login = registerController.getLogin();
@@ -458,6 +505,7 @@ public class FXMLMainSceneController implements Initializable {
                             && email.length() > 0 && poznamka.length() > 0
                             && rok != null) {
                         try {
+                            // TODO: Dodělat zapsání uživatele do studijních plánů, atd.
                             db.getUzivatelManager().registerUser(jmeno, prijmeni, login, heslo1, email, poznamka, rok);
                         } catch (SQLException ex) {
                             Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
@@ -465,19 +513,19 @@ public class FXMLMainSceneController implements Initializable {
                         showDialog("Uživatel úspěšně nahrán do databáze");
                     }
                 });
+
+                // Při zrušení registrace se vyprázdní hlavní panel
+                registerController.setCancelAction((t) -> {
+                    paneCenter.getChildren().clear();
+                });
             } catch (IOException ex) {
                 showAlert("Neplatné vstupy pro uživatele");
             }
         }
 
-        if (!paneCenter.getChildren().contains(registerMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(registerMenu);
+        loadCurrentMenu(registerMenu);
 
-            registerMenu.setPrefWidth(paneCenter.getWidth());
-            registerMenu.setPrefHeight(paneCenter.getHeight());
-        }
-
+        // Aktualizuje seznam oborů
         registerController.setOboryDataset(obory);
     }
 
@@ -486,20 +534,19 @@ public class FXMLMainSceneController implements Initializable {
      *
      * @param uzivatel uživatel pro úpravu
      */
-    private void loadEditUserMenu(Uzivatel uzivatel) {
+    private void loadEditUserMenu(Uzivatel uzivatel) { // TODO: Přidat možnosti úprav pro admina
         if (editUserMenu == null) {
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLEditUser.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLEditUser.fxml"));
                 editUserMenu = loader.load();
                 editUserController = loader.getController();
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    editUserMenu.setPrefWidth((double) newValue);
-                });
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    editUserMenu.setPrefHeight((double) newValue);
-                });
+                // Načtení layoutu end
 
+                setAutoResizeCenter(editUserMenu);
+
+                // Při zrušení editace se neuloží změny a zobrazí se info profilu
                 editUserController.setBtnCancelEvent((t) -> {
                     loadAccountMenu(uzivatel);
                 });
@@ -508,15 +555,10 @@ public class FXMLMainSceneController implements Initializable {
             }
         }
 
-        if (!paneCenter.getChildren().contains(editUserMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(editUserMenu);
+        loadCurrentMenu(editUserMenu);
 
-            editUserMenu.setPrefWidth(paneCenter.getWidth());
-            editUserMenu.setPrefHeight(paneCenter.getHeight());
-        }
-        
         try {
+            // Aktualizuje informace o uživateli pro zobrazení
             editUserController.updateViews(uzivatel);
         } catch (SQLException ex) {
             Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
@@ -526,20 +568,19 @@ public class FXMLMainSceneController implements Initializable {
     /**
      * Zobrazí menu pro přidání předmětu
      */
-    private void loadAddSubjectMenu() {
+    private void loadAddSubjectMenu() { // TODO: Implementovat funkcionalitu přidání předmětu, ošetřovat vstupy
         if (addSubjectMenu == null) {
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLAddSubject.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLAddSubject.fxml"));
                 addSubjectMenu = loader.load();
                 addSubjectController = loader.getController();
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    addSubjectMenu.setPrefWidth((double) newValue);
-                });
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    addSubjectMenu.setPrefHeight((double) newValue);
-                });
+                // Načtení layoutu end
 
+                setAutoResizeCenter(addSubjectMenu);
+
+                // Při zrušení akce se hlavní panel vyprázdní
                 addSubjectController.setBtnCancelAction((t) -> {
                     paneCenter.getChildren().clear();
                 });
@@ -548,43 +589,40 @@ public class FXMLMainSceneController implements Initializable {
             }
         }
 
-        if (!paneCenter.getChildren().contains(addSubjectMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(addSubjectMenu);
-
-            addSubjectMenu.setPrefWidth(paneCenter.getWidth());
-            addSubjectMenu.setPrefHeight(paneCenter.getHeight());
-        }
+        loadCurrentMenu(addSubjectMenu);
     }
 
     /**
      * Zobrazí menu pro přidání studijního plánu
+     *
+     * @param obory seznam oborů
      */
     private void loadAddCurriculumMenu(List<StudijniObor> obory) {
         if (addCurriculumMenu == null) {
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLAddCurriculum.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLAddCurriculum.fxml"));
                 addCurriculumMenu = loader.load();
                 addCurriculumController = loader.getController();
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    addCurriculumMenu.setPrefWidth((double) newValue);
-                });
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    addCurriculumMenu.setPrefHeight((double) newValue);
-                });
+                // Načtení layoutu end
 
+                setAutoResizeCenter(addCurriculumMenu);
+
+                // Při zrušení přidání studijního plánu se vyprázdní hlavní panel
                 addCurriculumController.setBtnCancelAction((t) -> {
                     paneCenter.getChildren().clear();
                 });
 
-                addCurriculumController.setBtnSaveAction((t) -> {
+                // Akce, která se má provést při pokusu o uložení studijního plánu
+                addCurriculumController.setBtnSaveAction((t) -> { // TODO: Ošetřovat vstupy (už v controlleru(?))
                     String nazev = addCurriculumController.getNazev();
                     String popis = addCurriculumController.getPopis();
                     StudijniObor obor = addCurriculumController.getObor();
 
                     if (nazev.length() > 0 && popis.length() > 0 && obor != null) {
                         try {
+                            // TODO: Dodělat integraci s databází
                             db.getStudijniPlanManager().insertStudijniPlan(nazev, obor, popis);
                             showDialog("Studijní plán úspěšně nahrán");
                         } catch (SQLException ex) {
@@ -597,14 +635,9 @@ public class FXMLMainSceneController implements Initializable {
             }
         }
 
-        if (!paneCenter.getChildren().contains(addCurriculumMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(addCurriculumMenu);
+        loadCurrentMenu(addCurriculumMenu);
 
-            addCurriculumMenu.setPrefWidth(paneCenter.getWidth());
-            addCurriculumMenu.setPrefHeight(paneCenter.getHeight());
-        }
-
+        // Aktualizuje seznam oborů pro zobrazení
         addCurriculumController.setDataset(obory);
     }
 
@@ -614,22 +647,22 @@ public class FXMLMainSceneController implements Initializable {
     private void loadAddFieldMenu() {
         if (addFieldMenu == null) {
             loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("FXMLAddField.fxml"));
             try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLAddField.fxml"));
                 addFieldMenu = loader.load();
                 addFieldController = loader.getController();
-                paneCenter.widthProperty().addListener((observable, oldValue, newValue) -> {
-                    addFieldMenu.setPrefWidth((double) newValue);
-                });
-                paneCenter.heightProperty().addListener((observable, oldValue, newValue) -> {
-                    addFieldMenu.setPrefHeight((double) newValue);
-                });
+                // Načtení layoutu end
 
+                setAutoResizeCenter(addFieldMenu);
+
+                // Při zrušení akce přidání oboru se vyprázdní hlavní panel
                 addFieldController.setBtnCancelAction((t) -> {
                     paneCenter.getChildren().clear();
                 });
 
-                addFieldController.setBtnSaveAction((t) -> {
+                // Akce, která se má provést při pokusu o uložení oboru
+                addFieldController.setBtnSaveAction((t) -> { // TODO: Ošetřovat vstupy (už v controlleru(?))
                     String nazev = addFieldController.getNazev();
                     String zkratka = addFieldController.getZkratka();
                     String popis = addFieldController.getPopis();
@@ -652,13 +685,7 @@ public class FXMLMainSceneController implements Initializable {
             }
         }
 
-        if (!paneCenter.getChildren().contains(addFieldMenu)) {
-            paneCenter.getChildren().remove(0, paneCenter.getChildren().size());
-            paneCenter.getChildren().add(addFieldMenu);
-
-            addFieldMenu.setPrefWidth(paneCenter.getWidth());
-            addFieldMenu.setPrefHeight(paneCenter.getHeight());
-        }
+        loadCurrentMenu(addFieldMenu);
     }
 
     @FXML
@@ -706,7 +733,7 @@ public class FXMLMainSceneController implements Initializable {
             } catch (SQLException ex) {
                 showAlert("Uživatele se nepodařilo nalézt");
             }
-        });
+        }, "jméno nebo příjmení uživatele");
     }
 
     @FXML
@@ -717,7 +744,7 @@ public class FXMLMainSceneController implements Initializable {
             } catch (SQLException ex) {
                 showAlert("Předmět se nepodařilo nalézt");
             }
-        });
+        }, "zkratku nebo název předmětu");
     }
 
     @FXML
@@ -728,14 +755,14 @@ public class FXMLMainSceneController implements Initializable {
             } catch (SQLException ex) {
                 showAlert("Předmět se nepodařilo nalézt");
             }
-        });
+        }, "zkratku nebo název studijního oboru");
     }
 
     @FXML
     private void handleMenuItemVyhledatStudijniPlanAction(ActionEvent event) {
         showSearchMenu((t) -> {
             System.out.println(t); //TODO: vyhodnotit hledání a vrátit výsledek
-        });
+        }, "zkratku nebo název studijního plánu");
     }
 
     @FXML
@@ -745,9 +772,6 @@ public class FXMLMainSceneController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        registerController.setCancelAction((t) -> {
-            paneCenter.getChildren().clear();
-        });
     }
 
     @FXML
@@ -774,14 +798,20 @@ public class FXMLMainSceneController implements Initializable {
      *
      * @param searchAction akce, která se má pro vyhledání provést
      */
-    private void showSearchMenu(Consumer<String> searchAction) {
+    private void showSearchMenu(Consumer<String> searchAction, String searchTerm) {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setHeaderText(null);
-        dialog.setContentText("Zadejte id nebo jméno:");
+        dialog.setContentText("Zadejte " + searchTerm);
         dialog.setTitle("Vyhledávání");
+
         Optional<String> result = dialog.showAndWait();
-        if (result.get().length() > 0) {
-            searchAction.accept(result.get());
+
+        if (result.isPresent()) {
+            if (result.get().length() > 0) {
+                searchAction.accept(result.get());
+            } else {
+                showAlert("Musíte zadat hledaný pojem");
+            }
         }
     }
 

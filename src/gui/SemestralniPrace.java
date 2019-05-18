@@ -29,7 +29,15 @@ import model.UzivatelManager;
 public class SemestralniPrace extends Application {
 
     public static Stage primaryStage;
+    
+    /**
+     * Instance třídy pro komunikaci s databází
+     */
     private DatabaseHelper dbHelper;
+    
+    /**
+     * Instance třídy pro komunikaci s tabulkou UZIVATELE
+     */
     private UzivatelManager uzivManager;
 
     @Override
@@ -106,6 +114,7 @@ public class SemestralniPrace extends Application {
      */
     private void login(String login, String heslo, Stage stage) {
         try {
+            // Uživatele se podařilo přihlásit
             if (uzivManager.prihlasUzivatele(login, heslo)) {
                 loadMainScene(stage);
             } else {

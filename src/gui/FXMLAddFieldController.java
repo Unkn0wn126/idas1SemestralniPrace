@@ -39,7 +39,6 @@ public class FXMLAddFieldController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
     }
 
     public void setBtnSaveAction(Consumer<ActionEvent> btnSaveAction) {

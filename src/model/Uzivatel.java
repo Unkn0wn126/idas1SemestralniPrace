@@ -24,6 +24,7 @@ public class Uzivatel {
     private List<Kontakt> kontakty;
     private String poznamka;
     private int online = 0;
+    private boolean admin;
 
     public Uzivatel(String idUzivatele, String jmeno, String prijmeni, String email, String login, int rokStudia, int blokace, String poznamka) {
         this.idUzivatele = idUzivatele;
@@ -35,6 +36,7 @@ public class Uzivatel {
         this.blokace = blokace;
         this.poznamka = poznamka;
         this.kontakty = new ArrayList<>();
+        this.admin = true;
     }
 
     public String getIdUzivatele() {
@@ -75,6 +77,10 @@ public class Uzivatel {
 
     public void setOnline(int online) {
         this.online = online;
+    }
+
+    public boolean isAdmin() {
+        return admin;
     }
     
     @Override
