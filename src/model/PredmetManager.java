@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,10 +21,10 @@ import java.util.List;
 public class PredmetManager {
 
     private Connection con;
-    // TODO: Předělat selecty tak, aby používaly pohledy
-    private final String SELECT_PREDMETY = "SELECT * FROM PREDMETY";
-    private final String SELECT_PREDMET = "SELECT * FROM PREDMETY WHERE id_predmetu = ?";
-    private final String SELECT_PREDMET_BY_ATTRIBUTE = "SELECT * FROM PREDMETY WHERE zkratka_predmetu LIKE ? OR nazev_predmetu LIKE ?";
+    private final String CREATE_VIEW = "CREATE OR REPLACE VIEW PREDMETY_POHLED AS SELECT * FROM PREDMETY";
+    private final String SELECT_PREDMETY = "SELECT * FROM PREDMETY_POHLED";
+    private final String SELECT_PREDMET = "SELECT * FROM PREDMETY_POHLED WHERE id_predmetu = ?";
+    private final String SELECT_PREDMET_BY_ATTRIBUTE = "SELECT * FROM PREDMETY_POHLED WHERE zkratka_predmetu LIKE ? OR nazev_predmetu LIKE ?";
     private final String INSERT_PREDMET = "INSERT INTO PREDMETY(nazev_predmetu,zkratka_predmetu,popis) VALUES (?,?,?)";
     private final String DELETE = "DELETE FROM PREDMETY WHERE id_predmetu = ?";
     private final String UPDATE_NAZEV = "UPDATE PREDMETY SET nazev_predmetu = ? where id_predmetu = ?";
@@ -30,6 +32,17 @@ public class PredmetManager {
 
     public PredmetManager(Connection con) {
         this.con = con;
+        try {
+            createView();
+        } catch (SQLException ex) {
+            Logger.getLogger(PredmetManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+        private void createView() throws SQLException{
+        PreparedStatement prepare = con.prepareStatement(CREATE_VIEW);
+        prepare.execute();
+        con.commit();
     }
 
     /**

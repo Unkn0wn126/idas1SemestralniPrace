@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -20,18 +22,33 @@ public class UzivatelManager {
 
     private Connection con;
     private Uzivatel currentUser;
-    // TODO: Předělat selecty tak, aby používaly pohledy
-    private final String SELECT_UZIVATELE = "SELECT * FROM UZIVATELE";
-    private final String SELECT_UZIVATEL_BY_ID = "SELECT * FROM UZIVATELE WHERE id_uzivatele = ?";
-    private final String SELECT_UZIVATEL_BY_ATTRIBUTE = "SELECT * FROM UZIVATELE WHERE jmeno LIKE ? OR prijmeni LIKE ?";
-    private final String SELECT_UZIVATEL_LOGIN = "SELECT * FROM UZIVATELE WHERE login = ? AND heslo = ?";
-    private final String SELECT_COUNT = "SELECT COUNT(*) from UZIVATELE";
+
+    private final String CREATE_VIEW = "CREATE OR REPLACE VIEW UZIVATELE_POHLED AS SELECT * FROM UZIVATELE";
+    private final String SELECT_ROLE = "SELECT ROLE.* FROM UZIVATELE INNER JOIN ROLE_UZIVATELU ON ROLE_UZIVATELU.UZIVATELE_ID_UZIVATELE = UZIVATELE.ID_UZIVATELE"
+            + " INNER JOIN ROLE ON ROLE_UZIVATELU.ROLE_ID_ROLE = ROLE.ID_ROLE"
+            + " WHERE UZIVATELE.ID_UZIVATELE = ?;";
+    private final String SELECT_UZIVATELE = "SELECT * FROM UZIVATELE_POHLED";
+    private final String SELECT_UZIVATEL_BY_ID = "SELECT * FROM UZIVATELE_POHLED WHERE id_uzivatele = ?";
+    private final String SELECT_UZIVATEL_BY_ATTRIBUTE = "SELECT * FROM UZIVATELE_POHLED WHERE jmeno LIKE ? OR prijmeni LIKE ?";
+    private final String SELECT_UZIVATEL_LOGIN = "SELECT * FROM UZIVATELE_POHLED WHERE login = ? AND heslo = ?";
+    private final String SELECT_COUNT = "SELECT COUNT(*) from UZIVATELE_POHLED";
     private final String INSERT_UZIVATEL = "INSERT INTO UZIVATELE(login, heslo, jmeno, prijmeni, rok_studia, eml, blokace, poznamka) VALUES (?,?,?,?,?,?,?,?)";
     private final String DELETE = "DELETE FROM UZIVATELE WHERE id_uzivatele = ?";
     private final String UPDATE_OBOR = "UPDATE UZIVATELE SET nazev = ?, popis = ?, akreditace_do = ?  where id_oboru = ?";
 
     public UzivatelManager(Connection con) {
         this.con = con;
+        try {
+            createView();
+        } catch (SQLException ex) {
+            Logger.getLogger(UzivatelManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void createView() throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(CREATE_VIEW);
+        prepare.execute();
+        con.commit();
     }
 
     /**
@@ -74,6 +91,8 @@ public class UzivatelManager {
                 result.getString("EML"), result.getString("login"),
                 result.getInt("rok_studia"), result.getInt("blokace"),
                 result.getString("poznamka"));
+        
+        uzivatel.setRole(selectRoleUzivatele(idUzivatele));
         return uzivatel;
     }
 
@@ -92,6 +111,21 @@ public class UzivatelManager {
                     result.getString("poznamka")));
 
         }
+        return listSelect;
+    }
+
+    private List<Role> selectRoleUzivatele(String idUzivatele) throws SQLException {
+        List<Role> listSelect = new ArrayList<>();
+        System.out.println(SELECT_ROLE);
+        PreparedStatement prepare = con.prepareStatement(SELECT_ROLE);
+        prepare.setString(1, idUzivatele);
+        ResultSet result = prepare.executeQuery();
+
+        while (result.next()) {
+            listSelect.add(new Role(result.getInt("id_role"), result.getString("jmeno_role"), result.getString("opravneni"), result.getString("poznamka")));
+            System.out.println(listSelect.toArray().toString());
+        }
+
         return listSelect;
     }
 
@@ -115,6 +149,7 @@ public class UzivatelManager {
             setCurrentUser(selectUzivatelById(result.getString("ID_UZIVATELE")));
             return true;
         } catch (Exception e) {
+            System.out.println(e.getLocalizedMessage());
             return false;
         }
     }

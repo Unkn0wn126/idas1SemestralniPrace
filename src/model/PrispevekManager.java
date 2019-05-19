@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,16 +21,27 @@ import java.util.List;
 public class PrispevekManager {
 
     private Connection con;
-    // TODO: Předělat selecty tak, aby používaly pohledy
-    private final String SELECT_PRISPEVKY = "SELECT * FROM PRISPEVKY";
-    private final String SELECT_PRISPEVEK = "SELECT * FROM PRISPEVKY WHERE id_prispevku = ?";
-    private final String SELECT_KOMENTARE = "SELECT p.* FROM PRISPEVKY, c.* FROM PRISPEVKY,  WHERE p.prispevky_id_prispevku = c.id_prispevku AND p.prispevky_id_prispevku = ?";
+    private final String CREATE_VIEW = "CREATE OR REPLACE VIEW PRISPEVKY_POHLED AS SELECT * FROM PRISPEVKY";
+    private final String SELECT_PRISPEVKY = "SELECT * FROM PRISPEVKY_POHLED";
+    private final String SELECT_PRISPEVEK = "SELECT * FROM PRISPEVKY_POHLED WHERE id_prispevku = ?";
+    private final String SELECT_KOMENTARE = "SELECT p.* FROM PRISPEVKY_POHLED, c.* FROM PRISPEVKY,  WHERE p.prispevky_id_prispevku = c.id_prispevku AND p.prispevky_id_prispevku = ?";
     private final String INSERT_PRISPEVEK = "INSERT INTO PRISPEVKY(nazev,obsah,popis,tag) VALUES (?,?,?,?)";
     private final String DELETE = "DELETE FROM PRISPEVKY WHERE id_prispevku = ?";
     private final String UPDATE_PRISPEVEK = "UPDATE PRISPEVKY SET nazev = ?, obsah = ?, blokace = ?  where id_prispevku = ?";
 
     public PrispevekManager(Connection con) {
         this.con = con;
+        try {
+            createView();
+        } catch (SQLException ex) {
+            Logger.getLogger(UzivatelManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void createView() throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(CREATE_VIEW);
+        prepare.execute();
+        con.commit();
     }
 
     /**

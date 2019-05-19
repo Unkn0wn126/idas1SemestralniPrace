@@ -21,4 +21,8 @@ public class Role {
         this.opravneni = opravneni;
         this.poznamka = poznamka;
     }
+    
+    public String toString(){
+        return "Jméno role: " + jmenoRole;
+    }
 }

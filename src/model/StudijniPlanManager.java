@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,16 +21,27 @@ import java.util.List;
 public class StudijniPlanManager {
 
     private Connection con;
-    // TODO: Předělat selecty tak, aby používaly pohledy
-    private final String SELECT_STUDIJNI_PLANY = "SELECT * FROM STUDIJNI_PLANY";
-    private final String SELECT_STUDIJNI_PLAN = "SELECT * FROM STUDIJNI_PLANY WHERE id_planu = ?";
-    private final String SELECT_STUDIJNI_PLAN_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_PLANY WHERE nazev LIKE ?";
+    private final String CREATE_VIEW = "CREATE OR REPLACE VIEW STUDIJNI_PLANY_POHLED AS SELECT * FROM STUDIJNI_PLANY";
+    private final String SELECT_STUDIJNI_PLANY = "SELECT * FROM STUDIJNI_PLANY_POHLED";
+    private final String SELECT_STUDIJNI_PLAN = "SELECT * FROM STUDIJNI_PLANY_POHLED WHERE id_planu = ?";
+    private final String SELECT_STUDIJNI_PLAN_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_PLANY_POHLED WHERE nazev LIKE ?";
     private final String INSERT_STUDIJNI_PLAN = "INSERT INTO STUDIJNI_PLANY(id_planu,studijni_obory_id_oboru, popis) VALUES (?,?,?)";
     private final String DELETE = "DELETE FROM STUDIJNI_PLANY WHERE id_planu = ?";
     private final String UPDATE_STUDIJNI_PLAN = "UPDATE STUDIJNI_PLANY SET nazev = ?, popis = ? where id_planu = ?";
 
     public StudijniPlanManager(Connection con) {
         this.con = con;
+        try {
+            createView();
+        } catch (SQLException ex) {
+            Logger.getLogger(UzivatelManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void createView() throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(CREATE_VIEW);
+        prepare.execute();
+        con.commit();
     }
 
     public List<StudijniPlan> selectStudijniPlany() throws SQLException {

@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,14 +21,26 @@ import java.util.List;
 public class RoleManager {
 
     private Connection con;
-    private final String SELECT_ROLE = "SELECT * FROM ROLE";
-    private final String SELECT_ROLI = "SELECT * FROM ROLE WHERE id_role = ?";
+    private final String CREATE_VIEW = "CREATE OR REPLACE VIEW ROLE_POHLED AS SELECT * FROM ROLE";
+    private final String SELECT_ROLE = "SELECT * FROM ROLE_POHLED";
+    private final String SELECT_ROLI = "SELECT * FROM ROLE_POHLED WHERE id_role = ?";
     private final String INSERT_ROLE = "INSERT INTO ROLE(jmeno_role,opravneni,poznamka) VALUES (?,?,?)";
     private final String DELETE = "DELETE FROM ROLE WHERE id_role = ?";
     private final String UPDATE_ROLE = "UPDATE ROLE SET jmeno_role = ?, opravneni = ?, poznamka = ?  where id_role = ?";
 
     public RoleManager(Connection con) {
         this.con = con;
+        try {
+            createView();
+        } catch (SQLException ex) {
+            Logger.getLogger(UzivatelManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void createView() throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(CREATE_VIEW);
+        prepare.execute();
+        con.commit();
     }
 
     /**

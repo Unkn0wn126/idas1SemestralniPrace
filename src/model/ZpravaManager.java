@@ -13,6 +13,8 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,15 +23,26 @@ import java.util.List;
 public class ZpravaManager {
 
     private Connection con;
-    // TODO: Předělat selecty tak, aby používaly pohledy
-    private final String SELECT_ZPRAVY = "SELECT * FROM ZPRAVY";
-    private final String SELECT_ZPRAVA = "SELECT * FROM ZPRAVY WHERE id_zpravy = ?";
+    private final String CREATE_VIEW = "CREATE OR REPLACE VIEW ZPRAVY_POHLED AS SELECT * FROM ZPRAVY";
+    private final String SELECT_ZPRAVY = "SELECT * FROM ZPRAVY_POHLED";
+    private final String SELECT_ZPRAVA = "SELECT * FROM ZPRAVY_POHLED WHERE id_zpravy = ?";
     private final String INSERT_ZPRAVA = "INSERT INTO ZPRAVY(nazev,obsah_zpravy,cas_odeslani, odesilatel) VALUES (?,?,?,?)";
     private final String DELETE = "DELETE FROM ZPRAVY WHERE id_zpravy = ?";
     private final String UPDATE_ZPRAVA = "UPDATE ZPRAVY SET nazev = ?, obsah_zpravy = ?  where id_zpravy = ?";
 
     public ZpravaManager(Connection con) {
         this.con = con;
+        try {
+            createView();
+        } catch (SQLException ex) {
+            Logger.getLogger(UzivatelManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void createView() throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(CREATE_VIEW);
+        prepare.execute();
+        con.commit();
     }
 
     /**

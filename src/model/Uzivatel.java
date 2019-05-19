@@ -87,6 +87,10 @@ public class Uzivatel {
     public List<Role> getRole(){
         return role;
     }
+
+    public void setRole(List<Role> role) {
+        this.role = role;
+    }
     
     @Override
     public String toString(){

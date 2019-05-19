@@ -13,6 +13,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,14 +23,25 @@ import java.util.List;
 public class KontaktManager {
 
     private Connection con;
-    // TODO: Předělat selecty tak, aby používaly pohledy
-    private final String SELECT_KONTAKTY = "SELECT * FROM KONTAKTY WHERE uzivatele_id_uzivatele = ?";
-    private final String SELECT_KONTAKT = "SELECT * FROM KONTAKTY WHERE id_kontaktu = ? AND uzivatele_id_uzivatele = ?";
+    private final String CREATE_VIEW = "CREATE OR REPLACE VIEW KONTAKTY_POHLED AS SELECT * FROM KONTAKTY";
+    private final String SELECT_KONTAKTY = "SELECT * FROM KONTAKTY_POHLED WHERE uzivatele_id_uzivatele = ?";
+    private final String SELECT_KONTAKT = "SELECT * FROM KONTAKTY_POHLED WHERE id_kontaktu = ? AND uzivatele_id_uzivatele = ?";
     private final String INSERT_KONTAKT = "INSERT INTO KONTAKTY(id_kontaktu,uzivatele_id_uzivatele,datum_od, datum_do, platnost, poznamka) VALUES (?,?,?,?,?,?)";
     private final String DELETE = "DELETE FROM KONTAKTY WHERE id_kontaktu = ? AND uzivatele_id_uzivatele = ?";
 
     public KontaktManager(Connection con) {
         this.con = con;
+        try {
+            createView();
+        } catch (SQLException ex) {
+            Logger.getLogger(UzivatelManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void createView() throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(CREATE_VIEW);
+        prepare.execute();
+        con.commit();
     }
 
     /**

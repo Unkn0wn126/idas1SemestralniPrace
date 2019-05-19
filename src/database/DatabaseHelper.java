@@ -8,7 +8,6 @@ import model.PrispevekManager;
 import model.RoleManager;
 import model.StudijniOborManager;
 import model.StudijniPlanManager;
-import model.TypPrispevkuManager;
 import model.UzivatelManager;
 import model.ZpravaManager;
 
@@ -25,7 +24,6 @@ public class DatabaseHelper {
     private KontaktManager kontaktManager;
     private PrispevekManager prispevekManager;
     private RoleManager roleManager;
-    private TypPrispevkuManager typPrispevkuManager;
     private ZpravaManager zpravaManager;
 
     public DatabaseHelper(Connection con) throws SQLException {
@@ -79,13 +77,6 @@ public class DatabaseHelper {
             roleManager = new RoleManager(con);
         }
         return roleManager;
-    }
-
-    public TypPrispevkuManager getTypPrispevkuManager() {
-        if (typPrispevkuManager == null) {
-            typPrispevkuManager = new TypPrispevkuManager(con);
-        }
-        return typPrispevkuManager;
     }
 
     public ZpravaManager getZpravaManager() {

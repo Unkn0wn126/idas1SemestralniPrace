@@ -13,6 +13,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,16 +23,27 @@ import java.util.List;
 public class StudijniOborManager {
 
     private Connection con;
-    // TODO: Předělat selecty tak, aby používaly pohledy
-    private final String SELECT_STUDIJNI_OBORY = "SELECT * FROM STUDIJNI_OBORY";
-    private final String SELECT_STUDIJNI_OBOR = "SELECT * FROM STUDIJNI_OBORY WHERE id_oboru = ?";
-    private final String SELECT_STUDIJNI_OBORY_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_OBORY WHERE nazev LIKE ? OR zkratka_oboru LIKE ?";
+    private final String CREATE_VIEW = "CREATE OR REPLACE VIEW STUDIJNI_OBORY_POHLED AS SELECT * FROM STUDIJNI_OBORY";
+    private final String SELECT_STUDIJNI_OBORY = "SELECT * FROM STUDIJNI_OBORY_POHLED";
+    private final String SELECT_STUDIJNI_OBOR = "SELECT * FROM STUDIJNI_OBORY_POHLED WHERE id_oboru = ?";
+    private final String SELECT_STUDIJNI_OBORY_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_OBORY_POHLED WHERE nazev LIKE ? OR zkratka_oboru LIKE ?";
     private final String INSERT_STUDIJNI_OBOR = "INSERT INTO STUDIJNI_OBORY(NAZEV, ZKRATKA_OBORU, POPIS, AKREDITACE_DO) VALUES (?,?,?,?)";
     private final String DELETE = "DELETE FROM STUDIJNI_OBORY WHERE id_oboru = ?";
     private final String UPDATE_OBOR = "UPDATE STUDIJNI_OBORY SET nazev = ?, popis = ?, akreditace_do = ?  where id_oboru = ?";
 
     public StudijniOborManager(Connection con) {
         this.con = con;
+        try {
+            createView();
+        } catch (SQLException ex) {
+            Logger.getLogger(UzivatelManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void createView() throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(CREATE_VIEW);
+        prepare.execute();
+        con.commit();
     }
 
     public List<StudijniObor> selectStudijniObory() throws SQLException {

@@ -395,11 +395,12 @@ public class FXMLMainSceneController implements Initializable {
      *
      * @param uzivatel uživatel, kterému profil patří
      */
-    private void setAccountMenuActions() { // TODO: předělat, aby to nepotřebovalo v parametru uživatele
+    private void setAccountMenuActions() {
         /*Nastaví použitelnost tlačítka pro editaci podle toho,
         jestli se jedná o vlastní profil uživatele nebo je uživatel admin*/
         accountController.setCanEditAction((t) -> {
-            return (t.getIdUzivatele().equals(db.getUzivatelManager().getCurrentUser().getIdUzivatele()) || userIsAdmin);
+            return (t.getIdUzivatele().equals(db.getUzivatelManager().
+                    getCurrentUser().getIdUzivatele()) || userIsAdmin);
         });
 
         // Načte menu pro editaci profilu daného uživatele
