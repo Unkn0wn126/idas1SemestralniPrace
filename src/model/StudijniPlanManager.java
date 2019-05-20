@@ -24,7 +24,7 @@ public class StudijniPlanManager {
     private final String CREATE_VIEW = "CREATE OR REPLACE VIEW STUDIJNI_PLANY_POHLED AS SELECT * FROM STUDIJNI_PLANY";
     private final String SELECT_STUDIJNI_PLANY = "SELECT * FROM STUDIJNI_PLANY_POHLED";
     private final String SELECT_STUDIJNI_PLAN = "SELECT * FROM STUDIJNI_PLANY_POHLED WHERE id_planu = ?";
-    private final String SELECT_STUDIJNI_PLAN_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_PLANY_POHLED WHERE nazev LIKE ?";
+    private final String SELECT_STUDIJNI_PLAN_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_PLANY_POHLED WHERE UPPER(nazev) LIKE UPPER(?)";
     private final String INSERT_STUDIJNI_PLAN = "INSERT INTO STUDIJNI_PLANY(id_planu,studijni_obory_id_oboru, popis) VALUES (?,?,?)";
     private final String DELETE = "DELETE FROM STUDIJNI_PLANY WHERE id_planu = ?";
     private final String UPDATE_STUDIJNI_PLAN = "UPDATE STUDIJNI_PLANY SET nazev = ?, popis = ? where id_planu = ?";

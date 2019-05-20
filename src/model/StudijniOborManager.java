@@ -26,7 +26,7 @@ public class StudijniOborManager {
     private final String CREATE_VIEW = "CREATE OR REPLACE VIEW STUDIJNI_OBORY_POHLED AS SELECT * FROM STUDIJNI_OBORY";
     private final String SELECT_STUDIJNI_OBORY = "SELECT * FROM STUDIJNI_OBORY_POHLED";
     private final String SELECT_STUDIJNI_OBOR = "SELECT * FROM STUDIJNI_OBORY_POHLED WHERE id_oboru = ?";
-    private final String SELECT_STUDIJNI_OBORY_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_OBORY_POHLED WHERE nazev LIKE ? OR zkratka_oboru LIKE ?";
+    private final String SELECT_STUDIJNI_OBORY_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_OBORY_POHLED WHERE UPPER(nazev) LIKE UPPER(?) OR UPPER(zkratka_oboru) LIKE UPPER(?)";
     private final String INSERT_STUDIJNI_OBOR = "INSERT INTO STUDIJNI_OBORY(NAZEV, ZKRATKA_OBORU, POPIS, AKREDITACE_DO) VALUES (?,?,?,?)";
     private final String DELETE = "DELETE FROM STUDIJNI_OBORY WHERE id_oboru = ?";
     private final String UPDATE_OBOR = "UPDATE STUDIJNI_OBORY SET nazev = ?, popis = ?, akreditace_do = ?  where id_oboru = ?";

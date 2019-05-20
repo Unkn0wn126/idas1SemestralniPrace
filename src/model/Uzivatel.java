@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Lukas
  */
-public class Uzivatel {
+public class Uzivatel { // TODO: Aktualizovat podle současných tabulek
 
     private String idUzivatele;
     private String jmeno;

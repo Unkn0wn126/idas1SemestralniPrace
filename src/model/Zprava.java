@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Lukas
  */
-public class Zprava {
+public class Zprava { // TODO: Aktualizovat podle současných tabulek
     private int idZpravy;
     private String obsahZpravy;
     private LocalDateTime casOdeslani;

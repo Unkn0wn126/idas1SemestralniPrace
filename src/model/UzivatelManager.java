@@ -30,7 +30,7 @@ public class UzivatelManager {
             + " WHERE UZIVATELE.ID_UZIVATELE = ?";
     private final String SELECT_UZIVATELE = "SELECT * FROM UZIVATELE_POHLED";
     private final String SELECT_UZIVATEL_BY_ID = "SELECT * FROM UZIVATELE_POHLED WHERE id_uzivatele = ?";
-    private final String SELECT_UZIVATEL_BY_ATTRIBUTE = "SELECT * FROM UZIVATELE_POHLED WHERE jmeno LIKE ? OR prijmeni LIKE ?";
+    private final String SELECT_UZIVATEL_BY_ATTRIBUTE = "SELECT * FROM UZIVATELE_POHLED WHERE UPPER(jmeno) LIKE UPPER(?) OR UPPER(prijmeni) LIKE UPPER(?)";
     private final String SELECT_UZIVATEL_LOGIN = "SELECT * FROM UZIVATELE_POHLED WHERE login = ? AND heslo = ?";
     private final String SELECT_COUNT = "SELECT COUNT(*) from UZIVATELE_POHLED";
     private final String INSERT_UZIVATEL = "INSERT INTO UZIVATELE(login, heslo, jmeno, prijmeni, rok_studia, eml, blokace, poznamka) VALUES (?,?,?,?,?,?,?,?)";

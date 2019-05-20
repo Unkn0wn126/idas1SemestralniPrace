@@ -8,13 +8,13 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.FXMLUserListController">
+<GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.FXMLUserListController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
   </columnConstraints>
   <rowConstraints>
     <RowConstraints maxHeight="-Infinity" minHeight="-Infinity" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="353.0" minHeight="10.0" prefHeight="326.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="326.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
       <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0">
@@ -22,7 +22,7 @@
             <Label fx:id="lblTitle" text="Seznam uživatelů:" />
          </children>
       </FlowPane>
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
+      <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" GridPane.rowIndex="1">
          <children>
             <ListView fx:id="listViewUzivatele" layoutX="200.0" layoutY="7.0" prefHeight="278.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
          </children>

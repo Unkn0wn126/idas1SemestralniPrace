@@ -9,7 +9,7 @@ package model;
  *
  * @author Lukas
  */
-public class Role {
+public class Role { // TODO: Aktualizovat podle současných tabulek
     private int idRole;
     private String jmenoRole;
     private String opravneni;

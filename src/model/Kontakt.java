@@ -11,7 +11,7 @@ import java.util.Date;
  *
  * @author Lukas
  */
-public class Kontakt {
+public class Kontakt { // TODO: Aktualizovat podle současných tabulek
     private String idKontaktu;
     private String idUzivatele;
     private Date datumOd;

@@ -24,7 +24,7 @@ public class PredmetManager {
     private final String CREATE_VIEW = "CREATE OR REPLACE VIEW PREDMETY_POHLED AS SELECT * FROM PREDMETY";
     private final String SELECT_PREDMETY = "SELECT * FROM PREDMETY_POHLED";
     private final String SELECT_PREDMET = "SELECT * FROM PREDMETY_POHLED WHERE id_predmetu = ?";
-    private final String SELECT_PREDMET_BY_ATTRIBUTE = "SELECT * FROM PREDMETY_POHLED WHERE zkratka_predmetu LIKE ? OR nazev_predmetu LIKE ?";
+    private final String SELECT_PREDMET_BY_ATTRIBUTE = "SELECT * FROM PREDMETY_POHLED WHERE UPPER(zkratka_predmetu) LIKE UPPER(?) OR UPPER(nazev_predmetu) LIKE UPPER(?)";
     private final String INSERT_PREDMET = "INSERT INTO PREDMETY(nazev_predmetu,zkratka_predmetu,popis) VALUES (?,?,?)";
     private final String DELETE = "DELETE FROM PREDMETY WHERE id_predmetu = ?";
     private final String UPDATE_NAZEV = "UPDATE PREDMETY SET nazev_predmetu = ? where id_predmetu = ?";

@@ -11,7 +11,7 @@ import java.time.LocalDate;
  *
  * @author Lukas
  */
-public class StudijniObor {
+public class StudijniObor { // TODO: Aktualizovat podle současných tabulek
     private int idOboru;
     private String nazev;
     private String zkratka;
