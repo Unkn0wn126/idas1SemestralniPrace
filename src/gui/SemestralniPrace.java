@@ -184,6 +184,8 @@ public class SemestralniPrace extends Application {
                 stage.setResizable(false);
             } catch (IOException ex) {
                 Logger.getLogger(SemestralniPrace.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
+                Logger.getLogger(SemestralniPrace.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
 

@@ -16,13 +16,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import model.KontaktVypis;
 import model.Uzivatel;
 
 /**
  *
  * @author Lukas
  */
-public class KontaktListCell extends ListCell<Uzivatel> {
+public class KontaktListCell extends ListCell<KontaktVypis> {
 
     @FXML
     private Label lblName;
@@ -37,7 +38,7 @@ public class KontaktListCell extends ListCell<Uzivatel> {
 
     private FXMLLoader loader;
 
-    private Uzivatel uzivatel;
+    private KontaktVypis uzivatel;
 
     private ContextMenu contextMenu;
 
@@ -49,7 +50,7 @@ public class KontaktListCell extends ListCell<Uzivatel> {
     }
 
     @Override
-    protected void updateItem(Uzivatel item, boolean empty) {
+    protected void updateItem(KontaktVypis item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty || item == null) {
@@ -85,7 +86,7 @@ public class KontaktListCell extends ListCell<Uzivatel> {
      * Získá instanci uživatele této buňky
      * @return uživatel
      */
-    public Uzivatel getUzivatel() {
+    public KontaktVypis getUzivatel() {
         return this.uzivatel;
     }
 
@@ -95,7 +96,7 @@ public class KontaktListCell extends ListCell<Uzivatel> {
      * Pokud je daný uživatel online - zelená
      */
     private void setOnlineCircleColor() {
-        if (uzivatel.isOnline() == 0) {
+        if (uzivatel.getPrihlasen()== 0) {
             circleOnline.setFill(Color.RED);
         } else {
             circleOnline.setFill(Color.GREENYELLOW);

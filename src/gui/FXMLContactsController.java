@@ -25,6 +25,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.GridPane;
 import model.Kontakt;
+import model.KontaktVypis;
 import model.Skupina;
 import model.Uzivatel;
 import model.UzivatelManager;
@@ -43,7 +44,7 @@ public class FXMLContactsController implements Initializable {
     private Consumer<Uzivatel> removeContactAction;
     private Consumer<Skupina> selectedGroupChangedAction;
 
-    private ObservableList<Kontakt> kontakty = FXCollections.observableArrayList();
+    private ObservableList<KontaktVypis> kontakty = FXCollections.observableArrayList();
     private ObservableList<Uzivatel> uzivatele = FXCollections.observableArrayList();
     private ObservableList<Skupina> skupiny = FXCollections.observableArrayList();
 
@@ -52,7 +53,7 @@ public class FXMLContactsController implements Initializable {
     @FXML
     private GridPane gridPane;
     @FXML
-    private ListView<Uzivatel> listViewKontakty;
+    private ListView<KontaktVypis> listViewKontakty;
     @FXML
     private ListView<Skupina> listViewGroups;
 
@@ -64,7 +65,7 @@ public class FXMLContactsController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        listViewKontakty.setItems(uzivatele);
+        listViewKontakty.setItems(kontakty);
 
         listViewKontakty.setCellFactory((param) -> {
             return new KontaktListCell(addContextMenuContact());
@@ -76,7 +77,7 @@ public class FXMLContactsController implements Initializable {
             switch (event.getButton()) {
                 case PRIMARY:
                     if (selectedContactChangedAction != null) {
-                        selectedContactChangedAction.accept(listViewKontakty.getSelectionModel().getSelectedItem());
+//                        selectedContactChangedAction.accept(listViewKontakty.getSelectionModel().getSelectedItem());
                     }
                     break;
             }
@@ -148,21 +149,21 @@ public class FXMLContactsController implements Initializable {
         MenuItem showDetails = new MenuItem("Zobrazit profil");
         showDetails.setOnAction((event) -> {
             if (showProfileAction != null) {
-                showProfileAction.accept(listViewKontakty.getSelectionModel().getSelectedItem());
+//                showProfileAction.accept(listViewKontakty.getSelectionModel().getSelectedItem());
             }
         });
 
         MenuItem sendMessage = new MenuItem("Poslat zprávu");
         sendMessage.setOnAction((event) -> {
             if (sendMessageAction != null) {
-                sendMessageAction.accept(listViewKontakty.getSelectionModel().getSelectedItems());
+//                sendMessageAction.accept(listViewKontakty.getSelectionModel().getSelectedItems());
             }
         });
 
         MenuItem removeContact = new MenuItem("Odebrat kontakt");
         removeContact.setOnAction((event) -> {
             if (removeContactAction != null) {
-                removeContactAction.accept(listViewKontakty.getSelectionModel().getSelectedItem());
+//                removeContactAction.accept(listViewKontakty.getSelectionModel().getSelectedItem());
             }
         });
         
@@ -194,17 +195,17 @@ public class FXMLContactsController implements Initializable {
      * @throws SQLException
      */
     private void updateContactSection() throws SQLException {
-        if (uzivatelManager != null) {
-            uzivatele.clear();
-            for (int i = 0; i < kontakty.size(); i++) {
-                Uzivatel uzivatel = uzivatelManager.selectUzivatelById(kontakty.get(i).getIdKontaktu());
-                uzivatele.add(uzivatel);
-            }
-
-        }
+//        if (uzivatelManager != null) {
+//            uzivatele.clear();
+//            for (int i = 0; i < kontakty.size(); i++) {
+//                Uzivatel uzivatel = uzivatelManager.selectUzivatelById(kontakty.get(i).());
+//                uzivatele.add(uzivatel);
+//            }
+//
+//        }
     }
 
-    public List<Uzivatel> getSelectedUsers() {
+    public List<KontaktVypis> getSelectedUsers() {
         return listViewKontakty.getSelectionModel().getSelectedItems();
     }
 
@@ -212,7 +213,7 @@ public class FXMLContactsController implements Initializable {
         this.uzivatelManager = uzivatelManager;
     }
 
-    public void setContactDataSet(List<Kontakt> data) throws SQLException {
+    public void setContactDataSet(List<KontaktVypis> data) throws SQLException {
         kontakty.clear();
         kontakty.addAll(data);
         updateContactSection();

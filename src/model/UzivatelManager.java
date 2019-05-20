@@ -28,6 +28,8 @@ public class UzivatelManager {
     private final String SELECT_ROLE = "SELECT ROLE.* FROM UZIVATELE INNER JOIN ROLE_UZIVATELU ON ROLE_UZIVATELU.UZIVATELE_ID_UZIVATELE = UZIVATELE.ID_UZIVATELE"
             + " INNER JOIN ROLE ON ROLE_UZIVATELU.ROLE_ID_ROLE = ROLE.ID_ROLE"
             + " WHERE UZIVATELE.ID_UZIVATELE = ?";
+    private final String SET_UZIVATEL_ONLINE = "UPDATE UZIVATELE SET PRIHLASEN = 1 WHERE ID_UZIVATELE = ?";
+    private final String SET_UZIVATEL_OFFLINE = "UPDATE UZIVATELE SET PRIHLASEN = 0 WHERE ID_UZIVATELE = ?";
     private final String SELECT_UZIVATELE = "SELECT * FROM UZIVATELE_POHLED";
     private final String SELECT_UZIVATEL_BY_ID = "SELECT * FROM UZIVATELE_POHLED WHERE id_uzivatele = ?";
     private final String SELECT_UZIVATEL_BY_ATTRIBUTE = "SELECT * FROM UZIVATELE_POHLED WHERE UPPER(jmeno) LIKE UPPER(?) OR UPPER(prijmeni) LIKE UPPER(?)";
@@ -64,7 +66,7 @@ public class UzivatelManager {
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {
-            listSelect.add(new Uzivatel(result.getString("id_uzivatele"),
+            listSelect.add(new Uzivatel(result.getInt("id_uzivatele"),
                     result.getString("jmeno"), result.getString("prijmeni"),
                     result.getString("EML"), result.getString("login"),
                     result.getInt("rok_studia"), result.getInt("blokace"),
@@ -81,13 +83,13 @@ public class UzivatelManager {
      * @return uživatele s příslušným id
      * @throws SQLException
      */
-    public Uzivatel selectUzivatelById(String idUzivatele) throws SQLException {
+    public Uzivatel selectUzivatelById(int idUzivatele) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(SELECT_UZIVATEL_BY_ID);
-        prepare.setString(1, idUzivatele);
+        prepare.setInt(1, idUzivatele);
         Uzivatel uzivatel;
         ResultSet result = prepare.executeQuery();
         result.next();
-        uzivatel = new Uzivatel(result.getString("id_uzivatele"),
+        uzivatel = new Uzivatel(result.getInt("id_uzivatele"),
                 result.getString("jmeno"), result.getString("prijmeni"),
                 result.getString("EML"), result.getString("login"),
                 result.getInt("rok_studia"), result.getInt("blokace"),
@@ -106,7 +108,7 @@ public class UzivatelManager {
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {
-            listSelect.add(new Uzivatel(result.getString("id_uzivatele"),
+            listSelect.add(new Uzivatel(result.getInt("id_uzivatele"),
                     result.getString("jmeno"), result.getString("prijmeni"),
                     result.getString("EML"), result.getString("login"),
                     result.getInt("rok_studia"), result.getInt("blokace"),
@@ -116,10 +118,10 @@ public class UzivatelManager {
         return listSelect;
     }
 
-    private List<Role> selectRoleUzivatele(String idUzivatele) throws SQLException {
+    private List<Role> selectRoleUzivatele(int idUzivatele) throws SQLException {
         List<Role> listSelect = new ArrayList<>();
         PreparedStatement prepare = con.prepareStatement(SELECT_ROLE);
-        prepare.setString(1, idUzivatele);
+        prepare.setInt(1, idUzivatele);
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {
@@ -147,7 +149,7 @@ public class UzivatelManager {
         ResultSet result = prepare.executeQuery();
         try {
             result.next();
-            setCurrentUser(selectUzivatelById(result.getString("ID_UZIVATELE")));
+            setCurrentUser(selectUzivatelById(result.getInt("ID_UZIVATELE")));
             return true;
         } catch (Exception e) {
             System.out.println(e.getLocalizedMessage());
@@ -160,14 +162,16 @@ public class UzivatelManager {
      *
      * @param user uživatel, který má být nastaven jako současný
      */
-    public void setCurrentUser(Uzivatel user) {
+    public void setCurrentUser(Uzivatel user) throws SQLException {
         this.currentUser = user;
         currentUser.setOnline(1);
+        setUserOnline(currentUser.getIdUzivatele());
     }
 
-    public void unsetCurrentUser() {
+    public void unsetCurrentUser() throws SQLException {
         if (currentUser != null) {
             currentUser.setOnline(0);
+            setUserOffline(currentUser.getIdUzivatele());
             this.currentUser = null;
         }
     }
@@ -192,6 +196,21 @@ public class UzivatelManager {
         ResultSet result = prepare.executeQuery();
         result.next();
         return result.getInt(1);
+    }
+    
+        private void setUserOnline(int id_uzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SET_UZIVATEL_ONLINE);
+        prepare.setInt(1, id_uzivatele);
+
+        prepare.execute();
+        con.commit();
+    }
+        private void setUserOffline(int id_uzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SET_UZIVATEL_OFFLINE);
+        prepare.setInt(1, id_uzivatele);
+
+        prepare.execute();
+        con.commit();
     }
 
     public void registerUser(String name, String surname, String login, String password, String eml, String poznamka, Integer rocnik) throws SQLException {

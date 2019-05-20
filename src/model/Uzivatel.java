@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class Uzivatel { // TODO: Aktualizovat podle současných tabulek
 
-    private String idUzivatele;
+    private int idUzivatele;
     private String jmeno;
     private String prijmeni;
     private String email;
@@ -27,7 +27,7 @@ public class Uzivatel { // TODO: Aktualizovat podle současných tabulek
     private int online = 0;
     private boolean admin = false;
 
-    public Uzivatel(String idUzivatele, String jmeno, String prijmeni, String email, String login, int rokStudia, int blokace, String poznamka) {
+    public Uzivatel(int idUzivatele, String jmeno, String prijmeni, String email, String login, int rokStudia, int blokace, String poznamka) {
         this.idUzivatele = idUzivatele;
         this.jmeno = jmeno;
         this.prijmeni = prijmeni;
@@ -40,7 +40,7 @@ public class Uzivatel { // TODO: Aktualizovat podle současných tabulek
         this.admin = true;
     }
 
-    public String getIdUzivatele() {
+    public int getIdUzivatele() {
         return idUzivatele;
     }
 

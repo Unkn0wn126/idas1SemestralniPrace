@@ -83,14 +83,14 @@ public class FXMLConversationController implements Initializable {
     
     public void updateMessages(Uzivatel uzivatel){ // TODO: napojit na databázi tak, aby se zobrazovaly zprávy s daným kontaktem
         zpravy.clear();
-        if (zpravaManager != null) {
-            try {
-                List<Zprava> zpr = zpravaManager.selectZpravyKontaktu(uzivatel.getIdUzivatele());
-                zpravy.addAll(zpr);
-            } catch (SQLException ex) {
-                Logger.getLogger(FXMLConversationController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+//        if (zpravaManager != null) {
+//            try {
+//                List<Zprava> zpr = zpravaManager.selectZpravyKontaktu(uzivatel.getIdUzivatele());
+//                zpravy.addAll(zpr);
+//            } catch (SQLException ex) {
+//                Logger.getLogger(FXMLConversationController.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
         
         listView.scrollTo(zpravy.size()-1);
     }
