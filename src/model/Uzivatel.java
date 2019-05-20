@@ -25,7 +25,7 @@ public class Uzivatel {
     private List<Role> role;
     private String poznamka;
     private int online = 0;
-    private boolean admin;
+    private boolean admin = false;
 
     public Uzivatel(String idUzivatele, String jmeno, String prijmeni, String email, String login, int rokStudia, int blokace, String poznamka) {
         this.idUzivatele = idUzivatele;
@@ -68,6 +68,14 @@ public class Uzivatel {
         return kontakty;
     }
 
+    private void computeRights() {
+        for (Role role1 : role) {
+            if (role1.getIdRole() == 1) {
+                admin = true;
+            }
+        }
+    }
+
     public String getPoznamka() {
         return poznamka;
     }
@@ -83,19 +91,20 @@ public class Uzivatel {
     public boolean isAdmin() {
         return admin;
     }
-    
-    public List<Role> getRole(){
+
+    public List<Role> getRole() {
         return role;
     }
 
     public void setRole(List<Role> role) {
         this.role = role;
+        computeRights();
     }
-    
+
     @Override
-    public String toString(){
+    public String toString() {
         return String.format("Jméno: %s, Příjmení: %s, E-mail: %s, "
-                + "Rok studia: %d, Blokace: %d, Poznámka: %s", jmeno, prijmeni, 
+                + "Rok studia: %d, Blokace: %d, Poznámka: %s", jmeno, prijmeni,
                 email, rokStudia, blokace, poznamka);
     }
 }

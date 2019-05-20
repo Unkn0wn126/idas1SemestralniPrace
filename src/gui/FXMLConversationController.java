@@ -67,7 +67,7 @@ public class FXMLConversationController implements Initializable {
             tAMessage.clear();
             zpravy.add(zprava);
             if (zpravaManager != null) {
-                zpravaManager.insertZprava("Název", zprava.getObsahZpravy(), zprava.getAutor());
+                zpravaManager.insertZprava("Název", zprava.getObsahZpravy(), zprava.getJmenoAutora(), "2");
             }
             listView.scrollTo(zpravy.size()-1);
         }
@@ -85,7 +85,7 @@ public class FXMLConversationController implements Initializable {
         zpravy.clear();
         if (zpravaManager != null) {
             try {
-                List<Zprava> zpr = zpravaManager.selectZpravy();
+                List<Zprava> zpr = zpravaManager.selectZpravyKontaktu(uzivatel.getIdUzivatele());
                 zpravy.addAll(zpr);
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLConversationController.class.getName()).log(Level.SEVERE, null, ex);

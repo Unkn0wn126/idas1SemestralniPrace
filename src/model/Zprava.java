@@ -16,22 +16,21 @@ public class Zprava {
     private int idZpravy;
     private String obsahZpravy;
     private LocalDateTime casOdeslani;
-    private String autor;
-    private List<Kontakt> prijemci;
+    private String jmenoAutora;
 
-    public Zprava(int idZpravy, String obsahZpravy, LocalDateTime casOdeslani, String autor) {
+    public Zprava(int idZpravy, String obsahZpravy, LocalDateTime casOdeslani, String jmenoAutora) {
         this.idZpravy = idZpravy;
         this.obsahZpravy = obsahZpravy;
         this.casOdeslani = casOdeslani;
-        this.autor = autor;
+        this.jmenoAutora = jmenoAutora;
     }
     
     public String getObsahZpravy(){
         return obsahZpravy;
     }
     
-    public String getAutor(){
-        return autor;
+    public String getJmenoAutora(){
+        return jmenoAutora;
     }
     
     public LocalDateTime getCasOdeslani(){

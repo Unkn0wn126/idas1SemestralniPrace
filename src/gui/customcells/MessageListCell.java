@@ -60,7 +60,7 @@ public class MessageListCell extends ListCell<Zprava> {
                 zprava = item;
             }
 
-            lblJmeno.setText(item.getAutor());
+            lblJmeno.setText(item.getJmenoAutora());
             lblText.setText(item.getObsahZpravy());
             String casOdeslani = item.getCasOdeslani().format(DateTimeFormatter.ISO_DATE_TIME);
             lblTime.setText(casOdeslani);

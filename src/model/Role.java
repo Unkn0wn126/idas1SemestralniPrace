@@ -21,6 +21,24 @@ public class Role {
         this.opravneni = opravneni;
         this.poznamka = poznamka;
     }
+
+    public int getIdRole() {
+        return idRole;
+    }
+
+    public String getJmenoRole() {
+        return jmenoRole;
+    }
+
+    public String getOpravneni() {
+        return opravneni;
+    }
+
+    public String getPoznamka() {
+        return poznamka;
+    }
+    
+    
     
     public String toString(){
         return "Jméno role: " + jmenoRole;

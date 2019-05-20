@@ -24,9 +24,10 @@ public class UzivatelManager {
     private Uzivatel currentUser;
 
     private final String CREATE_VIEW = "CREATE OR REPLACE VIEW UZIVATELE_POHLED AS SELECT * FROM UZIVATELE";
+    private final String CREATE_VIEW_ = "CREATE OR REPLACE VIEW UZIVATELE_POHLED AS SELECT * FROM UZIVATELE";
     private final String SELECT_ROLE = "SELECT ROLE.* FROM UZIVATELE INNER JOIN ROLE_UZIVATELU ON ROLE_UZIVATELU.UZIVATELE_ID_UZIVATELE = UZIVATELE.ID_UZIVATELE"
             + " INNER JOIN ROLE ON ROLE_UZIVATELU.ROLE_ID_ROLE = ROLE.ID_ROLE"
-            + " WHERE UZIVATELE.ID_UZIVATELE = ?;";
+            + " WHERE UZIVATELE.ID_UZIVATELE = ?";
     private final String SELECT_UZIVATELE = "SELECT * FROM UZIVATELE_POHLED";
     private final String SELECT_UZIVATEL_BY_ID = "SELECT * FROM UZIVATELE_POHLED WHERE id_uzivatele = ?";
     private final String SELECT_UZIVATEL_BY_ATTRIBUTE = "SELECT * FROM UZIVATELE_POHLED WHERE jmeno LIKE ? OR prijmeni LIKE ?";
@@ -93,6 +94,7 @@ public class UzivatelManager {
                 result.getString("poznamka"));
         
         uzivatel.setRole(selectRoleUzivatele(idUzivatele));
+        System.out.println(uzivatel.getRole().toArray().toString());
         return uzivatel;
     }
 
@@ -116,14 +118,13 @@ public class UzivatelManager {
 
     private List<Role> selectRoleUzivatele(String idUzivatele) throws SQLException {
         List<Role> listSelect = new ArrayList<>();
-        System.out.println(SELECT_ROLE);
         PreparedStatement prepare = con.prepareStatement(SELECT_ROLE);
         prepare.setString(1, idUzivatele);
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {
-            listSelect.add(new Role(result.getInt("id_role"), result.getString("jmeno_role"), result.getString("opravneni"), result.getString("poznamka")));
-            System.out.println(listSelect.toArray().toString());
+            Role role = new Role(result.getInt("id_role"), result.getString("jmeno_role"), result.getString("opravneni"), result.getString("poznamka"));
+            listSelect.add(role);
         }
 
         return listSelect;
