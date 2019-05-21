@@ -6,8 +6,6 @@
 package model;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
 /**
  *
  * @author Lukas
@@ -35,5 +33,9 @@ public class Zprava { // TODO: Aktualizovat podle současných tabulek
     
     public LocalDateTime getCasOdeslani(){
         return this.casOdeslani;
+    }
+
+    public int getIdZpravy() {
+        return idZpravy;
     }
 }

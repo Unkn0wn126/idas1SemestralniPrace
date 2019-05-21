@@ -32,6 +32,18 @@ public class UzivatelManager {
     private final String SET_UZIVATEL_OFFLINE = "UPDATE UZIVATELE SET PRIHLASEN = 0 WHERE ID_UZIVATELE = ?";
     private final String SELECT_UZIVATELE = "SELECT * FROM UZIVATELE_POHLED";
     private final String SELECT_UZIVATEL_BY_ID = "SELECT * FROM UZIVATELE_POHLED WHERE id_uzivatele = ?";
+    private final String SELECT_UZIVATEL_BY_ID_KONTAKTU = "SELECT DISTINCT uzp2.id_uzivatele, uzp2.jmeno, uzp2.prijmeni, uzp2.rok_studia, uzp2.eml, uzp2.blokace, uzp2.poznamka" +
+" FROM KONTAKTY_UZIVATELU ku" +
+" inner join UZIVATELE_POHLED uzp on uzp.id_uzivatele = ku.uzivatele_id_uzivatele" +
+" inner join kontakty k on ku.kontakty_id_kontaktu = k.id_kontaktu" +
+" inner join UZIVATELE_POHLED uzp2 on k.uzivatele_id_uzivatele = uzp2.id_uzivatele" +
+" WHERE ku.kontakty_id_kontaktu = ?";
+    private final String SELECT_UZIVATELE_V_KONTAKTECH_BY_ID_UZIVATELE = "SELECT uzp2.id_uzivatele, uzp2.jmeno, uzp2.prijmeni, uzp2.rok_studia, uzp2.eml, uzp2.blokace, uzp2.poznamka"
+            + " FROM UZIVATELE_POHLED uzp"
+            + " inner join kontakty_uzivatelu ku on uzp.id_uzivatele = ku.uzivatele_id_uzivatele"
+            + " inner join kontakty k on ku.kontakty_id_kontaktu = k.id_kontaktu"
+            + " inner join UZIVATELE_POHLED uzp2 on k.uzivatele_id_uzivatele = uzp2.id_uzivatele"
+            + " WHERE UZP.id_uzivatele = ?";
     private final String SELECT_UZIVATEL_BY_ATTRIBUTE = "SELECT * FROM UZIVATELE_POHLED WHERE UPPER(jmeno) LIKE UPPER(?) OR UPPER(prijmeni) LIKE UPPER(?)";
     private final String SELECT_UZIVATEL_LOGIN = "SELECT * FROM UZIVATELE_POHLED WHERE login = ? AND heslo = ?";
     private final String SELECT_COUNT = "SELECT COUNT(*) from UZIVATELE_POHLED";
@@ -94,11 +106,28 @@ public class UzivatelManager {
                 result.getString("EML"), result.getString("login"),
                 result.getInt("rok_studia"), result.getInt("blokace"),
                 result.getString("poznamka"));
-        
+
         uzivatel.setRole(selectRoleUzivatele(idUzivatele));
-        System.out.println(uzivatel.getRole().toArray().toString());
         return uzivatel;
     }
+    
+    public Uzivatel selectUzivatelByIdKontaktu(int idKontaktu) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SELECT_UZIVATEL_BY_ID);
+        prepare.setInt(1, idKontaktu);
+        Uzivatel uzivatel;
+        ResultSet result = prepare.executeQuery();
+        result.next();
+        uzivatel = new Uzivatel(result.getInt("id_uzivatele"),
+                result.getString("jmeno"), result.getString("prijmeni"),
+                result.getString("EML"), result.getString("login"),
+                result.getInt("rok_studia"), result.getInt("blokace"),
+                result.getString("poznamka"));
+
+        uzivatel.setRole(selectRoleUzivatele(result.getInt("id_uzivatele")));
+        return uzivatel;
+    }
+    
+    
 
     public List<Uzivatel> selectUzivateleByAttributes(String attribut) throws SQLException {
         List<Uzivatel> listSelect = new ArrayList<>();
@@ -127,6 +156,25 @@ public class UzivatelManager {
         while (result.next()) {
             Role role = new Role(result.getInt("id_role"), result.getString("jmeno_role"), result.getString("opravneni"), result.getString("poznamka"));
             listSelect.add(role);
+        }
+
+        return listSelect;
+    }
+
+    public List<Uzivatel> selectUzivateleVKontatechByIdUzivatele(int idUzivatele) throws SQLException {
+        List<Uzivatel> listSelect = new ArrayList<>();
+
+        PreparedStatement prepare = con.prepareStatement(SELECT_UZIVATELE_V_KONTAKTECH_BY_ID_UZIVATELE);
+        prepare.setInt(1, idUzivatele);
+        ResultSet result = prepare.executeQuery();
+
+        while (result.next()) {
+            Uzivatel uzivatel = new Uzivatel(result.getInt("id_uzivatele"),
+                result.getString("jmeno"), result.getString("prijmeni"),
+                result.getString("EML"),
+                result.getInt("rok_studia"), result.getInt("blokace"),
+                result.getString("poznamka"));
+            listSelect.add(uzivatel);
         }
 
         return listSelect;
@@ -197,15 +245,16 @@ public class UzivatelManager {
         result.next();
         return result.getInt(1);
     }
-    
-        private void setUserOnline(int id_uzivatele) throws SQLException {
+
+    private void setUserOnline(int id_uzivatele) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(SET_UZIVATEL_ONLINE);
         prepare.setInt(1, id_uzivatele);
 
         prepare.execute();
         con.commit();
     }
-        private void setUserOffline(int id_uzivatele) throws SQLException {
+
+    private void setUserOffline(int id_uzivatele) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(SET_UZIVATEL_OFFLINE);
         prepare.setInt(1, id_uzivatele);
 

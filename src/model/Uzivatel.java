@@ -39,6 +39,20 @@ public class Uzivatel { // TODO: Aktualizovat podle současných tabulek
         this.kontakty = new ArrayList<>();
         this.admin = true;
     }
+    
+    public Uzivatel(int idUzivatele, String jmeno, String prijmeni, String email, int rokStudia, int blokace, String poznamka) {
+        this.idUzivatele = idUzivatele;
+        this.jmeno = jmeno;
+        this.prijmeni = prijmeni;
+        this.email = email;
+        this.rokStudia = rokStudia;
+        this.blokace = blokace;
+        this.poznamka = poznamka;
+        this.kontakty = new ArrayList<>();
+        this.admin = true;
+    }
+    
+    
 
     public int getIdUzivatele() {
         return idUzivatele;

@@ -24,7 +24,7 @@ public class Predmet { // TODO: Aktualizovat podle současných tabulek
     
     @Override
     public String toString(){
-        return String.format("ID: %s, Název: %s, Zkratka: %s, Popis: %s", idPredmetu, nazevPredmetu, zkratkaPredmetu, popis);
+        return String.format("Název: %s, Zkratka: %s, Popis: %s", nazevPredmetu, zkratkaPredmetu, popis);
     }
     
     

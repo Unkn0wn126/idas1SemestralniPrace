@@ -24,6 +24,10 @@ public class StudijniPlanManager {
     private final String CREATE_VIEW = "CREATE OR REPLACE VIEW STUDIJNI_PLANY_POHLED AS SELECT * FROM STUDIJNI_PLANY";
     private final String SELECT_STUDIJNI_PLANY = "SELECT * FROM STUDIJNI_PLANY_POHLED";
     private final String SELECT_STUDIJNI_PLAN = "SELECT * FROM STUDIJNI_PLANY_POHLED WHERE id_planu = ?";
+    private final String SELECT_STUDIJNI_PLANY_UZIVATELE = "select sp.nazev, sp.popis FROM studijni_plany sp"
+            + " inner join studijni_plany_uzivatelu spu on spu.sp_id_planu = sp.id_planu"
+            + " inner join uzivatele u on u.id_uzivatele = spu.uzivatele_id_uzivatele"
+            + " where u.id_uzivatele = ?";
     private final String SELECT_STUDIJNI_PLAN_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_PLANY_POHLED WHERE UPPER(nazev) LIKE UPPER(?)";
     private final String INSERT_STUDIJNI_PLAN = "INSERT INTO STUDIJNI_PLANY(id_planu,studijni_obory_id_oboru, popis) VALUES (?,?,?)";
     private final String DELETE = "DELETE FROM STUDIJNI_PLANY WHERE id_planu = ?";
@@ -50,7 +54,20 @@ public class StudijniPlanManager {
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {
-            listSelect.add(new StudijniPlan(result.getInt("id_planu"), result.getString("nazev"), result.getInt("id_oboru"), result.getString("popis")));
+            listSelect.add(new StudijniPlan(result.getInt("id_planu"), result.getString("nazev"), result.getInt("so_id_oboru"), result.getString("popis")));
+
+        }
+        return listSelect;
+    }
+
+    public List<StudijniPlan> selectStudijniPlanyUzivatele(int idUzivatele) throws SQLException {
+        List<StudijniPlan> listSelect = new ArrayList<>();
+        PreparedStatement prepare = con.prepareStatement(SELECT_STUDIJNI_PLANY_UZIVATELE);
+        prepare.setInt(1, idUzivatele);
+        ResultSet result = prepare.executeQuery();
+
+        while (result.next()) {
+            listSelect.add(new StudijniPlan(result.getInt("id_planu"), result.getString("nazev"), result.getInt("so_id_oboru"), result.getString("popis")));
 
         }
         return listSelect;
@@ -61,7 +78,7 @@ public class StudijniPlanManager {
         prepare.setInt(1, idPlanu);
         StudijniPlan plan;
         ResultSet result = prepare.executeQuery();
-        plan = new StudijniPlan(result.getInt("id_planu"), result.getString("nazev"), result.getInt("studijni_obory_id_oboru"), result.getString("popis"));
+        plan = new StudijniPlan(result.getInt("id_planu"), result.getString("nazev"), result.getInt("so_id_oboru"), result.getString("popis"));
         return plan;
     }
 
@@ -71,7 +88,7 @@ public class StudijniPlanManager {
         List<StudijniPlan> listSelect = new ArrayList<>();
         ResultSet result = prepare.executeQuery();
         while (result.next()) {
-            listSelect.add(new StudijniPlan(result.getInt("id_planu"), result.getString("nazev"), result.getInt("id_oboru"), result.getString("popis")));
+            listSelect.add(new StudijniPlan(result.getInt("id_planu"), result.getString("nazev"), result.getInt("so_id_oboru"), result.getString("popis")));
         }
         return listSelect;
     }

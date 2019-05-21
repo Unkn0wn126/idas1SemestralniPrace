@@ -9,7 +9,7 @@ package model;
  *
  * @author Lukas
  */
-public class Role { // TODO: Aktualizovat podle současných tabulek
+public class Role {
     private int idRole;
     private String jmenoRole;
     private String opravneni;
@@ -38,9 +38,7 @@ public class Role { // TODO: Aktualizovat podle současných tabulek
         return poznamka;
     }
     
-    
-    
     public String toString(){
-        return "Jméno role: " + jmenoRole;
+        return "Jméno role: " + jmenoRole + " Oprávnění: " + opravneni;
     }
 }

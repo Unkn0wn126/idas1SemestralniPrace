@@ -44,6 +44,7 @@ public class KontaktManager {
     private final String INSERT_KONTAKT = "INSERT INTO KONTAKTY(uzivatele_id_uzivatele) VALUES (?)";
     private final String INSERT_KONTAKTY_UZIVATELU = "INSERT INTO KONTAKTY_UZIVATELU(UZIVATELE_ID_UZIVATELE, KONTAKTY_ID_KONTAKTU) VALUES (?,?)";
     private final String DELETE = "DELETE FROM KONTAKTY WHERE id_kontaktu = ? AND uzivatele_id_uzivatele = ?";
+    private final String ODEBRAT_Z_KONTAKTU = "DELETE FROM KONTAKTY_UZIVATELU WHERE KONTAKTY_ID_KONTAKTU = ? AND UZIVATELE_ID_UZIVATELE = ?";
 
     public KontaktManager(Connection con) {
         this.con = con;
@@ -56,15 +57,19 @@ public class KontaktManager {
     }
 
     private void createView() throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(CREATE_VIEW);
+        PreparedStatement prepare = con.prepareStatement(CREATE_VIEW, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.execute();
         con.commit();
     }
 
     private void createViewKontaktVypis() throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(C_V_KONTAKT_VYPIS);
+        PreparedStatement prepare = con.prepareStatement(C_V_KONTAKT_VYPIS, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.execute();
         con.commit();
+    }
+    
+    public void odebratZKontaktu(int idKontaktu, int idUzivatele){ // TODO: Dodělat odebírání kontaktů
+        
     }
 
     /**
@@ -83,6 +88,8 @@ public class KontaktManager {
         while (result.next()) {
             listSelect.add(new KontaktVypis(result.getInt("id_kontaktu"), result.getInt("id_uzivatele"), result.getString("jmeno"), result.getString("prijmeni"), result.getInt("prihlasen"), result.getInt("blokace")));
         }
+        result.close();
+        prepare.close();
         return listSelect;
     }
 
@@ -100,10 +107,10 @@ public class KontaktManager {
         prepare.setString(2, id_uzivatele);
         Kontakt kontakt;
         ResultSet result = prepare.executeQuery();
-        kontakt = new Kontakt(result.getString("id_kontaktu"),
-                result.getString("uzivatele_id_uzivatele"),
-                result.getDate("datum_od"), result.getDate("datum_do"),
-                result.getInt("platnost"), result.getString("poznamka"));
+        kontakt = new Kontakt(result.getInt("id_kontaktu"),
+                result.getInt("uzivatele_id_uzivatele"));
+        result.close();
+        prepare.close();
         return kontakt;
     }
 
@@ -118,7 +125,7 @@ public class KontaktManager {
      * @throws SQLException
      */
     private void insertKontakt(LocalDate datumOd, LocalDate datumDo, String poznamka) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(INSERT_KONTAKT);
+        PreparedStatement prepare = con.prepareStatement(INSERT_KONTAKT, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.setDate(1, Date.valueOf(datumOd));
         prepare.setDate(2, Date.valueOf(datumDo));
         prepare.setInt(3, 1);
@@ -129,7 +136,7 @@ public class KontaktManager {
     }
 
     private void insertKontaktyUzivatelu(int idUzivatele, int idKontaktu) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(INSERT_KONTAKTY_UZIVATELU);
+        PreparedStatement prepare = con.prepareStatement(INSERT_KONTAKTY_UZIVATELU, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.setInt(1, idUzivatele);
         prepare.setInt(2, idKontaktu);
 
@@ -141,7 +148,10 @@ public class KontaktManager {
         PreparedStatement prepare = con.prepareStatement(SELECT_LAST_KONTAKT_ID);
         ResultSet res = prepare.executeQuery();
         res.next();
-        return res.getInt(1);
+        int id = res.getInt(1);
+        res.close();
+        prepare.close();
+        return id;
     }
 
     private int selectContactIdByUserId(int idUzivatele) throws SQLException {
@@ -149,7 +159,10 @@ public class KontaktManager {
         prepare.setInt(1, idUzivatele);
         ResultSet res = prepare.executeQuery();
         res.next();
-        return res.getInt(1);
+        int id = res.getInt(1);
+        res.close();
+        prepare.close();
+        return id;
     }
 
     public void addToContacts(int idPrvniho, int idDruheho) throws SQLException {
@@ -165,7 +178,7 @@ public class KontaktManager {
      * @throws SQLException
      */
     public void deleteKontakt(String idKontaktu, String idUzivatele) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(DELETE);
+        PreparedStatement prepare = con.prepareStatement(DELETE, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.setString(1, idKontaktu);
         prepare.setString(2, idUzivatele);
         prepare.execute();

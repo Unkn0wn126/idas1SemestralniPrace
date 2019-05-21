@@ -213,18 +213,11 @@ public class FXMLMainSceneController implements Initializable {
         // Při kliknutí na kontextovou možnost "zobrazit profil" se
         // zobrazí informace o profilu vybraného uživatele
         contactsController.setContextMenuShowProfileAction((t) -> {
-            loadAccountMenu(t);
-        });
-
-        // Při kliknutí na kontextovou možnost "poslat zprávu" se zobrazí
-        // menu pro posílání zpráv. Výběrem vícero kontaktů dojde k možnosti
-        // poslat zprávu více kontaktům
-        contactsController.setContextMenuSendMessageAction((t) -> {
-            // Získání seznamu vybraných uživatelů
-//            List<Uzivatel> users = contactsController.getSelectedUsers();
-//            for (Object user : users) { // TODO: Dodělat akci pro zasílání zpráv; nebude nutné získávat seznam vybraných uživatelů tady; typ consumeru
-//                System.out.println(user);
-//            }
+            try {
+                loadAccountMenu(db.getUzivatelManager().selectUzivatelByIdKontaktu(t.getIdKontaktu()));
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
 
         contactsController.setRemoveContactAction((t) -> {
@@ -251,7 +244,6 @@ public class FXMLMainSceneController implements Initializable {
         contactsController.setUzivatelManager(db.getUzivatelManager());
 
         // Nastavení dat pro zobrazení
-        // TODO: Předělat, aby používalo joiny (možná bude stačit jenom KontaktManager...)
         contactsController.setContactDataSet(db.getKontaktManager().selectKontaktyUzivatele(db.getUzivatelManager().getCurrentUser().getIdUzivatele()));
     }
 
@@ -311,7 +303,7 @@ public class FXMLMainSceneController implements Initializable {
     /**
      * Načte menu s konverzací s kontaktem
      */
-    private void loadConversationMenu(Uzivatel uzivatel) { // TODO: Zjistit, jestli nejde, aby to drželo instanci kontaktu
+    private void loadConversationMenu(List<KontaktVypis> prijemci) {
         if (conversationMenu == null) { // Ošetření nullPointerException
             loader = new FXMLLoader();
             try {
@@ -333,7 +325,7 @@ public class FXMLMainSceneController implements Initializable {
         }
 
         loadCurrentMenu(conversationMenu);
-        conversationController.updateMessages(uzivatel);
+        conversationController.updateMessages(prijemci);
     }
 
     /**
@@ -391,7 +383,7 @@ public class FXMLMainSceneController implements Initializable {
      */
     private void setAccountMenuData(Uzivatel uzivatel) throws SQLException {
         accountController.updateView(uzivatel);
-        accountController.setContactsDataSet(db.getUzivatelManager().selectUzivatele());
+        accountController.setContactsDataSet(db.getUzivatelManager().selectUzivateleVKontatechByIdUzivatele(uzivatel.getIdUzivatele()));
         accountController.setAddToContactsAction((t) -> {
             addUzivateleDoKontaktu(t);
         });
