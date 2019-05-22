@@ -19,6 +19,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.FlowPane;
 import model.Role;
 import model.StudijniObor;
 import model.StudijniPlan;
@@ -48,12 +49,15 @@ public class FXMLRegisterController implements Initializable {
     private TextArea taPoznamka;
     
     private ObservableList<StudijniPlan> plany = FXCollections.observableArrayList();
+    private ObservableList<StudijniObor> obory = FXCollections.observableArrayList();
     private ObservableList<Role> role = FXCollections.observableArrayList();
     private ObservableList<Integer> rocniky = FXCollections.observableArrayList();
     @FXML
     private ListView<Role> listViewRole;
     @FXML
     private ListView<StudijniPlan> listViewStudijniPlany;
+    @FXML
+    private ComboBox<StudijniObor> cbObor;
     /**
      * Initializes the controller class.
      */
@@ -65,6 +69,8 @@ public class FXMLRegisterController implements Initializable {
         listViewStudijniPlany.setItems(plany);
         
         listViewRole.setItems(role);
+        
+        cbObor.setItems(obory);
     }
 
     public void setRegisterAction(Consumer<ActionEvent> registerAction) {
@@ -78,6 +84,11 @@ public class FXMLRegisterController implements Initializable {
     public void setPlanyDataset(List<StudijniPlan> data){
         plany.clear();
         plany.addAll(data);
+    }
+
+    public void setOboryDataset(List<StudijniObor> data){
+        obory.clear();
+        obory.addAll(data);
     }
 
     public void setRoleDataset(List<Role> data) {

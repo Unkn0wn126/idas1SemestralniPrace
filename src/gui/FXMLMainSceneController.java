@@ -738,9 +738,10 @@ public class FXMLMainSceneController implements Initializable {
         });
     }
 
-    private void setRegisterMenuData(List<StudijniPlan> plany, List<Role> role) {
+    private void setRegisterMenuData(List<StudijniPlan> plany, List<Role> role, List<StudijniObor> obory) {
         registerController.setPlanyDataset(plany);
         registerController.setRoleDataset(role);
+        registerController.setOboryDataset(obory);
     }
 
     /**
@@ -748,7 +749,7 @@ public class FXMLMainSceneController implements Initializable {
      *
      * @param obory seznam oborů pro výběr
      */
-    private void loadRegisterMenu(List<StudijniPlan> plany, List<Role> role) {
+    private void loadRegisterMenu(List<StudijniPlan> plany, List<Role> role, List<StudijniObor> obory) {
         if (registerMenu == null) {
             loader = new FXMLLoader();
             try {
@@ -770,7 +771,7 @@ public class FXMLMainSceneController implements Initializable {
         loadCurrentMenu(registerMenu);
 
         // Aktualizuje seznam oborů
-        setRegisterMenuData(plany, role);
+        setRegisterMenuData(plany, role, obory);
     }
 
     // Register menu section end
@@ -968,8 +969,11 @@ public class FXMLMainSceneController implements Initializable {
     /**
      * Nastaví instance potřebné pro práci s databází
      */
-    private void setEditUserMenuData(Uzivatel uzivatel) {
+    private void setEditUserMenuData(Uzivatel uzivatel) throws SQLException {
         editUserController.updateViews(uzivatel);
+        editUserController.updateRole(getRole());
+        editUserController.updateStudijniObory(getStudijniObory());
+        editUserController.updateStudijniPlany(getStudijniPlany());
     }
 
     /**
@@ -998,7 +1002,11 @@ public class FXMLMainSceneController implements Initializable {
 
         loadCurrentMenu(editUserMenu);
 
-        setEditUserMenuData(uzivatel);
+        try {
+            setEditUserMenuData(uzivatel);
+        } catch (SQLException ex) {
+            Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     // EditUser menu section end
 
@@ -1183,7 +1191,7 @@ public class FXMLMainSceneController implements Initializable {
     @FXML
     private void handleMenuItemPridatUzivateleAction(ActionEvent event) {
         try {
-            loadRegisterMenu(getStudijniPlany(), getRole());
+            loadRegisterMenu(getStudijniPlany(), getRole(), getStudijniObory());
         } catch (SQLException ex) {
             Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
         }
