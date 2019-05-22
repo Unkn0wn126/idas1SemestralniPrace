@@ -5,12 +5,7 @@
  */
 package gui.customcells;
 
-import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -83,9 +78,13 @@ public class PostListCell extends ListCell<Prispevek> {
                 return new PostListCell();
             });
             komentare.clear();
-            komentare.addAll(item.getKomentare());
-            lblName.setText("Place Holder");
-            lblPostName.setText(item.getNazev());
+            if (item.getKomentare() != null) {
+                komentare.addAll(item.getKomentare());
+            }
+            lblName.setText(item.getJmenoAutora());
+            if (item.getNazev() != null) {
+                lblPostName.setText(item.getNazev());
+            }
             String casOdeslani = item.getCasOdeslani().format(DateTimeFormatter.ISO_DATE_TIME);
             lblTime.setText(casOdeslani);
             taMessage.setText(item.getObsahPrispevku());
@@ -99,14 +98,14 @@ public class PostListCell extends ListCell<Prispevek> {
     private void handleBtnOdeslatAction(ActionEvent event) {
         if (taReply.getText().length() > 0) {
             if (prispevekManager != null) {
-                Prispevek pr = new Prispevek(1, taReply.getText(), LocalDateTime.now(), "Nazev", 0, "Koment", new ArrayList<Prispevek>());
-                komentare.add(pr);
-                taReply.setText(null);
-                try {
-                    prispevekManager.insertPrispevek(pr.getNazev(), pr.getObsahPrispevku(), pr.getNazev(), pr.getNazev());
-                } catch (SQLException ex) {
-                    Logger.getLogger(PostListCell.class.getName()).log(Level.SEVERE, null, ex);
-                }
+//                Prispevek pr = new Prispevek(1, taReply.getText(), LocalDateTime.now(), "Nazev", 0, "Koment", new ArrayList<Prispevek>());
+//                komentare.add(pr);
+//                taReply.setText(null);
+//                try {
+//                    prispevekManager.insertPrispevek(pr.getNazev(), pr.getObsahPrispevku(), pr.getNazev(), pr.getNazev());
+//                } catch (SQLException ex) {
+//                    Logger.getLogger(PostListCell.class.getName()).log(Level.SEVERE, null, ex);
+//                }
             }
 
         }

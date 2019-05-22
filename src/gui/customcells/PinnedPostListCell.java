@@ -61,7 +61,7 @@ public class PinnedPostListCell extends ListCell<Prispevek> {
             if (prispevek == null) {
                 prispevek = item;
             }
-            lblName.setText("Place Holder");
+            lblName.setText(item.getJmenoAutora());
             lblPostName.setText(item.getNazev());
             String casOdeslani = item.getCasOdeslani().format(DateTimeFormatter.ISO_DATE_TIME);
             lblTime.setText(casOdeslani);

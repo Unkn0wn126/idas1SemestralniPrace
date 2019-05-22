@@ -6,7 +6,6 @@
 package gui;
 
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -20,7 +19,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import model.StudijniPlan;
-import model.StudijniPlanManager;
 import model.Uzivatel;
 
 /**

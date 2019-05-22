@@ -32,12 +32,12 @@ public class UzivatelManager {
     private final String SET_UZIVATEL_OFFLINE = "UPDATE UZIVATELE SET PRIHLASEN = 0 WHERE ID_UZIVATELE = ?";
     private final String SELECT_UZIVATELE = "SELECT * FROM UZIVATELE_POHLED";
     private final String SELECT_UZIVATEL_BY_ID = "SELECT * FROM UZIVATELE_POHLED WHERE id_uzivatele = ?";
-    private final String SELECT_UZIVATEL_BY_ID_KONTAKTU = "SELECT DISTINCT uzp2.id_uzivatele, uzp2.jmeno, uzp2.prijmeni, uzp2.rok_studia, uzp2.eml, uzp2.blokace, uzp2.poznamka" +
-" FROM KONTAKTY_UZIVATELU ku" +
-" inner join UZIVATELE_POHLED uzp on uzp.id_uzivatele = ku.uzivatele_id_uzivatele" +
-" inner join kontakty k on ku.kontakty_id_kontaktu = k.id_kontaktu" +
-" inner join UZIVATELE_POHLED uzp2 on k.uzivatele_id_uzivatele = uzp2.id_uzivatele" +
-" WHERE ku.kontakty_id_kontaktu = ?";
+    private final String SELECT_UZIVATEL_BY_ID_KONTAKTU = "SELECT DISTINCT uzp2.id_uzivatele, uzp2.jmeno, uzp2.prijmeni, uzp2.rok_studia, uzp2.eml, uzp2.blokace, uzp2.poznamka"
+            + " FROM KONTAKTY_UZIVATELU ku"
+            + " inner join UZIVATELE_POHLED uzp on uzp.id_uzivatele = ku.uzivatele_id_uzivatele"
+            + " inner join kontakty k on ku.kontakty_id_kontaktu = k.id_kontaktu"
+            + " inner join UZIVATELE_POHLED uzp2 on k.uzivatele_id_uzivatele = uzp2.id_uzivatele"
+            + " WHERE ku.kontakty_id_kontaktu = ?";
     private final String SELECT_UZIVATELE_V_KONTAKTECH_BY_ID_UZIVATELE = "SELECT uzp2.id_uzivatele, uzp2.jmeno, uzp2.prijmeni, uzp2.rok_studia, uzp2.eml, uzp2.blokace, uzp2.poznamka"
             + " FROM UZIVATELE_POHLED uzp"
             + " inner join kontakty_uzivatelu ku on uzp.id_uzivatele = ku.uzivatele_id_uzivatele"
@@ -49,7 +49,6 @@ public class UzivatelManager {
     private final String SELECT_COUNT = "SELECT COUNT(*) from UZIVATELE_POHLED";
     private final String INSERT_UZIVATEL = "INSERT INTO UZIVATELE(login, heslo, jmeno, prijmeni, rok_studia, eml, blokace, poznamka) VALUES (?,?,?,?,?,?,?,?)";
     private final String DELETE = "DELETE FROM UZIVATELE WHERE id_uzivatele = ?";
-    private final String UPDATE_OBOR = "UPDATE UZIVATELE SET nazev = ?, popis = ?, akreditace_do = ?  where id_oboru = ?";
 
     public UzivatelManager(Connection con) {
         this.con = con;
@@ -110,7 +109,7 @@ public class UzivatelManager {
         uzivatel.setRole(selectRoleUzivatele(idUzivatele));
         return uzivatel;
     }
-    
+
     public Uzivatel selectUzivatelByIdKontaktu(int idKontaktu) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(SELECT_UZIVATEL_BY_ID);
         prepare.setInt(1, idKontaktu);
@@ -126,8 +125,6 @@ public class UzivatelManager {
         uzivatel.setRole(selectRoleUzivatele(result.getInt("id_uzivatele")));
         return uzivatel;
     }
-    
-    
 
     public List<Uzivatel> selectUzivateleByAttributes(String attribut) throws SQLException {
         List<Uzivatel> listSelect = new ArrayList<>();
@@ -170,10 +167,10 @@ public class UzivatelManager {
 
         while (result.next()) {
             Uzivatel uzivatel = new Uzivatel(result.getInt("id_uzivatele"),
-                result.getString("jmeno"), result.getString("prijmeni"),
-                result.getString("EML"),
-                result.getInt("rok_studia"), result.getInt("blokace"),
-                result.getString("poznamka"));
+                    result.getString("jmeno"), result.getString("prijmeni"),
+                    result.getString("EML"),
+                    result.getInt("rok_studia"), result.getInt("blokace"),
+                    result.getString("poznamka"));
             listSelect.add(uzivatel);
         }
 

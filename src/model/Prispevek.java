@@ -12,39 +12,131 @@ import java.util.List;
  *
  * @author Lukas
  */
-public class Prispevek { // TODO: Aktualizovat podle současných tabulek
+public class Prispevek {
+
     private int idPrispevku;
     private String obsahPrispevku;
     private LocalDateTime casOdeslani;
     private String nazev;
     private int blokace;
-    private String tag;
     private List<Prispevek> komentare;
+    private int priorita;
+    private int idAutora;
+    private int idRodice;
+    private String jmenoAutora;
 
-    public Prispevek(int idPrispevku, String obsahPrispevku, LocalDateTime casOdeslani, String nazev, int blokace, String tag, List<Prispevek> komentare) {
+    public Prispevek(int idPrispevku, String obsahPrispevku, LocalDateTime casOdeslani, List<Prispevek> komentare, int blokace, int priorita, int idAutora, String nazev, String jmenoAutora) {
         this.idPrispevku = idPrispevku;
         this.obsahPrispevku = obsahPrispevku;
         this.casOdeslani = casOdeslani;
-        this.nazev = nazev;
-        this.blokace = blokace;
-        this.tag = tag;
         this.komentare = komentare;
+        this.blokace = blokace;
+        this.priorita = priorita;
+        this.idAutora = idAutora;
+        this.nazev = nazev;
+        this.jmenoAutora = jmenoAutora;
     }
     
-    public String getObsahPrispevku(){
+    public Prispevek(String obsahPrispevku, LocalDateTime casOdeslani, int blokace, int priorita, int idAutora, String nazev) {
+        this.obsahPrispevku = obsahPrispevku;
+        this.casOdeslani = casOdeslani;
+        this.blokace = blokace;
+        this.priorita = priorita;
+        this.idAutora = idAutora;
+        this.nazev = nazev;
+    }
+    
+    public Prispevek(String obsahPrispevku, LocalDateTime casOdeslani, int blokace, int priorita, int idAutora, String nazev, String jmenoAutora) {
+        this.obsahPrispevku = obsahPrispevku;
+        this.casOdeslani = casOdeslani;
+        this.blokace = blokace;
+        this.priorita = priorita;
+        this.idAutora = idAutora;
+        this.nazev = nazev;
+        this.jmenoAutora = jmenoAutora;
+    }
+    
+    public Prispevek(String obsahPrispevku, LocalDateTime casOdeslani, int blokace, int priorita, int idAutora, String nazev, int idRodice) {
+        this.obsahPrispevku = obsahPrispevku;
+        this.casOdeslani = casOdeslani;
+        this.blokace = blokace;
+        this.priorita = priorita;
+        this.idAutora = idAutora;
+        this.nazev = nazev;
+        this.idRodice = idRodice;
+    }
+
+    public Prispevek(int idPrispevku, String obsahPrispevku, LocalDateTime casOdeslani, int blokace, int priorita, int idAutora, String nazev, String jmenoAutora) {
+        this.idPrispevku = idPrispevku;
+        this.obsahPrispevku = obsahPrispevku;
+        this.casOdeslani = casOdeslani;
+        this.blokace = blokace;
+        this.priorita = priorita;
+        this.idAutora = idAutora;
+        this.nazev = nazev;
+        this.jmenoAutora = jmenoAutora;
+    }
+
+    public String getObsahPrispevku() {
         return this.obsahPrispevku;
     }
-    
-    public LocalDateTime getCasOdeslani(){
+
+    public LocalDateTime getCasOdeslani() {
         return this.casOdeslani;
     }
-    
-    public String getNazev(){
+
+    public String getNazev() {
         return this.nazev;
     }
-    
-    public List<Prispevek> getKomentare(){
+
+    public List<Prispevek> getKomentare() {
         return this.komentare;
     }
+
+    public int getIdPrispevku() {
+        return idPrispevku;
+    }
+
+    public int getBlokace() {
+        return blokace;
+    }
+
+    public int getPriorita() {
+        return priorita;
+    }
+
+    public int getIdAutora() {
+        return idAutora;
+    }
+
+    public void setObsahPrispevku(String obsahPrispevku) {
+        this.obsahPrispevku = obsahPrispevku;
+    }
+
+    public void setNazev(String nazev) {
+        this.nazev = nazev;
+    }
+
+    public void setBlokace(int blokace) {
+        this.blokace = blokace;
+    }
+
+    public void setPriorita(int priorita) {
+        this.priorita = priorita;
+    }
+
+    public void setKomentare(List<Prispevek> komentare) {
+        this.komentare = komentare;
+    }
+
+    public String getJmenoAutora() {
+        return jmenoAutora;
+    }
+
+    public int getIdRodice() {
+        return idRodice;
+    }
     
+    
+
 }

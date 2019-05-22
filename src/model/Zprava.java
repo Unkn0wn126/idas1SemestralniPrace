@@ -23,6 +23,12 @@ public class Zprava { // TODO: Aktualizovat podle současných tabulek
         this.jmenoAutora = jmenoAutora;
     }
     
+    public Zprava(String obsahZpravy, LocalDateTime casOdeslani, String jmenoAutora) {
+        this.obsahZpravy = obsahZpravy;
+        this.casOdeslani = casOdeslani;
+        this.jmenoAutora = jmenoAutora;
+    }
+    
     public String getObsahZpravy(){
         return obsahZpravy;
     }

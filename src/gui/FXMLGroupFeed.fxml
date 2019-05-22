@@ -59,7 +59,7 @@
             <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" vgap="10.0" GridPane.columnIndex="1">
                <children>
                   <ComboBox fx:id="cbPriorita" prefHeight="25.0" prefWidth="120.0" promptText="Priorita" />
-                  <Button fx:id="btnOdeslat" mnemonicParsing="false" prefWidth="120.0" text="Odeslat" />
+                  <Button mnemonicParsing="false" onAction="#handleBtnOdeslatAction" prefWidth="120.0" text="Odeslat" />
                </children>
             </FlowPane>
          </children>

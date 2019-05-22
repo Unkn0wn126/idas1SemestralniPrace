@@ -22,6 +22,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TabPane;
+import model.Role;
+import model.StudijniPlan;
 import model.Uzivatel;
 
 /**
@@ -47,6 +49,8 @@ public class FXMLAccountViewController implements Initializable {
     private Uzivatel uzivatel;
 
     private ObservableList<Uzivatel> kontakty = FXCollections.observableArrayList();
+    private ObservableList<Role> role = FXCollections.observableArrayList();
+    private ObservableList<StudijniPlan> studijniPlany = FXCollections.observableArrayList();
 
     private Consumer<Uzivatel> editButtonAction;
 
@@ -62,9 +66,11 @@ public class FXMLAccountViewController implements Initializable {
     @FXML
     private TabPane tabPane;
     @FXML
-    private Label lblRole;
-    @FXML
     private Label lblBan;
+    @FXML
+    private ListView<Role> listViewRole;
+    @FXML
+    private ListView<StudijniPlan> listViewStudijniPlany;
 
     /**
      * Initializes the controller class.
@@ -76,6 +82,10 @@ public class FXMLAccountViewController implements Initializable {
         listViewKontakty.setCellFactory((param) -> {
             return new UzivatelListCell(addContextMenuContact());
         });
+        
+        listViewRole.setItems(role);// TODO: udělat custom cell
+        
+        listViewStudijniPlany.setItems(studijniPlany); // TODO: udělat custom cell
     }
 
     @FXML
@@ -138,8 +148,13 @@ public class FXMLAccountViewController implements Initializable {
      * Updatuje data pro zobrazení podle uživatele
      * @param uzivatel uživatel, jehož data se mají zobrazit
      */
-    public void updateView(Uzivatel uzivatel) {
+    public void updateView(Uzivatel uzivatel, List<Role> role, List<StudijniPlan> studijniPlany) {
         setUzivatel(uzivatel);
+        this.role.clear();
+        this.studijniPlany.clear();
+        
+        this.role.addAll(role);
+        this.studijniPlany.addAll(studijniPlany);
 
         if (uzivatel != null && canEdit != null) {
             btnUpravit.setVisible(canEdit.test(uzivatel));
@@ -151,7 +166,6 @@ public class FXMLAccountViewController implements Initializable {
         lblEmail.setText(uzivatel.getEmail());
         lblRokStudia.setText(Integer.toString(uzivatel.getRokStudia()));
         lblPoznamka.setText(uzivatel.getPoznamka());
-//        lblRole.setText(uzivatel.getRole().toArray().toString()); // TODO: dodělat získání dat o rolích pomocí joinu
         String blokace = uzivatel.getBlokace() == 0 ? "Ne": "Ano";
         lblBan.setText(blokace);
         

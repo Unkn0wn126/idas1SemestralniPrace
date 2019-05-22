@@ -75,8 +75,7 @@ public class UzivatelListCell extends ListCell<Uzivatel> {
             lblName.setText(item.getJmeno());
             lblSurname.setText(item.getPrijmeni());
             lblRocnik.setText(Integer.toString(item.getRokStudia()));
-            lblBan.setText("0"); // TODO: napojit na skutečná data
-            lblRole.setText("Uzivatel"); // TODO: napojit na skutečná data
+            lblBan.setText(Integer.toString(item.getBlokace()));
             setGraphic(gridPane);
             setPrefHeight(gridPane.getPrefHeight());
         }

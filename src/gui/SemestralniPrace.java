@@ -5,7 +5,7 @@
  */
 package gui;
 
-import database.DatabaseHelper;
+import database.DbHelper;
 import database.OracleConnector;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -20,7 +20,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import model.UzivatelManager;
 
 /**
  *
@@ -29,16 +28,11 @@ import model.UzivatelManager;
 public class SemestralniPrace extends Application {
 
     public static Stage primaryStage;
-    
+
     /**
      * Instance třídy pro komunikaci s databází
      */
-    private DatabaseHelper dbHelper;
-    
-    /**
-     * Instance třídy pro komunikaci s tabulkou UZIVATELE
-     */
-    private UzivatelManager uzivManager;
+    private DbHelper dbHelper;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -56,11 +50,10 @@ public class SemestralniPrace extends Application {
             // Credentials pro navázání spojení
             OracleConnector.setUpConnection("fei-sql1.upceucebny.cz", 1521,
                     "IDAS", "st55419", "Salem3l139");
-            
+
             // Vytvoření instance třídy pro ovládání databáze
             // Ve zbytku aplikace řešeno dependency injection
-            dbHelper = new DatabaseHelper(OracleConnector.getConnection());
-            uzivManager = dbHelper.getUzivatelManager();
+            dbHelper = new DbHelper(OracleConnector.getConnection());
         } catch (SQLException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
@@ -74,6 +67,7 @@ public class SemestralniPrace extends Application {
 
     /**
      * Načte menu pro přihlášení
+     *
      * @param stage okno, ve kterém se má zobrazit
      * @throws IOException když se menu nepodaří načíst ze souboru
      */
@@ -94,7 +88,7 @@ public class SemestralniPrace extends Application {
             login(login, heslo, stage);
             stage.setResizable(true);
         });
-        
+
         // Nastavení akce pokusu o zavření okna tak, 
         // aby byl současný uživatel odhlášen a spojení s databází bylo ukončeno
         controller.setCloseAction((t) -> {
@@ -108,6 +102,7 @@ public class SemestralniPrace extends Application {
 
     /**
      * Pokusí se přihlásit uživatele
+     *
      * @param login id/login/e-mail uživatele
      * @param heslo heslo uživatele
      * @param stage okno, ve kterém se otevře hlavní scéna
@@ -115,8 +110,20 @@ public class SemestralniPrace extends Application {
     private void login(String login, String heslo, Stage stage) {
         try {
             // Uživatele se podařilo přihlásit
-            if (uzivManager.prihlasUzivatele(login, heslo)) {
-                loadMainScene(stage);
+            if (dbHelper.prihlasUzivatele(login, heslo)) {
+                if (dbHelper.getCurrentUser().getBlokace() == 0) {
+                    loadMainScene(stage);
+                } else {
+                    dbHelper.unsetCurrentUser();
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    
+                    alert.setTitle("Error");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Tento účet je zablokován. Kontaktujte administrátora sítě");
+
+                    alert.showAndWait();
+                }
+
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
@@ -132,6 +139,7 @@ public class SemestralniPrace extends Application {
 
     /**
      * Odhlásí uživatele, a ukončí spojení s databází a poté i aplikaci
+     *
      * @param t event zavření okna
      */
     private void logout(WindowEvent t) {
@@ -139,13 +147,13 @@ public class SemestralniPrace extends Application {
         alert.setTitle("Ukončit aplikaci?");
         alert.setHeaderText("Skutečně chcete ukončit aplikaci?");
         alert.setContentText(null);
-        
+
         Optional<ButtonType> result = alert.showAndWait();
         if (!result.get().equals(ButtonType.OK)) {
             t.consume();
         } else {
             try {
-                uzivManager.unsetCurrentUser();
+                dbHelper.unsetCurrentUser();
                 OracleConnector.closeConnection(true);
             } catch (SQLException ex) {
                 Logger.getLogger(SemestralniPrace.class.getName()).log(Level.SEVERE, null, ex);
@@ -165,21 +173,21 @@ public class SemestralniPrace extends Application {
         Parent root = loader.load();
         FXMLMainSceneController controller = loader.getController();
         // Načtení layoutu hlavní scény end
-        
+
         // Předání database helperu do hlavní scény pomocí dependency injection
-        controller.setDatabaseHelper(dbHelper);
-        
+        controller.setDbHelper(dbHelper);
+
         // Načte do levého panelu kontakty lokálního uživatele
         controller.loadContactsMenu();
-        
+
         // Zpřístupní nebo zakáže administrátorské funkce
         controller.setAdminPermissions();
-        
+
         // Nastavení akce menu odhlásit tak, aby byl současný uživatel odhlášen
         // a aplikace se vrátila na přihlašovací obrazovku
         controller.setLogoutAction((t) -> {
             try {
-                uzivManager.unsetCurrentUser();
+                dbHelper.unsetCurrentUser();
                 loadLoginScene(stage);
                 stage.setResizable(false);
             } catch (IOException ex) {

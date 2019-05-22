@@ -56,7 +56,7 @@ public class PrispevekManager {
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {
-            listSelect.add(new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getString("nazev"), result.getInt("blokace"), result.getString("tag"), selectKomentare(result.getInt("prispevky_id_prispevku"))));
+//            listSelect.add(new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getString("nazev"), result.getInt("blokace"), result.getString("tag"), selectKomentare(result.getInt("prispevky_id_prispevku"))));
         }
         return listSelect;
     }
@@ -75,7 +75,7 @@ public class PrispevekManager {
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {
-            listSelect.add(new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getString("nazev"), result.getInt("blokace"), result.getString("tag"), selectKomentare(result.getInt("prispevky_id_prispevku"))));
+//            listSelect.add(new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getString("nazev"), result.getInt("blokace"), result.getString("tag"), selectKomentare(result.getInt("prispevky_id_prispevku"))));
         }
         return listSelect;
     }
@@ -92,8 +92,8 @@ public class PrispevekManager {
         prepare.setInt(1, idPrispevku);
         Prispevek prispevek;
         ResultSet result = prepare.executeQuery();
-        prispevek = new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getString("nazev"), result.getInt("blokace"), result.getString("tag"), selectKomentare(result.getInt("prispevky_id_prispevku")));
-        return prispevek;
+//        prispevek = new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getString("nazev"), result.getInt("blokace"), result.getString("tag"), selectKomentare(result.getInt("prispevky_id_prispevku")));
+        return null;
     }
 
     /**

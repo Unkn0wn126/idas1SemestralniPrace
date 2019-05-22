@@ -21,6 +21,24 @@ public class StudijniPlan { // TODO: Aktualizovat podle současných tabulek
         this.idOboru = idOboru;
         this.popis = popis;
     }
+
+    public int getIdPlanu() {
+        return idPlanu;
+    }
+
+    public String getNazev() {
+        return nazev;
+    }
+
+    public int getIdOboru() {
+        return idOboru;
+    }
+
+    public String getPopis() {
+        return popis;
+    }
+    
+    
     
     public String toString(){
         return String.format("Název plánu: %s Popis: %s", nazev, popis);

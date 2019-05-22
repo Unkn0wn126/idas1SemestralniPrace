@@ -10,14 +10,9 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -27,9 +22,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import model.KontaktVypis;
-import model.UzivatelManager;
 import model.Zprava;
-import model.ZpravaManager;
 
 /**
  * FXML Controller class
@@ -38,18 +31,22 @@ import model.ZpravaManager;
  */
 public class FXMLConversationController implements Initializable {
 
+    // Zpravy variables start
+    private ObservableList<Zprava> zpravy = FXCollections.observableArrayList();
+    private Consumer<Zprava> poslatZpravuAction;
+    // Zpravy variables end
+
+    // Jmena variables start
+    private String jmenoLocalUzivatele;
+    private List<KontaktVypis> prijemci = new ArrayList<>();
+    // Jmena variables end
+
     @FXML
     private TextArea tAMessage;
 
-    private Random rand = new Random();
-
-    private UzivatelManager uzivManager;
-    private ZpravaManager zpravaManager;
-    private List<KontaktVypis> prijemci;
     @FXML
     private ListView<Zprava> listView;
 
-    private ObservableList<Zprava> zpravy = FXCollections.observableArrayList();
     @FXML
     private Label lblName;
 
@@ -59,67 +56,72 @@ public class FXMLConversationController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         listView.setItems(zpravy);
+
         listView.setCellFactory((param) -> {
             return new MessageListCell();
         });
-        listView.setSelectionModel(null);
     }
 
     @FXML
     private void handleBtnOdeslatAction(ActionEvent event) throws SQLException {
-        if (tAMessage.getText() != "" && tAMessage.getText().length() > 0) {
-            Zprava zprava = new Zprava(1, tAMessage.getText(), LocalDateTime.now(), uzivManager.getCurrentUser().getJmeno());
-            tAMessage.clear();
-            zpravy.add(zprava);
-            if (zpravaManager != null) {
-                List<Integer> idKontaktu = new ArrayList<>();
-                for (KontaktVypis kontaktVypis : prijemci) {
-                    idKontaktu.add(kontaktVypis.getIdKontaktu());
-                }
-                zpravaManager.poslatZpravu(zprava.getObsahZpravy(), uzivManager.getCurrentUser().getIdUzivatele(), idKontaktu);
-
+        if (!tAMessage.getText().isEmpty() && tAMessage.getText().length() > 0) {
+            if (poslatZpravuAction != null) {
+                poslatZpravuAction.accept(new Zprava(tAMessage.getText(),
+                        LocalDateTime.now(), jmenoLocalUzivatele));
             }
+            tAMessage.clear();
             listView.scrollTo(zpravy.size() - 1);
         }
     }
 
-    public void setUzivatelManager(UzivatelManager uzivManager) {
-        this.uzivManager = uzivManager;
+    /**
+     * Nastaví, co se má provést při odeslání zprávy
+     * @param poslatZpravuAction akce, která se má provést
+     */
+    public void setPoslatZpravuAction(Consumer<Zprava> poslatZpravuAction) {
+        this.poslatZpravuAction = poslatZpravuAction;
     }
 
-    public void setZpravaManager(ZpravaManager zpravaManager) {
-        this.zpravaManager = zpravaManager;
-    }
-
-    public void updateMessages(List<KontaktVypis> prijemci) {
+    /**
+     * Nastaví zprávy pro zobrazení
+     *
+     * @param zprava seznam zpráv pro zobrazení
+     * @param jmenoUzivatele jméno lokálního uživatele
+     * @param prijemci seznam příjemců zprávy
+     */
+    public void updateMessages(List<Zprava> zprava, String jmenoUzivatele, List<KontaktVypis> prijemci) {
         zpravy.clear();
-        this.prijemci = prijemci;
-        List<Zprava> intermed = new ArrayList<>();
-        if (zpravaManager != null) {
-            try {
-                List<Integer> idKontaktu = new ArrayList<>();
-                for (KontaktVypis kontaktVypis : prijemci) {
-                    idKontaktu.add(kontaktVypis.getIdKontaktu());
-                }
-                
-                List<Zprava> zpr = zpravaManager.selectZpravyVybranychKontaktu(idKontaktu, uzivManager.getCurrentUser().getIdUzivatele());
-                    intermed.addAll(zpr);
-                
-                Set<Integer> idSet = new HashSet<>();
-                List<Zprava> a = intermed.stream().filter((t) -> idSet.add(t.getIdZpravy())).collect(Collectors.toList());
-                
-                a.sort((t, t1) -> {
-                    return (t.getCasOdeslani().compareTo(t1.getCasOdeslani()));
-                });
-                
-                zpravy.addAll(a);
-
-            } catch (SQLException ex) {
-                Logger.getLogger(FXMLConversationController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        zpravy.addAll(zprava);
+        this.prijemci.clear();
+        this.prijemci.addAll(prijemci);
+        updateLabelNames();
+        this.jmenoLocalUzivatele = jmenoUzivatele;
 
         listView.scrollTo(zpravy.size() - 1);
+    }
+
+    /**
+     * Vrátí seznam příjemců zprávy
+     * @return seznam příjemců
+     */
+    public List<KontaktVypis> getPrijemci() {
+        return prijemci;
+    }
+
+    /**
+     * Updatuje popisek zobrazující jména uživatelů, ke kterým konverzace patří
+     */
+    private void updateLabelNames() {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < prijemci.size() - 1; i++) {
+            builder.append(prijemci.get(i).getJmeno());
+            builder.append(", ");
+
+        }
+
+        builder.append(prijemci.get(prijemci.size() - 1).getJmeno());
+
+        lblName.setText(builder.toString());
     }
 
 }

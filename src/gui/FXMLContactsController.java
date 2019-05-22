@@ -12,8 +12,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,9 +22,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.GridPane;
 import model.KontaktVypis;
-import model.Skupina;
-import model.Uzivatel;
-import model.UzivatelManager;
+import model.StudijniPlan;
 
 /**
  * FXML Controller class
@@ -35,24 +31,26 @@ import model.UzivatelManager;
  */
 public class FXMLContactsController implements Initializable {
 
+    // Contacts variables start
     private Consumer<KontaktVypis> showProfileAction;
-    private Consumer<Skupina> showGroupMembersAction;
     private Consumer<List<KontaktVypis>> selectedContactChangedAction;
     private Consumer<KontaktVypis> removeContactAction;
-    private Consumer<Skupina> selectedGroupChangedAction;
-
     private ObservableList<KontaktVypis> kontakty = FXCollections.observableArrayList();
-    private ObservableList<Uzivatel> uzivatele = FXCollections.observableArrayList();
-    private ObservableList<Skupina> skupiny = FXCollections.observableArrayList();
+    // Contacts variables end
 
-    private UzivatelManager uzivatelManager;
+    // Group variables start
+    private Consumer<StudijniPlan> showGroupMembersAction;
+    private Consumer<StudijniPlan> selectedGroupChangedAction;
+    private ObservableList<StudijniPlan> skupiny = FXCollections.observableArrayList();
+    private int selectedGroupId;
+    // Group variables end
 
     @FXML
     private GridPane gridPane;
     @FXML
     private ListView<KontaktVypis> listViewKontakty;
     @FXML
-    private ListView<Skupina> listViewGroups;
+    private ListView<StudijniPlan> listViewGroups;
 
     /**
      * Initializes the controller class.
@@ -86,6 +84,7 @@ public class FXMLContactsController implements Initializable {
                 case PRIMARY:
                     if (selectedGroupChangedAction != null) {
                         listViewKontakty.getSelectionModel().select(null);
+                        selectedGroupId = listViewGroups.getSelectionModel().getSelectedItem().getIdPlanu();
                         selectedGroupChangedAction.accept(listViewGroups.getSelectionModel().getSelectedItem());
                     }
                     break;
@@ -98,44 +97,9 @@ public class FXMLContactsController implements Initializable {
             return new GroupListCell(addContextMenuGroup());
         });
 
-        try {
-            updateContactSection();
-        } catch (SQLException ex) {
-            Logger.getLogger(FXMLContactsController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        fillGroupSection();
-
     }
 
-    public void setSelectedContactChangedAction(Consumer<List<KontaktVypis>> selectedContactChangedAction) {
-        this.selectedContactChangedAction = selectedContactChangedAction;
-    }
-
-    public void setSelectedGroupChangedAction(Consumer<Skupina> selectedGroupChangedAction) {
-        this.selectedGroupChangedAction = selectedGroupChangedAction;
-    }
-
-    public void setShowGroupMembersAction(Consumer<Skupina> showGroupMembersAction) {
-        this.showGroupMembersAction = showGroupMembersAction;
-    }
-
-    /**
-     * Vytvoří kontextové menu pro daný panel skupiny
-     *
-     * @return
-     */
-    private ContextMenu addContextMenuGroup() {
-        ContextMenu contextMenu = new ContextMenu();
-        MenuItem showMembers = new MenuItem("Zobrazit členy skupiny");
-        showMembers.setOnAction((event) -> {
-            if (showGroupMembersAction != null) {
-                showGroupMembersAction.accept(listViewGroups.getSelectionModel().getSelectedItem());
-            }
-        });
-        contextMenu.getItems().addAll(showMembers);
-        return contextMenu;
-    }
-
+    // Contacts operations start
     /**
      * Vytvoří kontextové menu pro daný panel kontaktu
      *
@@ -153,56 +117,113 @@ public class FXMLContactsController implements Initializable {
         MenuItem removeContact = new MenuItem("Odebrat kontakt");
         removeContact.setOnAction((event) -> {
             if (removeContactAction != null) {
-//                removeContactAction.accept(listViewKontakty.getSelectionModel().getSelectedItem());
+                removeContactAction.accept(listViewKontakty.getSelectionModel().getSelectedItem());
             }
         });
-        
+
         contextMenu.getItems().addAll(showDetails, removeContact);
         return contextMenu;
     }
 
+    /**
+     * Nastaví, co se má stát při události kliknutí na kontakt
+     *
+     * @param selectedContactChangedAction akce, která se má provést
+     */
+    public void setSelectedContactChangedAction(Consumer<List<KontaktVypis>> selectedContactChangedAction) {
+        this.selectedContactChangedAction = selectedContactChangedAction;
+    }
+
+    /**
+     * Nastaví, co se má stát při kliknutí na kontextové menu "zobrazit profil"
+     *
+     * @param showProfileAction
+     */
     public void setContextMenuShowProfileAction(Consumer<KontaktVypis> showProfileAction) {
         this.showProfileAction = showProfileAction;
     }
 
+    /**
+     * Nastaví, co se má stát při kliknutí na kontextové menu "odebrat kontakt"
+     *
+     * @param removeContactAction
+     */
     public void setRemoveContactAction(Consumer<KontaktVypis> removeContactAction) {
         this.removeContactAction = removeContactAction;
     }
 
-    private void fillGroupSection() {
-        for (int i = 0; i < 20; i++) {
-            skupiny.add(new Skupina(i, i));
-        }
-    }
-
     /**
-     * Naplní sekci s kontakty kontakty
+     * Vrátí seznam vybraných kontaktů
      *
-     * @throws SQLException
+     * @return seznam vybraných kontaktů
      */
-    private void updateContactSection() throws SQLException {
-//        if (uzivatelManager != null) {
-//            uzivatele.clear();
-//            for (int i = 0; i < kontakty.size(); i++) {
-//                Uzivatel uzivatel = uzivatelManager.selectUzivatelById(kontakty.get(i).());
-//                uzivatele.add(uzivatel);
-//            }
-//
-//        }
-    }
-
     public List<KontaktVypis> getSelectedUsers() {
         return listViewKontakty.getSelectionModel().getSelectedItems();
     }
 
-    public void setUzivatelManager(UzivatelManager uzivatelManager) {
-        this.uzivatelManager = uzivatelManager;
-    }
-
+    /**
+     * Nastaví data pro zobrazení
+     *
+     * @param data seznam kontaktů uživatele
+     * @throws SQLException
+     */
     public void setContactDataSet(List<KontaktVypis> data) throws SQLException {
         kontakty.clear();
         kontakty.addAll(data);
-        updateContactSection();
     }
 
+    // Contacts operations end
+    // Group operations start
+    /**
+     * Vytvoří kontextové menu pro daný panel skupiny
+     *
+     * @return
+     */
+    private ContextMenu addContextMenuGroup() {
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem showMembers = new MenuItem("Zobrazit členy skupiny");
+        showMembers.setOnAction((event) -> {
+            if (showGroupMembersAction != null) {
+                showGroupMembersAction.accept(listViewGroups.getSelectionModel().getSelectedItem());
+            }
+        });
+        contextMenu.getItems().addAll(showMembers);
+        return contextMenu;
+    }
+
+    public int getSelectedGroupId() {
+        return selectedGroupId;
+    }
+
+    /**
+     * Nastaví, co se má stát při události kliknutí na skupinu
+     *
+     * @param selectedGroupChangedAction akce, která se má provést
+     */
+    public void setSelectedGroupChangedAction(Consumer<StudijniPlan> selectedGroupChangedAction) {
+        this.selectedGroupChangedAction = selectedGroupChangedAction;
+    }
+
+    /**
+     * Nastaví, co se má stát při kliknutí na kontextové menu "zobrazit členy
+     * skupiny"
+     *
+     * @param showGroupMembersAction akce, která se má provést
+     */
+    public void setShowGroupMembersAction(Consumer<StudijniPlan> showGroupMembersAction) {
+        this.showGroupMembersAction = showGroupMembersAction;
+    }
+
+    /**
+     * Nastaví data pro zobrazení
+     *
+     * @param data seznam skupin uživatele
+     * @throws SQLException
+     */
+    public void setGroupsDataSet(List<StudijniPlan> data) throws SQLException {
+        skupiny.clear();
+        skupiny.addAll(data);
+    }
+
+    // Group operations end
 }

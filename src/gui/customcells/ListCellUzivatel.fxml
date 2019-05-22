@@ -16,7 +16,6 @@
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="118.0" />
       <ColumnConstraints hgrow="SOMETIMES" minWidth="45.0" prefWidth="87.0" />
       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="107.0" />
-      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="130.0" />
   </columnConstraints>
   <rowConstraints>
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -60,12 +59,6 @@
          <children>
             <Label text="Zabanován:" />
             <Label fx:id="lblBan" text="Label" />
-         </children>
-      </FlowPane>
-      <FlowPane alignment="CENTER" hgap="10.0" prefHeight="200.0" prefWidth="49.0" GridPane.columnIndex="4">
-         <children>
-            <Label text="Role:" />
-            <Label fx:id="lblRole" text="Label" />
          </children>
       </FlowPane>
    </children>

@@ -21,7 +21,7 @@
    <children>
       <FlowPane alignment="CENTER_LEFT" hgap="20.0" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
          <children>
-            <Label fx:id="lblName" text="Label">
+            <Label fx:id="lblName" text="Label" textAlignment="JUSTIFY" wrapText="true">
                <font>
                   <Font size="14.0" />
                </font>

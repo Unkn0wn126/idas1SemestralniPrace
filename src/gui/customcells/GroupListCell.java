@@ -13,12 +13,13 @@ import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import model.Skupina;
+import model.StudijniPlan;
 
 /**
  *
  * @author Lukas
  */
-public class GroupListCell extends ListCell<Skupina> {
+public class GroupListCell extends ListCell<StudijniPlan> {
 
     @FXML
     private Label lblName;
@@ -29,7 +30,7 @@ public class GroupListCell extends ListCell<Skupina> {
 
     private FXMLLoader loader;
 
-    private Skupina skupina;
+    private StudijniPlan skupina;
     
     private ContextMenu contextMenu;
 
@@ -39,7 +40,7 @@ public class GroupListCell extends ListCell<Skupina> {
     }
 
     @Override
-    protected void updateItem(Skupina item, boolean empty) {
+    protected void updateItem(StudijniPlan item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty || item == null) {
