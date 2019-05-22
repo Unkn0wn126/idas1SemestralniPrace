@@ -63,6 +63,7 @@ public class FXMLMainSceneController implements Initializable {
     private FXMLAddFieldController addFieldController;
     private FXMLAddCurriculumController addCurriculumController;
     private FXMLEditUserController editUserController;
+    private FXMLShowCurriculumController showCurriculumController;
     // Controllers end
 
     // Layouts start
@@ -79,6 +80,7 @@ public class FXMLMainSceneController implements Initializable {
     private GridPane addFieldMenu;
     private GridPane addCurriculumMenu;
     private GridPane editUserMenu;
+    private GridPane showCurriculumMenu;
     // Layouts end
 
     /**
@@ -611,6 +613,9 @@ public class FXMLMainSceneController implements Initializable {
      */
     private void setCurriculumListMenuActions() {
         // TODO: dodělat; přidat možnost zobrazení informací o studijním plánu
+        curriculumListController.setShowDetailAction((t) -> {
+            loadShowCurriculumMenu();
+        });
     }
 
     private void setCurriculumListData(List<StudijniPlan> plany) {
@@ -1009,6 +1014,51 @@ public class FXMLMainSceneController implements Initializable {
         }
     }
     // EditUser menu section end
+    
+    // ShowCurriculum menu section start
+        // AccCurriculum menu section start
+    /**
+     * Nastaví akce, které se mají provést v menu přidání studijního plánu
+     */
+    private void setShowCurriculumMenuActions() {
+        // Při zrušení přidání studijního plánu se vyprázdní hlavní panel
+    }
+
+    private void setShowCurriculumMenuData(List<StudijniObor> obory) {
+        addCurriculumController.setDataset(obory);
+    }
+
+    /**
+     * Zobrazí menu pro přidání studijního plánu
+     *
+     * @param obory seznam oborů
+     */
+    private void loadShowCurriculumMenu() {
+        if (showCurriculumMenu == null) {
+            loader = new FXMLLoader();
+            try {
+                // Načtení layoutu start
+                loader.setLocation(getClass().getResource("FXMLShowCurriculum.fxml"));
+                showCurriculumMenu = loader.load();
+                showCurriculumController = loader.getController();
+                // Načtení layoutu end
+
+                setAutoResizeCenter(showCurriculumMenu);
+
+
+            } catch (IOException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        loadCurrentMenu(showCurriculumMenu);
+
+        // Aktualizuje seznam oborů pro zobrazení
+    }
+    // ShowCurriculum menu section end
+    
+    // TODO: Přidat metody pro zobrazení detailů oborů, předmětů, studijních plánů
+    // TODO: Přidat metody pro zobrazení editatce oborů, předmětů, studijních plánů
 
     private List<StudijniPlan> getStudijniPlany() throws SQLException {
         return dbHelper.selectStudijniPlany();
