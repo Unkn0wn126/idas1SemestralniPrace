@@ -16,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import model.StudijniObor;
 import model.StudijniPlan;
@@ -28,7 +29,7 @@ import model.StudijniPlan;
 public class FXMLAddSubjectController implements Initializable {
 
     @FXML
-    private TextField tfPopis;
+    private TextArea tfPopis;
     @FXML
     private TextField tfZkratkaPredmetu;
     @FXML

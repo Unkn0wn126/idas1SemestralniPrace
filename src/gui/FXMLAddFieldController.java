@@ -13,7 +13,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import model.StudijniPlan;
 
 /**
  * FXML Controller class
@@ -33,6 +35,8 @@ public class FXMLAddFieldController implements Initializable {
 
     private Consumer<ActionEvent> btnSaveAction;
     private Consumer<ActionEvent> btnCancelAction;
+    @FXML
+    private ListView<StudijniPlan> listViewPlany;
 
     /**
      * Initializes the controller class.
