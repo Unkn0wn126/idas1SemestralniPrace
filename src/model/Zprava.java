@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  *
  * @author Lukas
  */
-public class Zprava { // TODO: Aktualizovat podle současných tabulek
+public class Zprava {
     private int idZpravy;
     private String obsahZpravy;
     private LocalDateTime casOdeslani;

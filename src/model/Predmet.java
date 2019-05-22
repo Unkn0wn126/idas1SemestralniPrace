@@ -9,7 +9,7 @@ package model;
  *
  * @author Lukas
  */
-public class Predmet { // TODO: Aktualizovat podle současných tabulek
+public class Predmet {
     private int idPredmetu;
     private String nazevPredmetu;
     private String zkratkaPredmetu;

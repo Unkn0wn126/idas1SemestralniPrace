@@ -443,7 +443,7 @@ public class FXMLMainSceneController implements Initializable {
         // Přidá uživateli daného uživatele do kontaktů
         // Přidanému uživateli se automaticky přidá uživatel,
         // který si ho přidal také
-        userListController.setAddToContactsAction((t) -> { // TODO: better přes joiny
+        userListController.setAddToContactsAction((t) -> {
             addUzivateleDoKontaktu(t);
         });
 
@@ -677,7 +677,7 @@ public class FXMLMainSceneController implements Initializable {
     /**
      * Načte menu se zprávami skupiny
      */
-    private void loadGroupFeedMenu(int idSkupiny) { // TODO: Upravit, aby se zobrazovaly skutečné příspěvky dané skupiny...
+    private void loadGroupFeedMenu(int idSkupiny) {
         if (groupFeedMenu == null) { // Ošetření nullPointerException
             loader = new FXMLLoader();
             try {
@@ -695,7 +695,7 @@ public class FXMLMainSceneController implements Initializable {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        loadCurrentMenu(groupFeedMenu); // TODO: Potřeba SkupinaManager(?), PrispevekManager
+        loadCurrentMenu(groupFeedMenu);
         setGroupFeedMenuData(idSkupiny);
     }
 
@@ -705,7 +705,7 @@ public class FXMLMainSceneController implements Initializable {
      * Nastaví akce, které se mají provést v menu registrace uživatele
      */
     private void setRegisterMenuActions() {
-        registerController.setRegisterAction((t) -> { // TODO: ošetřit vstupy (přímo v controlleru(?))
+        registerController.setRegisterAction((t) -> { // TODO: ošetřit vstupy
             String jmeno = registerController.getJmeno();
             String prijmeni = registerController.getPrijmeni();
             String login = registerController.getLogin();
@@ -958,7 +958,7 @@ public class FXMLMainSceneController implements Initializable {
      *
      * @param uzivatel
      */
-    private void setEditUserMenuActions() { // TODO: Dodělat, zkontrolovat správnost metody; zařídit, aby to nepotřebovalo parametr
+    private void setEditUserMenuActions() { // TODO: Dodělat
         // Při zrušení editace se neuloží změny a zobrazí se info profilu
         editUserController.setBtnCancelEvent((t) -> {
             loadAccountMenu(t);
@@ -969,7 +969,6 @@ public class FXMLMainSceneController implements Initializable {
      * Nastaví instance potřebné pro práci s databází
      */
     private void setEditUserMenuData(Uzivatel uzivatel) {
-        // TODO: Dodělat; dávat jenom surová data; ne database helpery
         editUserController.updateViews(uzivatel);
     }
 

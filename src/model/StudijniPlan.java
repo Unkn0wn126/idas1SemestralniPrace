@@ -9,7 +9,7 @@ package model;
  *
  * @author Lukas
  */
-public class StudijniPlan { // TODO: Aktualizovat podle současných tabulek
+public class StudijniPlan {
     private int idPlanu;
     private String nazev;
     private int idOboru;

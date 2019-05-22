@@ -9,7 +9,7 @@ package model;
  *
  * @author Lukas
  */
-public class Skupina { // TODO: Aktualizovat podle současných tabulek
+public class Skupina {
     private int idPrispevku;
     private int idStudijnihoPlanu;
 
