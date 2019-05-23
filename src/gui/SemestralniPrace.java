@@ -109,32 +109,38 @@ public class SemestralniPrace extends Application {
      */
     private void login(String login, String heslo, Stage stage) {
         try {
-            // Uživatele se podařilo přihlásit
-            if (dbHelper.prihlasUzivatele(login, heslo)) {
-                if (dbHelper.getCurrentUser().getBlokace() == 0) {
-                    loadMainScene(stage);
-                } else {
-                    dbHelper.unsetCurrentUser();
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    
-                    alert.setTitle("Error");
-                    alert.setHeaderText(null);
-                    alert.setContentText("Tento účet je zablokován. Kontaktujte administrátora sítě");
-
-                    alert.showAndWait();
+            int uzivatelPrihlasen = dbHelper.prihlasUzivatele(login, heslo);
+            switch (uzivatelPrihlasen) {
+                case 1: {
+                    // Uživatel je zablokován
+                    showAlert("Tento účet je zablokován. Kontaktujte administrátora sítě");
+                    break;
                 }
-
-            } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Nesprávné jméno nebo heslo");
-
-                alert.showAndWait();
+                case 2:
+                    // Uživatel je už přihlášen
+                    showAlert("Uživatel je už přihlášen");
+                    break;
+                case -1: {
+                    // Neplatný uživatel
+                    showAlert("Nesprávné jméno nebo heslo");
+                    break;
+                }
+                default:
+                    // Uživatele se podařilo přihlásit
+                    loadMainScene(stage);
+                    break;
             }
         } catch (IOException | SQLException ex) {
             Logger.getLogger(SemestralniPrace.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void showAlert(String text) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(text);
+        alert.showAndWait();
     }
 
     /**
@@ -187,7 +193,9 @@ public class SemestralniPrace extends Application {
         // a aplikace se vrátila na přihlašovací obrazovku
         controller.setLogoutAction((t) -> {
             try {
-                dbHelper.unsetCurrentUser();
+                if (!OracleConnector.getConnection().isClosed()) {
+                    dbHelper.unsetCurrentUser();
+                }
                 loadLoginScene(stage);
                 stage.setResizable(false);
             } catch (IOException ex) {

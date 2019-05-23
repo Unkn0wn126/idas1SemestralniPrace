@@ -40,6 +40,7 @@ public class FXMLGroupFeedController implements Initializable {
     private ObservableList<Prispevek> prispevkyPinned = FXCollections.observableArrayList();
     
     private Consumer<Prispevek> btnOdeslatAction;
+    private Consumer<Prispevek> komentarBtnOdeslatAction;
     
     private Uzivatel currentUser;
     
@@ -56,7 +57,7 @@ public class FXMLGroupFeedController implements Initializable {
         listViewPrispevkyRegular.setItems(prispevkyRegular);
 
         listViewPrispevkyRegular.setCellFactory((param) -> {
-            return new PostListCell();
+            return new PostListCell(komentarBtnOdeslatAction, currentUser);
         });
 
         listViewPrispevkyPinned.setItems(prispevkyPinned);
@@ -86,6 +87,10 @@ public class FXMLGroupFeedController implements Initializable {
 
     public void setBtnOdeslatAction(Consumer<Prispevek> btnOdeslatAction) {
         this.btnOdeslatAction = btnOdeslatAction;
+    }
+
+    public void setKomentarBtnOdeslatAction(Consumer<Prispevek> komentarBtnOdeslatAction) {
+        this.komentarBtnOdeslatAction = komentarBtnOdeslatAction;
     }
 
     @FXML

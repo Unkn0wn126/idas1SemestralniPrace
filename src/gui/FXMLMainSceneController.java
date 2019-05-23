@@ -9,6 +9,7 @@ import database.DbHelper;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import model.KontaktVypis;
 import model.Predmet;
+import model.Prispevek;
 import model.Role;
 import model.StudijniObor;
 import model.StudijniPlan;
@@ -658,9 +660,23 @@ public class FXMLMainSceneController implements Initializable {
      */
     private void setGroupFeedMenuData(int idSkupiny) {
         try {
-            groupFeedController.updateFeed(dbHelper.selectPrispevkySkupiny(idSkupiny), dbHelper.getCurrentUser());
+            List<Prispevek> prispevky = dbHelper.selectPrispevkySkupiny(idSkupiny);
+            for (Prispevek prispevek : prispevky) {
+                loadComments(prispevek);
+            }
+            groupFeedController.updateFeed(prispevky, dbHelper.getCurrentUser());
         } catch (SQLException ex) {
             Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void loadComments(Prispevek prispevek) throws SQLException{
+        prispevek.setKomentare(dbHelper.selectKomentare(prispevek.getIdPrispevku()));
+        List<Prispevek> komentare = prispevek.getKomentare();
+        if (komentare != null) {
+            for (Prispevek prispevek1 : komentare) {
+                loadComments(prispevek1);
+            }
         }
     }
 
@@ -673,6 +689,14 @@ public class FXMLMainSceneController implements Initializable {
                 int currGroupId = contactsController.getSelectedGroupId();
                 dbHelper.sendPrispevekToGroup(t.getNazev(), t.getObsahPrispevku(), t.getCasOdeslani(), t.getPriorita(), t.getIdAutora(), currGroupId);
                 loadGroupFeedMenu(currGroupId);
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        
+        groupFeedController.setKomentarBtnOdeslatAction((t) -> {
+            try {
+                dbHelper.sendKomentar(t.getObsahPrispevku(), t.getCasOdeslani(), t.getIdAutora(), t.getIdRodice());
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }

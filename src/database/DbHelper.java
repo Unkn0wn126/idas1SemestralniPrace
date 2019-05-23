@@ -45,8 +45,11 @@ public class DbHelper {
     private final String CV_UZIVATELE_POHLED = "CREATE OR REPLACE VIEW UZIVATELE_POHLED AS SELECT * FROM UZIVATELE";
     private final String SET_UZIVATEL_ONLINE = "UPDATE UZIVATELE_POHLED SET PRIHLASEN = 1 WHERE ID_UZIVATELE = ?";
     private final String SET_UZIVATEL_OFFLINE = "UPDATE UZIVATELE_POHLED SET PRIHLASEN = 0 WHERE ID_UZIVATELE = ?";
+    private final String SELECT_UZIVATEL_ONLINE = "SELECT prihlasen FROM STAVY_ONLINE WHERE ID_UZIVATELE = ?";
+    private final String SELECT_UZIVATEL_ZABLOKOVAN = "SELECT BLOKACE FROM UZIVATELE_BLOKACE WHERE ID_UZIVATELE = ?";
     private final String SELECT_UZIVATELE_ALL = "SELECT * FROM UZIVATELE_POHLED";
     private final String SELECT_UZIVATEL_BY_ID = "SELECT * FROM UZIVATELE_POHLED WHERE id_uzivatele = ?";
+    private final String SELECT_JMENO_UZIVATEL_BY_ID = "SELECT * FROM UZIVATEL_JMENO_PRIJMENI WHERE id_uzivatele = ?";
     private final String SELECT_UZIVATEL_BY_ID_KONTAKTU = "SELECT DISTINCT uzp2.id_uzivatele, uzp2.jmeno, uzp2.prijmeni, uzp2.rok_studia, uzp2.eml, uzp2.blokace, uzp2.poznamka"
             + " FROM KONTAKTY_UZIVATELU ku"
             + " inner join UZIVATELE_POHLED uzp on uzp.id_uzivatele = ku.uzivatele_id_uzivatele"
@@ -150,6 +153,7 @@ public class DbHelper {
     // Statements for predmety start
     private final String CV_PREDMETY_POHLED = "CREATE OR REPLACE VIEW PREDMETY_POHLED AS SELECT * FROM PREDMETY";
     private final String SELECT_PREDMETY = "SELECT * FROM PREDMETY_POHLED";
+    private final String SELECT_PREDMETY_SP = "SELECT * FROM PREDMETY_SP WHERE ID_PLANU = ?";
     private final String SELECT_PREDMET = "SELECT * FROM PREDMETY_POHLED WHERE id_predmetu = ?";
     private final String SELECT_PREDMET_BY_ATTRIBUTE = "SELECT * FROM PREDMETY_POHLED WHERE UPPER(zkratka_predmetu) LIKE UPPER(?) OR UPPER(nazev_predmetu) LIKE UPPER(?)";
     private final String INSERT_PREDMET = "INSERT INTO PREDMETY(nazev_predmetu,zkratka_predmetu,popis) VALUES (?,?,?)";
@@ -163,12 +167,13 @@ public class DbHelper {
     private final String SELECT_LAST_PRISPEVEK_ID = "SELECT max (id_prispevku) FROM PRISPEVKY_POHLED";
     private final String SELECT_PRISPEVKY = "SELECT * FROM PRISPEVKY_POHLED";
     private final String SELECT_PRISPEVEK = "SELECT * FROM PRISPEVKY_POHLED WHERE id_prispevku = ?";
-    private final String SELECT_KOMENTARE = "SELECT p.* FROM PRISPEVKY_POHLED, c.* FROM PRISPEVKY,  WHERE p.prispevky_id_prispevku = c.id_prispevku AND p.prispevky_id_prispevku = ?";
+    private final String SELECT_KOMENTARE = "SELECT * FROM PRISPEVKY_POHLED WHERE PRISPEVKY_ID_PRISPEVKU = ?";
     private final String SELECT_PRISPEVKY_SKUPINY = "select p.id_prispevku, p.obsah_prispevku, p.cas_odeslani, p.blokace, p.priorita_prispevku, p.id_autora, p.nazev from prispevky p"
             + " inner join skupiny s on s.prispevky_id_prispevku = p.id_prispevku"
             + " inner join studijni_plany sp on sp.id_planu = s.sp_id_planu"
             + " where sp.id_planu = ?";
     private final String INSERT_PRISPEVEK = "INSERT INTO PRISPEVKY(obsah_prispevku, cas_odeslani, blokace, priorita_prispevku, id_autora, nazev) VALUES (?,?,?,?,?,?)";
+    private final String INSERT_KOMENTAR = "INSERT INTO PRISPEVKY(obsah_prispevku, cas_odeslani, blokace, priorita_prispevku, id_autora, prispevky_id_prispevku) VALUES (?,?,?,?,?,?)";
     private final String INSERT_PRISPEVEK_SKUPINY = "INSERT INTO SKUPINY(PRISPEVKY_ID_PRISPEVKU, SP_ID_PLANU) VALUES (?,?)";
     private final String DELETE_PRISPEVEK = "DELETE FROM PRISPEVKY WHERE id_prispevku = ?";
     private final String UPDATE_PRISPEVEK = "UPDATE PRISPEVKY SET nazev = ?, obsah = ?, blokace = ?  where id_prispevku = ?";
@@ -221,6 +226,30 @@ public class DbHelper {
         return listSelect;
     }
 
+    public int selectUzivatelOnline(int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SELECT_UZIVATEL_ONLINE);
+        prepare.setInt(1, idUzivatele);
+        ResultSet result = prepare.executeQuery();
+        result.next();
+        int online = result.getInt("prihlasen");
+        result.close();
+        prepare.close();
+        
+        return online;
+    }
+
+    public int selectUzivatelBan(int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SELECT_UZIVATEL_ZABLOKOVAN);
+        prepare.setInt(1, idUzivatele);
+        ResultSet result = prepare.executeQuery();
+        result.next();
+        int online = result.getInt("blokace");
+        result.close();
+        prepare.close();
+        
+        return online;
+    }
+
     /**
      * Najde v databázi konkrétního uživatele podle jeho id
      *
@@ -244,6 +273,26 @@ public class DbHelper {
         result.close();
         prepare.close();
         return uzivatel;
+    }
+
+    /**
+     * Najde v databázi jméno a příjmení konkrétního uživatele podle jeho id
+     *
+     * @param idUzivatele
+     * @return uživatele s příslušným id
+     * @throws SQLException
+     */
+    public String[] selectJmenoUzivateleById(int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SELECT_JMENO_UZIVATEL_BY_ID);
+        prepare.setInt(1, idUzivatele);
+        ResultSet result = prepare.executeQuery();
+        result.next();
+        String jmeno = result.getString("jmeno");
+        String prijmeni = result.getString("prijmeni");
+        String[] jmena = {jmeno, prijmeni};
+        result.close();
+        prepare.close();
+        return jmena;
     }
 
     /**
@@ -336,20 +385,32 @@ public class DbHelper {
      * heslo
      * @throws SQLException při chybě komunikace s databází
      */
-    public boolean prihlasUzivatele(String login, String heslo) throws SQLException {
+    public int prihlasUzivatele(String login, String heslo) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(SELECT_UZIVATEL_LOGIN);
         prepare.setString(1, login);
         prepare.setString(2, heslo);
         ResultSet result = prepare.executeQuery();
         try {
             result.next();
-            setCurrentUser(selectUzivatelById(result.getInt("ID_UZIVATELE")));
+            int idUzivatele = result.getInt("ID_UZIVATELE");
+            
+            int ban = selectUzivatelBan(idUzivatele);
+            if (ban != 0) {
+                return 1;
+            }
+            
+            int online = selectUzivatelOnline(idUzivatele);
+            if (online != 0) {
+                return 2;
+            }
+            
+            setCurrentUser(selectUzivatelById(idUzivatele));
             prepare.close();
             result.close();
-            return true;
+            return 0;
         } catch (SQLException e) {
             System.out.println(e.getLocalizedMessage());
-            return false;
+            return -1;
         }
     }
 
@@ -475,7 +536,7 @@ public class DbHelper {
 
         return listSelect;
     }
-    
+
     /**
      * Získá seznam všech rolí
      *
@@ -1293,21 +1354,24 @@ public class DbHelper {
     /**
      * Vybere komentáře příspěvku
      *
-     * @param id id komentáře
+     * @param idPrispevku idPrispevku komentáře
      * @return seznam komentářů
      * @throws SQLException
      */
-    public List<Prispevek> selectKomentare(int id) throws SQLException {
+    public List<Prispevek> selectKomentare(int idPrispevku) throws SQLException {
         List<Prispevek> listSelect = new ArrayList<>();
         PreparedStatement prepare = con.prepareStatement(SELECT_KOMENTARE);
-        prepare.setInt(1, id);
+        prepare.setInt(1, idPrispevku);
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {
-            Uzivatel uziv = selectUzivatelById(result.getInt("id_autora"));
-            String jmeno = uziv.getJmeno() + " " + uziv.getPrijmeni();
-            listSelect.add(new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getInt("blokace"), result.getInt("priorita_prispevku"), result.getInt("id_autora"), result.getString("nazev"), jmeno));
+            String[] jmena = selectJmenoUzivateleById(result.getInt("id_autora"));
+            String jmeno = jmena[0] + " " + jmena[1];
+            listSelect.add(new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getInt("blokace"), result.getInt("priorita_prispevku"), result.getInt("id_autora"), result.getString("nazev"), jmeno)); // TODO: idAutora není potřeba
         }
+        
+        result.close();
+        prepare.close();
         return listSelect;
     }
 
@@ -1366,6 +1430,28 @@ public class DbHelper {
         con.commit();
     }
 
+    /**
+     * Vloží příspěvek do databáze
+     *
+     * @param nazev název příspěvku
+     * @param obsah obsah příspěvku
+     * @param casOdeslani
+     * @param priorita
+     * @param idAutora
+     * @throws SQLException
+     */
+    private void insertKomentar(String obsah, LocalDateTime casOdeslani, int idAutora, int idNadrazeneho) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(INSERT_KOMENTAR);
+        prepare.setString(1, obsah);
+        prepare.setTimestamp(2, Timestamp.valueOf(casOdeslani));
+        prepare.setInt(3, 0);
+        prepare.setInt(4, 0);
+        prepare.setInt(5, idAutora);
+        prepare.setInt(6, idNadrazeneho);
+        prepare.execute();
+        con.commit();
+    }
+
     private void insertPrispevekSkupiny(int idPrispevku, int idSkupiny) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(INSERT_PRISPEVEK_SKUPINY);
         prepare.setInt(1, idPrispevku);
@@ -1387,6 +1473,10 @@ public class DbHelper {
     public void sendPrispevekToGroup(String nazev, String obsah, LocalDateTime casOdeslani, int priorita, int idAutora, int idSkupiny) throws SQLException {
         insertPrispevek(nazev, obsah, casOdeslani, priorita, idAutora);
         insertPrispevekSkupiny(selectLastPrispevekId(), idSkupiny);
+    }
+    
+    public void sendKomentar(String obsah, LocalDateTime casOdeslani, int idAutora, int idNadrazeneho) throws SQLException{
+        insertKomentar(obsah, casOdeslani, idAutora, idNadrazeneho);
     }
 
     /**

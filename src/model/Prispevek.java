@@ -36,6 +36,13 @@ public class Prispevek {
         this.nazev = nazev;
         this.jmenoAutora = jmenoAutora;
     }
+
+    public Prispevek(String obsahPrispevku, LocalDateTime casOdeslani, int idAutora, int idRodice) {
+        this.obsahPrispevku = obsahPrispevku;
+        this.casOdeslani = casOdeslani;
+        this.idAutora = idAutora;
+        this.idRodice = idRodice;
+    }
     
     public Prispevek(String obsahPrispevku, LocalDateTime casOdeslani, int blokace, int priorita, int idAutora, String nazev) {
         this.obsahPrispevku = obsahPrispevku;
