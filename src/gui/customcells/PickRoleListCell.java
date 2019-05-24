@@ -7,43 +7,37 @@ package gui.customcells;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.ContextMenu;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import model.Predmet;
-import model.StudijniObor;
+import model.Role;
 
 /**
  *
  * @author Lukas
  */
-public class FieldListCell extends ListCell<StudijniObor> {
+public class PickRoleListCell extends ListCell<Role> {
 
     @FXML
     private Label lblName;
 
     @FXML
-    private Label lblZkratka;
+    private Label lblOpravneni;
+    
     @FXML
-    private ImageView imageView;
+    private Label lblPoznamka;
+    @FXML
+    private CheckBox cbAddRole;
     @FXML
     private GridPane gridPane;
 
     private FXMLLoader loader;
 
-    private StudijniObor predmet;
-
-    private ContextMenu contextMenu;
-
-    public FieldListCell(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
-        this.setContextMenu(contextMenu);
-    }
+    private Role role;
 
     @Override
-    protected void updateItem(StudijniObor item, boolean empty) {
+    protected void updateItem(Role item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty || item == null) {
@@ -51,7 +45,7 @@ public class FieldListCell extends ListCell<StudijniObor> {
             setGraphic(null);
         } else {
             if (loader == null) {
-                loader = new FXMLLoader(getClass().getResource("ListCellField.fxml"));
+                loader = new FXMLLoader(getClass().getResource("ListPickCellRole.fxml"));
                 loader.setController(this);
 
                 try {
@@ -61,10 +55,11 @@ public class FieldListCell extends ListCell<StudijniObor> {
                 }
             }
 
-            predmet = item;
+            role = item;
 
-            lblName.setText(predmet.getNazev());
-            lblZkratka.setText(predmet.getZkratka());
+            lblName.setText(role.getJmenoRole());
+            lblOpravneni.setText(role.getOpravneni());
+            lblPoznamka.setText(role.getPoznamka());
 
             setGraphic(gridPane);
             setPrefHeight(gridPane.getPrefHeight());

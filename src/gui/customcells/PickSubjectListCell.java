@@ -7,19 +7,18 @@ package gui.customcells;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import model.Predmet;
-import model.StudijniObor;
 
 /**
  *
  * @author Lukas
  */
-public class FieldListCell extends ListCell<StudijniObor> {
+public class PickSubjectListCell extends ListCell<Predmet> {
 
     @FXML
     private Label lblName;
@@ -27,23 +26,18 @@ public class FieldListCell extends ListCell<StudijniObor> {
     @FXML
     private Label lblZkratka;
     @FXML
-    private ImageView imageView;
+    private CheckBox cbAddSubject;
     @FXML
     private GridPane gridPane;
 
     private FXMLLoader loader;
 
-    private StudijniObor predmet;
+    private Predmet predmet;
 
     private ContextMenu contextMenu;
 
-    public FieldListCell(ContextMenu contextMenu) {
-        this.contextMenu = contextMenu;
-        this.setContextMenu(contextMenu);
-    }
-
     @Override
-    protected void updateItem(StudijniObor item, boolean empty) {
+    protected void updateItem(Predmet item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty || item == null) {
@@ -51,7 +45,7 @@ public class FieldListCell extends ListCell<StudijniObor> {
             setGraphic(null);
         } else {
             if (loader == null) {
-                loader = new FXMLLoader(getClass().getResource("ListCellField.fxml"));
+                loader = new FXMLLoader(getClass().getResource("ListPickCellSubject.fxml"));
                 loader.setController(this);
 
                 try {
@@ -63,8 +57,8 @@ public class FieldListCell extends ListCell<StudijniObor> {
 
             predmet = item;
 
-            lblName.setText(predmet.getNazev());
-            lblZkratka.setText(predmet.getZkratka());
+            lblName.setText(predmet.getNazevPredmetu());
+            lblZkratka.setText(predmet.getZkratkaPredmetu());
 
             setGraphic(gridPane);
             setPrefHeight(gridPane.getPrefHeight());

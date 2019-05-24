@@ -5,6 +5,7 @@
  */
 package gui;
 
+import gui.customcells.PickSubjectListCell;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -38,6 +39,8 @@ public class FXMLAddCurriculumController implements Initializable {
     private Consumer<ActionEvent> btnCancelAction;
     
     ObservableList<StudijniObor> studijniObory = FXCollections.observableArrayList();
+    ObservableList<Predmet> predmety = FXCollections.observableArrayList();
+    
     @FXML
     private ListView<Predmet> listViewPredmety;
 
@@ -47,11 +50,19 @@ public class FXMLAddCurriculumController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         cbObor.setItems(studijniObory);
+        
+        listViewPredmety.setItems(predmety);
+        listViewPredmety.setCellFactory((param) -> {
+            return new PickSubjectListCell();
+        });
     }
     
-    public void setDataset(List<StudijniObor> obory){
+    public void setDataset(List<StudijniObor> obory, List<Predmet> predmety){
         studijniObory.clear();
         studijniObory.addAll(obory);
+        
+        this.predmety.clear();
+        this.predmety.addAll(predmety);
     }
 
     public String getNazev() throws IllegalArgumentException{

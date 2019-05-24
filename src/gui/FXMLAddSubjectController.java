@@ -5,6 +5,7 @@
  */
 package gui;
 
+import gui.customcells.PickCurriculumListCell;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -48,6 +49,9 @@ public class FXMLAddSubjectController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         listViewPlany.setItems(plany);
+        listViewPlany.setCellFactory((param) -> {
+            return new PickCurriculumListCell();
+        });
     }
 
     public void setPlanyData(List<StudijniPlan> data) {

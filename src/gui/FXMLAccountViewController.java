@@ -6,6 +6,7 @@
 package gui;
 
 import gui.customcells.GroupListCell;
+import gui.customcells.RoleListCell;
 import gui.customcells.SubjectListCell;
 import gui.customcells.UzivatelListCell;
 import java.net.URL;
@@ -104,7 +105,10 @@ public class FXMLAccountViewController implements Initializable {
             return new UzivatelListCell(addContextMenuContact());
         });
 
-        listViewRole.setItems(role);// TODO: udělat custom cell
+        listViewRole.setItems(role);
+        listViewRole.setCellFactory((param) -> {
+            return new RoleListCell();
+        });
 
         listViewStudijniPlany.setItems(studijniPlany);
         listViewStudijniPlany.setCellFactory((param) -> {

@@ -974,6 +974,10 @@ public class FXMLMainSceneController implements Initializable {
 //            }
         });
     }
+    
+    private void setAddFieldMenuData() throws SQLException{
+        addFieldController.setDataset(getStudijniPlany());
+    }
 
     /**
      * Zobrazí menu pro přidání oboru
@@ -998,6 +1002,11 @@ public class FXMLMainSceneController implements Initializable {
         }
 
         loadCurrentMenu(addFieldMenu);
+        try {
+            setAddFieldMenuData();
+        } catch (SQLException ex) {
+            Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     // AddField menu section end
 
@@ -1028,8 +1037,8 @@ public class FXMLMainSceneController implements Initializable {
         });
     }
 
-    private void setCurriculumMenuData(List<StudijniObor> obory) {
-        addCurriculumController.setDataset(obory);
+    private void setCurriculumMenuData(List<StudijniObor> obory, List<Predmet> predmety) {
+        addCurriculumController.setDataset(obory, predmety);
     }
 
     /**
@@ -1037,7 +1046,7 @@ public class FXMLMainSceneController implements Initializable {
      *
      * @param obory seznam oborů
      */
-    private void loadAddCurriculumMenu(List<StudijniObor> obory) {
+    private void loadAddCurriculumMenu(List<StudijniObor> obory, List<Predmet> predmety) {
         if (addCurriculumMenu == null) {
             loader = new FXMLLoader();
             try {
@@ -1059,7 +1068,7 @@ public class FXMLMainSceneController implements Initializable {
         loadCurrentMenu(addCurriculumMenu);
 
         // Aktualizuje seznam oborů pro zobrazení
-        setCurriculumMenuData(obory);
+        setCurriculumMenuData(obory, predmety);
     }
     // AccCurriculum menu section end
 
@@ -1145,7 +1154,7 @@ public class FXMLMainSceneController implements Initializable {
 
         showCurriculumController.setBtnUpravitAction((t) -> {
             try {
-                loadAddCurriculumMenu(getStudijniObory());
+                loadAddCurriculumMenu(getStudijniObory(), getPredmety());
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1418,6 +1427,10 @@ public class FXMLMainSceneController implements Initializable {
     private List<Predmet> getPredmetyPlanu(int idPlanu) throws SQLException {
         return dbHelper.selectPredmetyStudijnihoPlanu(idPlanu);
     }
+    
+    private List<Predmet> getPredmety() throws SQLException {
+        return dbHelper.selectPredmety();
+    }
 
     private List<KontaktVypis> getKontaktyUzivatele(int idUzivatele) throws SQLException {
         return dbHelper.selectKontaktyUzivatele(idUzivatele);
@@ -1556,7 +1569,7 @@ public class FXMLMainSceneController implements Initializable {
     @FXML
     private void handleMenuItemPridatStudijniPlanAction(ActionEvent event) {
         try {
-            loadAddCurriculumMenu(getStudijniObory());
+            loadAddCurriculumMenu(getStudijniObory(), getPredmety());
         } catch (SQLException ex) {
             Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
         }

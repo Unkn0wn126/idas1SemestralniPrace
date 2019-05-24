@@ -5,6 +5,8 @@
  */
 package gui;
 
+import gui.customcells.PickCurriculumListCell;
+import gui.customcells.PickRoleListCell;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -92,7 +94,14 @@ public class FXMLEditUserController implements Initializable {
         cbBlokace.setItems(blokace);
 
         listViewPlany.setItems(studijniPlany);
+        listViewPlany.setCellFactory((param) -> {
+            return new PickCurriculumListCell();
+        });
+        
         listViewRole.setItems(role);
+        listViewRole.setCellFactory((param) -> {
+            return new PickRoleListCell();
+        });
 
         giveAdminPermissions.addListener((observable, oldValue, newValue) -> {
             tabRole.setDisable(!newValue);

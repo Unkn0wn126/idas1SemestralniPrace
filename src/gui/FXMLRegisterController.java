@@ -5,6 +5,8 @@
  */
 package gui;
 
+import gui.customcells.PickCurriculumListCell;
+import gui.customcells.PickRoleListCell;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -66,8 +68,14 @@ public class FXMLRegisterController implements Initializable {
         rocniky.addAll(0, 1, 2, 3, 4, 5, 6);
         
         listViewStudijniPlany.setItems(plany);
+        listViewStudijniPlany.setCellFactory((param) -> {
+            return new PickCurriculumListCell();
+        });
         
         listViewRole.setItems(role);
+        listViewRole.setCellFactory((param) -> {
+            return new PickRoleListCell();
+        });
         
         cbObor.setItems(obory);
     }
