@@ -59,7 +59,7 @@
                               </FlowPane>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                  <children>
-                                    <Label fx:id="lblObor" text="Label" />
+                                    <Label fx:id="lblObor" style="-fx-cursor: hand;" text="Label" textFill="#1700ff" underline="true" />
                                  </children>
                               </FlowPane>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="2">

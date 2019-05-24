@@ -73,7 +73,11 @@ public class FXMLContactsController implements Initializable {
             switch (event.getButton()) {
                 case PRIMARY:
                     if (selectedContactChangedAction != null) {
-                        selectedContactChangedAction.accept(listViewKontakty.getSelectionModel().getSelectedItems());
+                        List<KontaktVypis> kontakt = listViewKontakty.getSelectionModel().getSelectedItems();
+                        if (kontakt != null) {
+                            selectedContactChangedAction.accept(listViewKontakty.getSelectionModel().getSelectedItems());
+                        }
+
                     }
                     break;
             }
@@ -85,8 +89,11 @@ public class FXMLContactsController implements Initializable {
                 case PRIMARY:
                     if (selectedGroupChangedAction != null) {
                         listViewKontakty.getSelectionModel().select(null);
-                        selectedGroupId = listViewGroups.getSelectionModel().getSelectedItem().getIdPlanu();
-                        selectedGroupChangedAction.accept(listViewGroups.getSelectionModel().getSelectedItem());
+                        StudijniPlan skupina = listViewGroups.getSelectionModel().getSelectedItem();
+                        if (skupina != null) {
+                            selectedGroupId = skupina.getIdPlanu();
+                            selectedGroupChangedAction.accept(skupina);
+                        }
                     }
                     break;
             }
@@ -222,8 +229,10 @@ public class FXMLContactsController implements Initializable {
     }
 
     /**
-     * Nastaví, co se má stát při kliknutí na kontextové menu "zobrazit detail skupiny"
-     * @param showDetailAction 
+     * Nastaví, co se má stát při kliknutí na kontextové menu "zobrazit detail
+     * skupiny"
+     *
+     * @param showDetailAction
      */
     public void setShowGroupDetailAction(Consumer<StudijniPlan> showDetailAction) {
         this.showDetailAction = showDetailAction;

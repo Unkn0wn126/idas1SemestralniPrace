@@ -125,7 +125,6 @@ public class FXMLMainSceneController implements Initializable {
 
     public void setDbHelper(DbHelper dbHelper) {
         this.dbHelper = dbHelper;
-        userIsAdmin = true;
     }
 
     /**
@@ -140,8 +139,11 @@ public class FXMLMainSceneController implements Initializable {
     /**
      * Nastaví, zda se mají zobrazit možnosti určené pouze pro admina
      */
-    public void setAdminPermissions() {
-        userIsAdmin = dbHelper.getCurrentUser().isAdmin(); // TODO: Implementovat
+    public void setAdminPermissions() throws SQLException {
+        List<Role> role = getRoleUzivatele(dbHelper.getCurrentUser().getIdUzivatele());
+        userIsAdmin = role.stream().anyMatch((t) -> {
+            return t.getIdRole() == 1;
+        });
 
         menuPridat.setDisable(!userIsAdmin);
         menuPridat.setVisible(userIsAdmin);
@@ -417,7 +419,7 @@ public class FXMLMainSceneController implements Initializable {
         List<StudijniPlan> studijniPlan = getStudijniPlanyUzivatele(uzivatel.getIdUzivatele());
         List<Predmet> predmety = getPredmetyUzivatele(uzivatel.getIdUzivatele());
 
-        accountController.updateView(uzivatel, role, studijniPlan, predmety);
+        accountController.updateView(uzivatel, role, studijniPlan, predmety, userIsAdmin);
         accountController.setContactsDataSet(dbHelper.selectUzivateleVKontatechByIdUzivatele(uzivatel.getIdUzivatele()));
         accountController.setAddToContactsAction((t) -> {
             addUzivateleDoKontaktu(t);
@@ -489,7 +491,7 @@ public class FXMLMainSceneController implements Initializable {
      * @param uzivatele seznam uživatelů
      */
     private void setUserListMenuData(List<Uzivatel> uzivatele) {
-        userListController.setDataSet(uzivatele);
+        userListController.setDataSet(uzivatele, userIsAdmin);
     }
 
     /**
@@ -606,13 +608,13 @@ public class FXMLMainSceneController implements Initializable {
      * @param obory seznam oborů pro zobrazení
      */
     private void setFieldListData(List<StudijniObor> obory) {
-        fieldListController.setDataset(obory);
+        fieldListController.setDataset(obory, userIsAdmin);
     }
 
     // FieldList menu section end
     // SubjectList menu section start
     private void setSubjectListMenuData(List<Predmet> predmety) {
-        subjectsListController.setDataSet(predmety);
+        subjectsListController.setDataSet(predmety, userIsAdmin);
     }
 
     /**
@@ -624,7 +626,7 @@ public class FXMLMainSceneController implements Initializable {
             System.out.println("Mažu: " + t.toString());
             // TODO: Dodělat mazání
         });
-        
+
         subjectsListController.setShowSubjectDetailAction((t) -> {
             loadShowSubjectMenu(t);
         });
@@ -677,7 +679,7 @@ public class FXMLMainSceneController implements Initializable {
     }
 
     private void setCurriculumListData(List<StudijniPlan> plany) {
-        curriculumListController.setDataset(plany);
+        curriculumListController.setDataset(plany, userIsAdmin);
     }
 
     /**
@@ -720,7 +722,27 @@ public class FXMLMainSceneController implements Initializable {
             for (Prispevek prispevek : prispevky) {
                 loadComments(prispevek);
             }
+
+            List<Role> role = getRoleUzivatele(dbHelper.getCurrentUser().getIdUzivatele());
             groupFeedController.updateFeed(prispevky, dbHelper.getCurrentUser());
+            List<Integer> priority = new ArrayList<>();
+            priority.add(0);
+            priority.add(1);
+            boolean admin = role.stream().anyMatch((t) -> {
+                return t.getIdRole() == 1;
+            });
+            boolean teacher = role.stream().anyMatch((t) -> {
+                return t.getIdRole() == 2;
+            });
+
+            if (admin) {
+                priority.add(2);
+                priority.add(3);
+            } else if (teacher) {
+                priority.add(2);
+            }
+
+            groupFeedController.updatePriorities(priority);
         } catch (SQLException ex) {
             Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -742,9 +764,13 @@ public class FXMLMainSceneController implements Initializable {
     private void setGroupFeedMenuActions() {
         groupFeedController.setBtnOdeslatAction((t) -> {
             try {
-                int currGroupId = contactsController.getSelectedGroupId();
-                dbHelper.sendPrispevekToGroup(t.getNazev(), t.getObsahPrispevku(), t.getCasOdeslani(), t.getPriorita(), t.getIdAutora(), currGroupId);
-                loadGroupFeedMenu(currGroupId);
+                if (groupFeedController.inputIsOk()) {
+                    int currGroupId = contactsController.getSelectedGroupId();
+                    dbHelper.sendPrispevekToGroup(t.getNazev(), t.getObsahPrispevku(), t.getCasOdeslani(), t.getPriorita(), t.getIdAutora(), currGroupId);
+                    loadGroupFeedMenu(currGroupId);
+                } else {
+                    showAlert("Neplatný vstup");
+                }
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1049,13 +1075,21 @@ public class FXMLMainSceneController implements Initializable {
         editUserController.setBtnCancelEvent((t) -> {
             loadAccountMenu(t);
         });
+        
+        editUserController.setBtnSaveEvent((t) -> {
+            // TODO: Update do tabulek
+        });
+        
+        editUserController.setCanEditAction((t) -> {
+            return userIsAdmin && t.getIdUzivatele() != dbHelper.getCurrentUser().getIdUzivatele();
+        });
     }
 
     /**
      * Nastaví instance potřebné pro práci s databází
      */
     private void setEditUserMenuData(Uzivatel uzivatel) throws SQLException {
-        editUserController.updateViews(uzivatel);
+        editUserController.updateViews(uzivatel, userIsAdmin);
         editUserController.updateRole(getRole());
         editUserController.updateStudijniObory(getStudijniObory());
         editUserController.updateStudijniPlany(getStudijniPlany());
@@ -1116,14 +1150,18 @@ public class FXMLMainSceneController implements Initializable {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        
+
         showCurriculumController.setShowSubjectDetailAction((t) -> {
             loadShowSubjectMenu(t);
         });
-        
+
         showCurriculumController.setDeleteAction((t) -> {
             System.out.println("Mažu: " + t.toString());
             // TODO: Dodělat mazání
+        });
+
+        showCurriculumController.setLblOborPressedAction((t) -> {
+            loadShowFieldMenu(t);
         });
     }
 
@@ -1131,7 +1169,7 @@ public class FXMLMainSceneController implements Initializable {
         StudijniObor obor = getOborStudijnihoPlanu(plan.getIdOboru());
         List<Uzivatel> clenove = getClenoveSkupiny(plan.getIdPlanu());
         List<Predmet> predmety = getPredmetyPlanu(plan.getIdPlanu());
-        showCurriculumController.setDataset(predmety, clenove, plan, obor);
+        showCurriculumController.setDataset(predmety, clenove, plan, obor, userIsAdmin);
     }
 
     /**
@@ -1175,11 +1213,11 @@ public class FXMLMainSceneController implements Initializable {
             System.out.println("Mažu: " + t.toString());
             // TODO: Dodělat mazání
         });
-        
+
         showFieldController.setShowCurriculumDetailAction((t) -> {
             loadShowCurriculumMenu(t);
         });
-        
+
         showFieldController.setBtnUpravitAction((t) -> {
             loadAddFieldMenu();
         });
@@ -1187,7 +1225,7 @@ public class FXMLMainSceneController implements Initializable {
 
     private void setShowFieldMenuData(StudijniObor obor) throws SQLException {
         List<StudijniPlan> plany = getStudijniPlanyOboru(obor.getIdOboru());
-        showFieldController.setDataset(plany, obor);
+        showFieldController.setDataset(plany, obor, userIsAdmin);
     }
 
     /**
@@ -1206,7 +1244,7 @@ public class FXMLMainSceneController implements Initializable {
                 // Načtení layoutu end
 
                 setAutoResizeCenter(showFiledMenu);
-                
+
                 setShowFieldMenuActions();
             } catch (IOException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
@@ -1230,11 +1268,11 @@ public class FXMLMainSceneController implements Initializable {
             //TODO: Dodělat mazání
             System.out.println("Mažu: " + t.toString());
         });
-        
+
         showSubjectController.setShowCurriculumDetailAction((t) -> {
             loadShowCurriculumMenu(t);
         });
-        
+
         showSubjectController.setBtnUpravitAction((t) -> {
             List<StudijniPlan> plany;
             try {
@@ -1248,7 +1286,7 @@ public class FXMLMainSceneController implements Initializable {
 
     private void setShowSubjectMenuData(Predmet currPredmet) throws SQLException {
         List<StudijniPlan> plany = getStudijniPlanyPredmetu(currPredmet.getIdPredmetu());
-        showSubjectController.setDataset(plany, currPredmet);
+        showSubjectController.setDataset(plany, currPredmet, userIsAdmin);
     }
 
     /**
@@ -1267,7 +1305,7 @@ public class FXMLMainSceneController implements Initializable {
                 // Načtení layoutu end
 
                 setAutoResizeCenter(showSubjectMenu);
-                
+
                 setShowSubjectMenuActions();
 
             } catch (IOException ex) {
@@ -1286,18 +1324,20 @@ public class FXMLMainSceneController implements Initializable {
     }
 
     // ShowSubjectMenu section end
-    // TODO: Přidat metody pro zobrazení detailů oborů, předmětů, studijních plánů
-    // TODO: Přidat metody pro zobrazení editatce oborů, předmětů, studijních plánů
     private List<StudijniPlan> getStudijniPlany() throws SQLException {
         return dbHelper.selectStudijniPlany();
     }
-    
+
     private List<StudijniPlan> getStudijniPlanyOboru(int idOboru) throws SQLException {
         return dbHelper.selectStudijniPlanyOboru(idOboru);
     }
 
     private List<Role> getRole() throws SQLException {
         return dbHelper.selectRole();
+    }
+
+    private List<Role> getRoleUzivatele(int idUzivatele) throws SQLException {
+        return dbHelper.selectRoleUzivatele(idUzivatele);
     }
 
     private List<StudijniObor> getStudijniObory() throws SQLException {
@@ -1366,7 +1406,7 @@ public class FXMLMainSceneController implements Initializable {
     private List<StudijniPlan> getStudijniPlanyUzivatele(int idUzivatele) throws SQLException {
         return dbHelper.selectStudijniPlanyUzivatele(idUzivatele);
     }
-    
+
     private List<StudijniPlan> getStudijniPlanyPredmetu(int idPredmetu) throws SQLException {
         return dbHelper.selectStudijniPlanyPredmetu(idPredmetu);
     }

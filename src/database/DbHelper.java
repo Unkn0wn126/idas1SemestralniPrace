@@ -1493,6 +1493,8 @@ public class DbHelper {
         Uzivatel uziv = selectUzivatelById(result.getInt("id_autora"));
         String jmeno = uziv.getJmeno() + " " + uziv.getPrijmeni();
         prispevek = new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getInt("blokace"), result.getInt("priorita_prispevku"), result.getInt("id_autora"), result.getString("nazev"), jmeno);
+        result.close();
+        prepare.close();
         return prispevek;
     }
 
@@ -1507,7 +1509,7 @@ public class DbHelper {
      * @throws SQLException
      */
     private void insertPrispevek(String nazev, String obsah, LocalDateTime casOdeslani, int priorita, int idAutora) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(INSERT_PRISPEVEK);
+        PreparedStatement prepare = con.prepareStatement(INSERT_PRISPEVEK, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.setString(1, obsah);
         prepare.setTimestamp(2, Timestamp.valueOf(casOdeslani));
         prepare.setInt(3, 0);
@@ -1529,7 +1531,7 @@ public class DbHelper {
      * @throws SQLException
      */
     private void insertKomentar(String obsah, LocalDateTime casOdeslani, int idAutora, int idNadrazeneho) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(INSERT_KOMENTAR);
+        PreparedStatement prepare = con.prepareStatement(INSERT_KOMENTAR, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.setString(1, obsah);
         prepare.setTimestamp(2, Timestamp.valueOf(casOdeslani));
         prepare.setInt(3, 0);
@@ -1541,7 +1543,7 @@ public class DbHelper {
     }
 
     private void insertPrispevekSkupiny(int idPrispevku, int idSkupiny) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(INSERT_PRISPEVEK_SKUPINY);
+        PreparedStatement prepare = con.prepareStatement(INSERT_PRISPEVEK_SKUPINY, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.setInt(1, idPrispevku);
         prepare.setInt(2, idSkupiny);
         prepare.execute();
@@ -1574,7 +1576,7 @@ public class DbHelper {
      * @throws SQLException
      */
     public void deletePrispevek(int idPrispevku) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(DELETE);
+        PreparedStatement prepare = con.prepareStatement(DELETE, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.setInt(1, idPrispevku);
         prepare.execute();
         con.commit();

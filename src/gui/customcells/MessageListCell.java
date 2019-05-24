@@ -55,10 +55,8 @@ public class MessageListCell extends ListCell<Zprava> {
                     e.printStackTrace();
                 }
             }
-
-            if (zprava == null) {
-                zprava = item;
-            }
+            
+            zprava = item;
 
             lblJmeno.setText(item.getJmenoAutora());
             lblText.setText(item.getObsahZpravy());

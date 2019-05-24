@@ -12,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import model.Skupina;
 import model.StudijniPlan;
 
 /**
@@ -31,7 +30,7 @@ public class GroupListCell extends ListCell<StudijniPlan> {
     private FXMLLoader loader;
 
     private StudijniPlan skupina;
-    
+
     private ContextMenu contextMenu;
 
     public GroupListCell(ContextMenu contextMenu) {
@@ -58,9 +57,7 @@ public class GroupListCell extends ListCell<StudijniPlan> {
                 }
             }
 
-            if (skupina == null) {
-                skupina = item;
-            }
+            skupina = item;
 
             lblName.setText(skupina.getNazev());
 

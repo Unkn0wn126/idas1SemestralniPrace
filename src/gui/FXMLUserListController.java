@@ -5,15 +5,14 @@
  */
 package gui;
 
-import gui.customcells.KontaktListCell;
 import gui.customcells.UzivatelListCell;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ContextMenu;
@@ -38,21 +37,41 @@ public class FXMLUserListController implements Initializable {
 
     private Consumer<Uzivatel> addToContactsAction;
     private Consumer<Uzivatel> showProfileAction;
+    private Consumer<Uzivatel> deleteUserAction;
+    private Consumer<Uzivatel> banUserAction;
+
+    private SimpleBooleanProperty giveAdminPermissions = new SimpleBooleanProperty();
+
+    private ContextMenu contextMenuUser;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        giveAdminPermissions.setValue(false);
+        contextMenuUser = addContextMenuContact();
+
         listViewUzivatele.setItems(dataset);
         listViewUzivatele.setCellFactory((param) -> {
-            return new UzivatelListCell(addContextMenuContact());
+            return new UzivatelListCell(contextMenuUser);
+        });
+
+        giveAdminPermissions.addListener((observable, oldValue, newValue) -> {
+            if (newValue && contextMenuUser.getItems().size() < 3) {
+                contextMenuUser.getItems().add(createMenuDelete());
+                contextMenuUser.getItems().add(createMenuBan());
+            } else if (!newValue && contextMenuUser.getItems().size() > 2) {
+                contextMenuUser.getItems().remove(2, contextMenuUser.getItems().size());
+            }
         });
     }
 
-    public void setDataSet(List<Uzivatel> uzivatele) {
+    public void setDataSet(List<Uzivatel> uzivatele, boolean isAdmin) {
         dataset.clear();
         dataset.addAll(uzivatele);
+        
+        giveAdminPermissions.setValue(isAdmin);
     }
 
     public void setAddToContactsAction(Consumer<Uzivatel> addToContactsAction) {
@@ -65,6 +84,14 @@ public class FXMLUserListController implements Initializable {
 
     public void setContextMenuShowProfileAction(Consumer<Uzivatel> showProfileAction) {
         this.showProfileAction = showProfileAction;
+    }
+
+    public void setDeleteUserAction(Consumer<Uzivatel> deleteUserAction) {
+        this.deleteUserAction = deleteUserAction;
+    }
+
+    public void setBanUserAction(Consumer<Uzivatel> banUserAction) {
+        this.banUserAction = banUserAction;
     }
 
     /**
@@ -89,5 +116,27 @@ public class FXMLUserListController implements Initializable {
         });
         contextMenu.getItems().addAll(showDetails, addToContacts);
         return contextMenu;
+    }
+
+    public MenuItem createMenuDelete() {
+        MenuItem delete = new MenuItem("Odstranit uživatele");
+        delete.setOnAction((event) -> {
+            if (deleteUserAction != null) {
+                deleteUserAction.accept(listViewUzivatele.getSelectionModel().getSelectedItem());
+            }
+        });
+
+        return delete;
+    }
+
+    public MenuItem createMenuBan() {
+        MenuItem delete = new MenuItem("Zablokovat uživatele");
+        delete.setOnAction((event) -> {
+            if (banUserAction != null) {
+                banUserAction.accept(listViewUzivatele.getSelectionModel().getSelectedItem());
+            }
+        });
+
+        return delete;
     }
 }

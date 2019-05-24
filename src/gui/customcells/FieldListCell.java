@@ -34,7 +34,7 @@ public class FieldListCell extends ListCell<StudijniObor> {
     private FXMLLoader loader;
 
     private StudijniObor predmet;
-    
+
     private ContextMenu contextMenu;
 
     public FieldListCell(ContextMenu contextMenu) {
@@ -61,9 +61,7 @@ public class FieldListCell extends ListCell<StudijniObor> {
                 }
             }
 
-            if (predmet == null) {
-                predmet = item;
-            }
+            predmet = item;
 
             lblName.setText(predmet.getNazev());
             lblZkratka.setText(predmet.getZkratka());

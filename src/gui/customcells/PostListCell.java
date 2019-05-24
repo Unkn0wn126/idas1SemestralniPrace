@@ -78,9 +78,8 @@ public class PostListCell extends ListCell<Prispevek> {
                 }
             }
 
-            if (prispevek == null) {
-                prispevek = item;
-            }
+            prispevek = item;
+
             listViewReplies.setItems(komentare);
             listViewReplies.setCellFactory((param) -> {
                 return new PostListCell(this.btnOdeslatAction, currentUser);

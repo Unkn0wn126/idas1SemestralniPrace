@@ -58,14 +58,29 @@ public class PinnedPostListCell extends ListCell<Prispevek> {
                 }
             }
 
-            if (prispevek == null) {
-                prispevek = item;
-            }
+            prispevek = item;
+            
             lblName.setText(item.getJmenoAutora());
             lblPostName.setText(item.getNazev());
             String casOdeslani = item.getCasOdeslani().format(DateTimeFormatter.ISO_DATE_TIME);
             lblTime.setText(casOdeslani);
             taMessage.setText(item.getObsahPrispevku());
+            
+            int priorita = item.getPriorita();
+            
+            switch (priorita) {
+                case 1:
+                    gridPane.setStyle("-fx-background-color: #e5ffdb");
+                    break;
+                case 2:
+                    gridPane.setStyle("-fx-background-color: #feffdb");
+                    break;
+                case 3:
+                    gridPane.setStyle("-fx-background-color: #ffdcdb");
+                    break;
+                default:
+                    break;
+            }
 
             setGraphic(gridPane);
             setPrefHeight(gridPane.getPrefHeight());

@@ -33,7 +33,7 @@ public class SubjectListCell extends ListCell<Predmet> {
     private FXMLLoader loader;
 
     private Predmet predmet;
-    
+
     private ContextMenu contextMenu;
 
     public SubjectListCell(ContextMenu contextMenu) {
@@ -60,9 +60,7 @@ public class SubjectListCell extends ListCell<Predmet> {
                 }
             }
 
-            if (predmet == null) {
-                predmet = item;
-            }
+            predmet = item;
 
             lblName.setText(predmet.getNazevPredmetu());
             lblZkratka.setText(predmet.getZkratkaPredmetu());

@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -46,6 +47,11 @@ public class FXMLShowCurriculumController implements Initializable {
 
     private Consumer<Predmet> showSubjectDetailAction;
     private Consumer<Predmet> deleteSubjectAction;
+    private Consumer<StudijniObor> lblOborPressedAction;
+
+    private SimpleBooleanProperty giveAdminPermissions = new SimpleBooleanProperty();
+
+    private ContextMenu contextMenuPredmet;
 
     @FXML
     private Label lblNazev;
@@ -65,14 +71,35 @@ public class FXMLShowCurriculumController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        contextMenuPredmet = addContextMenuSubjects();
+        giveAdminPermissions.setValue(false);
+        
+        setBtnUpravitUsable(false);
+
         listViewPredmety.setItems(predmety);
         listViewPredmety.setCellFactory((param) -> {
-            return new SubjectListCell(addContextMenuSubjects());
+            return new SubjectListCell(contextMenuPredmet);
         });
-        
+
         listViewUzivatele.setItems(uzivatele);
         listViewUzivatele.setCellFactory((param) -> {
             return new UzivatelListCell(addContextMenuUsers());
+        });
+
+        lblObor.setOnMousePressed((event) -> {
+            if (lblOborPressedAction != null) {
+                lblOborPressedAction.accept(currObor);
+            }
+        });
+
+        giveAdminPermissions.addListener((observable, oldValue, newValue) -> {
+            setBtnUpravitUsable(newValue);
+            
+            if (newValue && contextMenuPredmet.getItems().size() < 2) {
+                contextMenuPredmet.getItems().add(createMenuDelete());
+            } else if (!newValue && contextMenuPredmet.getItems().size() > 1) {
+                contextMenuPredmet.getItems().remove(1);
+            }
         });
     }
 
@@ -103,11 +130,12 @@ public class FXMLShowCurriculumController implements Initializable {
                 addToContactsAction.accept(listViewUzivatele.getSelectionModel().getSelectedItem());
             }
         });
+
         contextMenu.getItems().addAll(showDetails, addToContacts);
         return contextMenu;
     }
 
-    public void setDataset(List<Predmet> predmety, List<Uzivatel> uzivatele, StudijniPlan currPlan, StudijniObor currObor) {
+    public void setDataset(List<Predmet> predmety, List<Uzivatel> uzivatele, StudijniPlan currPlan, StudijniObor currObor, boolean isAdmin) {
         this.currPlan = currPlan;
         this.currObor = currObor;
         this.predmety.clear();
@@ -115,6 +143,8 @@ public class FXMLShowCurriculumController implements Initializable {
 
         this.predmety.addAll(predmety);
         this.uzivatele.addAll(uzivatele);
+
+        giveAdminPermissions.set(isAdmin);
 
         updateViews();
     }
@@ -137,22 +167,39 @@ public class FXMLShowCurriculumController implements Initializable {
         this.addToContactsAction = addToContactsAction;
     }
 
+    public void setLblOborPressedAction(Consumer<StudijniObor> lblOborPressedAction) {
+        this.lblOborPressedAction = lblOborPressedAction;
+    }
+
+    private void setBtnUpravitUsable(boolean allow) {
+        btnUpravit.setVisible(allow);
+        btnUpravit.setDisable(!allow);
+    }
+
     private ContextMenu addContextMenuSubjects() {
         ContextMenu contextMenu = new ContextMenu();
+
         MenuItem showDetail = new MenuItem("Zobrazit detail předmětu");
         showDetail.setOnAction((event) -> {
             if (showSubjectDetailAction != null) {
                 showSubjectDetailAction.accept(listViewPredmety.getSelectionModel().getSelectedItem());
             }
         });
+
+        contextMenu.getItems().addAll(showDetail);
+        return contextMenu;
+    }
+
+    private MenuItem createMenuDelete() {
         MenuItem delete = new MenuItem("Odstranit předmět");
+
         delete.setOnAction((event) -> {
             if (deleteSubjectAction != null) {
                 deleteSubjectAction.accept(listViewPredmety.getSelectionModel().getSelectedItem());
             }
         });
-        contextMenu.getItems().addAll(showDetail, delete);
-        return contextMenu;
+
+        return delete;
     }
 
     public void setShowSubjectDetailAction(Consumer<Predmet> showSubjectDetailAction) {

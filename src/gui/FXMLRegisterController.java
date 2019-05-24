@@ -19,7 +19,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
 import model.Role;
 import model.StudijniObor;
 import model.StudijniPlan;

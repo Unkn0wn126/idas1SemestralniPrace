@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -69,6 +70,11 @@ public class FXMLAccountViewController implements Initializable {
     private Consumer<StudijniPlan> showCurriculumDetailAction;
     private Consumer<StudijniPlan> deleteCurriculumAction;
 
+    private SimpleBooleanProperty giveAdminPermissions = new SimpleBooleanProperty();
+
+    private ContextMenu contextMenuCurriculum;
+    private ContextMenu contextMenuSubject;
+
     @FXML
     private Button btnUpravit;
     @FXML
@@ -89,8 +95,11 @@ public class FXMLAccountViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        listViewKontakty.setItems(kontakty);
+        giveAdminPermissions.setValue(false);
+        contextMenuCurriculum = addContextMenuCurriculum();
+        contextMenuSubject = addContextMenuPredmety();
 
+        listViewKontakty.setItems(kontakty);
         listViewKontakty.setCellFactory((param) -> {
             return new UzivatelListCell(addContextMenuContact());
         });
@@ -99,12 +108,28 @@ public class FXMLAccountViewController implements Initializable {
 
         listViewStudijniPlany.setItems(studijniPlany);
         listViewStudijniPlany.setCellFactory((param) -> {
-            return new GroupListCell(addContextMenuCurriculum());
+            return new GroupListCell(contextMenuCurriculum);
         });
 
         listViewPredmety.setItems(predmety);
         listViewPredmety.setCellFactory((param) -> {
-            return new SubjectListCell(addContextMenuPredmety());
+            return new SubjectListCell(contextMenuSubject);
+        });
+
+        giveAdminPermissions.addListener((observable, oldValue, newValue) -> {
+            btnUpravit.setVisible(newValue);
+            btnUpravit.setDisable(!newValue);
+            
+            if (newValue && contextMenuCurriculum.getItems().size() < 2) {
+                contextMenuCurriculum.getItems().add(createMenuDeleteCurriculum());
+            } else if (!newValue && contextMenuCurriculum.getItems().size() > 1) {
+                contextMenuCurriculum.getItems().remove(1);
+            }
+            if (newValue && contextMenuSubject.getItems().size() < 2) {
+                contextMenuSubject.getItems().add(createMenuDeletePredmet());
+            } else if (!newValue && contextMenuSubject.getItems().size() > 1) {
+                contextMenuSubject.getItems().remove(1);
+            }
         });
     }
 
@@ -171,8 +196,11 @@ public class FXMLAccountViewController implements Initializable {
      * Updatuje data pro zobrazení podle uživatele
      *
      * @param uzivatel uživatel, jehož data se mají zobrazit
+     * @param role
+     * @param studijniPlany
+     * @param predmety
      */
-    public void updateView(Uzivatel uzivatel, List<Role> role, List<StudijniPlan> studijniPlany, List<Predmet> predmety) {
+    public void updateView(Uzivatel uzivatel, List<Role> role, List<StudijniPlan> studijniPlany, List<Predmet> predmety, boolean isAdmin) {
         setUzivatel(uzivatel);
         this.role.clear();
         this.studijniPlany.clear();
@@ -185,6 +213,8 @@ public class FXMLAccountViewController implements Initializable {
         if (uzivatel != null && canEdit != null) {
             btnUpravit.setVisible(canEdit.test(uzivatel));
         }
+        
+        giveAdminPermissions.setValue(isAdmin);
 
         lblUzivatel.setText(uzivatel.getJmeno() + " " + uzivatel.getPrijmeni());
         lblJmeno.setText(uzivatel.getJmeno());
@@ -234,14 +264,20 @@ public class FXMLAccountViewController implements Initializable {
                 showSubjectDetailAction.accept(listViewPredmety.getSelectionModel().getSelectedItem());
             }
         });
+
+        contextMenu.getItems().addAll(showDetail);
+        return contextMenu;
+    }
+
+    private MenuItem createMenuDeletePredmet() {
         MenuItem delete = new MenuItem("Odstranit předmět");
         delete.setOnAction((event) -> {
             if (deleteSubjectAction != null) {
                 deleteSubjectAction.accept(listViewPredmety.getSelectionModel().getSelectedItem());
             }
         });
-        contextMenu.getItems().addAll(showDetail, delete);
-        return contextMenu;
+
+        return delete;
     }
 
     public void setShowSubjectDetailAction(Consumer<Predmet> showSubjectDetailAction) {
@@ -270,14 +306,19 @@ public class FXMLAccountViewController implements Initializable {
             }
         });
 
+        contextMenu.getItems().addAll(showDetail);
+        return contextMenu;
+    }
+
+    private MenuItem createMenuDeleteCurriculum() {
         MenuItem delete = new MenuItem("Odstranit studijní plán");
         delete.setOnAction((event) -> {
             if (deleteCurriculumAction != null) { // TODO: Fix bug of wrong selection
                 deleteCurriculumAction.accept(listViewStudijniPlany.getSelectionModel().getSelectedItem());
             }
         });
-        contextMenu.getItems().addAll(showDetail, delete);
-        return contextMenu;
+
+        return delete;
     }
 
 }

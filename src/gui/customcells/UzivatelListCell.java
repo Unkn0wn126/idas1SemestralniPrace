@@ -68,9 +68,7 @@ public class UzivatelListCell extends ListCell<Uzivatel> {
                 }
             }
 
-            if (uzivatel == null) {
-                uzivatel = item;
-            }
+            uzivatel = item;
 
             lblName.setText(item.getJmeno());
             lblSurname.setText(item.getPrijmeni());
@@ -83,6 +81,7 @@ public class UzivatelListCell extends ListCell<Uzivatel> {
 
     /**
      * Získá instanci uživatele této buňky
+     *
      * @return uživatel
      */
     public Uzivatel getUzivatel() {

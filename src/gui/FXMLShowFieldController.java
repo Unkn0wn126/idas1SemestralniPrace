@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -39,6 +40,10 @@ public class FXMLShowFieldController implements Initializable {
     private Consumer<StudijniPlan> deleteCurriculumAction;
     private Consumer<StudijniObor> btnUpravitAction;
 
+    private SimpleBooleanProperty giveAdminPermissions = new SimpleBooleanProperty();
+
+    private ContextMenu contextMenuCurriculum;
+
     private StudijniObor obor;
 
     @FXML
@@ -59,9 +64,24 @@ public class FXMLShowFieldController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        giveAdminPermissions.setValue(false);
+        contextMenuCurriculum = addContextMenuCurriculum();
+        
+        setBtnUpravitUsable(false);
+
         listViewPlany.setItems(plany);
         listViewPlany.setCellFactory((param) -> {
-            return new GroupListCell(addContextMenuCurriculum());
+            return new GroupListCell(contextMenuCurriculum);
+        });
+
+        giveAdminPermissions.addListener((observable, oldValue, newValue) -> {
+            setBtnUpravitUsable(newValue);
+
+            if (newValue && contextMenuCurriculum.getItems().size() < 2) {
+                contextMenuCurriculum.getItems().add(createMenuDelete());
+            } else if (!newValue && contextMenuCurriculum.getItems().size() > 1) {
+                contextMenuCurriculum.getItems().remove(1);
+            }
         });
     }
 
@@ -72,10 +92,11 @@ public class FXMLShowFieldController implements Initializable {
         }
     }
 
-    public void setDataset(List<StudijniPlan> plany, StudijniObor obor) {
+    public void setDataset(List<StudijniPlan> studijniPlany, StudijniObor obor, boolean isAdmin) {
         this.obor = obor;
         this.plany.clear();
-        this.plany.addAll(plany);
+        this.plany.addAll(studijniPlany);
+        giveAdminPermissions.setValue(isAdmin);
         updateViews();
     }
 
@@ -98,6 +119,11 @@ public class FXMLShowFieldController implements Initializable {
         this.btnUpravitAction = btnUpravitAction;
     }
 
+    private void setBtnUpravitUsable(boolean allow) {
+        btnUpravit.setVisible(allow);
+        btnUpravit.setDisable(!allow);
+    }
+
     private ContextMenu addContextMenuCurriculum() {
         ContextMenu contextMenu = new ContextMenu();
 
@@ -108,14 +134,19 @@ public class FXMLShowFieldController implements Initializable {
             }
         });
 
+        contextMenu.getItems().addAll(showDetail);
+        return contextMenu;
+    }
+
+    private MenuItem createMenuDelete() {
         MenuItem delete = new MenuItem("Odstranit");
         delete.setOnAction((event) -> {
             if (deleteCurriculumAction != null) { // TODO: Fix bug of wrong selection
                 deleteCurriculumAction.accept(listViewPlany.getSelectionModel().getSelectedItem());
             }
         });
-        contextMenu.getItems().addAll(showDetail, delete);
-        return contextMenu;
+
+        return delete;
     }
 
 }

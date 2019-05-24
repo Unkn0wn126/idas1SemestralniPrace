@@ -183,11 +183,15 @@ public class SemestralniPrace extends Application {
         // Předání database helperu do hlavní scény pomocí dependency injection
         controller.setDbHelper(dbHelper);
 
+        try {
+            // Zpřístupní nebo zakáže administrátorské funkce
+            controller.setAdminPermissions();
+        } catch (SQLException ex) {
+            Logger.getLogger(SemestralniPrace.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         // Načte do levého panelu kontakty lokálního uživatele
         controller.loadContactsMenu();
-
-        // Zpřístupní nebo zakáže administrátorské funkce
-        controller.setAdminPermissions();
 
         // Nastavení akce menu odhlásit tak, aby byl současný uživatel odhlášen
         // a aplikace se vrátila na přihlašovací obrazovku

@@ -21,7 +21,7 @@ import model.KontaktVypis;
  * @author Lukas
  */
 public class KontaktListCell extends ListCell<KontaktVypis> {
-    
+
     @FXML
     private Label lblName;
     @FXML
@@ -32,21 +32,21 @@ public class KontaktListCell extends ListCell<KontaktVypis> {
     private Circle circleOnline;
     @FXML
     private GridPane gridPane;
-    
+
     private FXMLLoader loader;
-    
+
     private KontaktVypis kontaktVypis;
-    
+
     public KontaktListCell(ContextMenu contextMenu) {
         super();
-        
+
         this.setContextMenu(contextMenu);
     }
-    
+
     @Override
     protected void updateItem(KontaktVypis item, boolean empty) {
         super.updateItem(item, empty);
-        
+
         if (empty || item == null) {
             setText(null);
             setGraphic(null);
@@ -54,23 +54,21 @@ public class KontaktListCell extends ListCell<KontaktVypis> {
             if (loader == null) {
                 loader = new FXMLLoader(getClass().getResource("ListCellKontakt.fxml"));
                 loader.setController(this);
-                
+
                 try {
                     loader.load();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-            
-            if (kontaktVypis == null) {
-                kontaktVypis = item;
-            }
-            
+
+            kontaktVypis = item;
+
             setOnlineCircleColor();
-            
+
             lblName.setText(item.getJmeno());
             lblSurname.setText(item.getPrijmeni());
-            
+
             setGraphic(gridPane);
             setPrefHeight(gridPane.getPrefHeight());
         }
@@ -99,7 +97,7 @@ public class KontaktListCell extends ListCell<KontaktVypis> {
         } else {
             circleOnline.setFill(Color.BLACK);
         }
-        
+
     }
-    
+
 }

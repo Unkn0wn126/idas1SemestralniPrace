@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -30,6 +31,10 @@ public class FXMLFieldListController implements Initializable {
     private Consumer<StudijniObor> showFieldDetailAction;
     private Consumer<StudijniObor> deleteFieldAction;
 
+    private SimpleBooleanProperty giveAdminPermissions = new SimpleBooleanProperty();
+
+    private ContextMenu contextMenuField;
+
     @FXML
     private Label lblTitle;
     @FXML
@@ -42,15 +47,28 @@ public class FXMLFieldListController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        giveAdminPermissions.setValue(false);
+        contextMenuField = addContextMenuField();
+
         listViewObory.setItems(dataset);
         listViewObory.setCellFactory((param) -> {
-            return new FieldListCell(addContextMenuField());
+            return new FieldListCell(contextMenuField);
+        });
+
+        giveAdminPermissions.addListener((observable, oldValue, newValue) -> {
+            if (newValue && contextMenuField.getItems().size() < 2) {
+                contextMenuField.getItems().add(createMenuDelete());
+            } else if (!newValue && contextMenuField.getItems().size() > 1) {
+                contextMenuField.getItems().remove(1);
+            }
         });
     }
 
-    public void setDataset(List<StudijniObor> data) {
+    public void setDataset(List<StudijniObor> data, boolean isAdmin) {
         dataset.clear();
         dataset.addAll(data);
+        
+        giveAdminPermissions.setValue(isAdmin);
     }
 
     public void setShowFieldDetailAction(Consumer<StudijniObor> showFieldDetailAction) {
@@ -70,15 +88,19 @@ public class FXMLFieldListController implements Initializable {
                 showFieldDetailAction.accept(listViewObory.getSelectionModel().getSelectedItem());
             }
         });
+        contextMenu.getItems().addAll(showDetail);
+        return contextMenu;
+    }
 
+    private MenuItem createMenuDelete() {
         MenuItem delete = new MenuItem("Odstranit");
         delete.setOnAction((event) -> {
             if (deleteFieldAction != null) { // TODO: Fix bug of wrong selection
                 deleteFieldAction.accept(listViewObory.getSelectionModel().getSelectedItem());
             }
         });
-        contextMenu.getItems().addAll(showDetail, delete);
-        return contextMenu;
+
+        return delete;
     }
 
 }

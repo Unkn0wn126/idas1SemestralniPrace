@@ -21,6 +21,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import model.Prispevek;
 import model.Uzivatel;
 
@@ -38,22 +39,27 @@ public class FXMLGroupFeedController implements Initializable {
 
     private ObservableList<Prispevek> prispevkyRegular = FXCollections.observableArrayList();
     private ObservableList<Prispevek> prispevkyPinned = FXCollections.observableArrayList();
-    
+    private ObservableList<Integer> priority = FXCollections.observableArrayList();
+
     private Consumer<Prispevek> btnOdeslatAction;
     private Consumer<Prispevek> komentarBtnOdeslatAction;
-    
+
     private Uzivatel currentUser;
-    
+
     @FXML
     private TextArea taNovyPrispevek;
     @FXML
     private ComboBox<Integer> cbPriorita;
+    @FXML
+    private TextField tfNazev;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        cbPriorita.setItems(priority);
+
         listViewPrispevkyRegular.setItems(prispevkyRegular);
 
         listViewPrispevkyRegular.setCellFactory((param) -> {
@@ -73,16 +79,22 @@ public class FXMLGroupFeedController implements Initializable {
         prispevkyRegular.addAll(prispevky);
 
         prispevkyPinned.clear();
-        
+
         List<Prispevek> pinned = prispevky.stream().filter((t) -> {
             return t.getPriorita() > 0;
         }).collect(Collectors.toList());
-        
+
         pinned.sort((t, t1) -> {
-            return (t.getPriorita() < t1.getPriorita())? 1:-1;
+            return (t.getPriorita() < t1.getPriorita()) ? 1 : -1;
         });
-        
+
         prispevkyPinned.addAll(pinned);
+    }
+
+    public void updatePriorities(List<Integer> priority) {
+        this.priority.clear();
+        this.priority.addAll(priority);
+        cbPriorita.getSelectionModel().selectFirst();
     }
 
     public void setBtnOdeslatAction(Consumer<Prispevek> btnOdeslatAction) {
@@ -93,16 +105,41 @@ public class FXMLGroupFeedController implements Initializable {
         this.komentarBtnOdeslatAction = komentarBtnOdeslatAction;
     }
 
+    public boolean inputIsOk() {
+        return textInputIsOk() && nameInputIsOk() && priorityIsOk();
+    }
+
+    private boolean textInputIsOk() {
+        return !taNovyPrispevek.getText().isEmpty()
+                && taNovyPrispevek.getText().length() > 0
+                && taNovyPrispevek.getText().length() <= 1000;
+    }
+
+    private boolean nameInputIsOk() {
+        return !tfNazev.getText().isEmpty()
+                && tfNazev.getText().length() > 0
+                && tfNazev.getText().length() <= 50;
+    }
+
+    private boolean priorityIsOk() {
+        return cbPriorita.getSelectionModel().getSelectedItem() != null;
+    }
+
     @FXML
     private void handleBtnOdeslatAction(ActionEvent event) {
-        if (btnOdeslatAction != null) { // TODO: Přidat další field pro název
-            if (!taNovyPrispevek.getText().isEmpty() && taNovyPrispevek.getText().length() > 0) { // TODO: Přidat kontrolu na délku vstupu
-                String jmeno = currentUser.getJmeno() + " " + currentUser.getPrijmeni();
-                Prispevek prispevek = new Prispevek(taNovyPrispevek.getText(), LocalDateTime.now(), 0, 0, currentUser.getIdUzivatele(), "Název", jmeno);
-                btnOdeslatAction.accept(prispevek);
+        if (btnOdeslatAction != null) {
+            String jmeno = currentUser.getJmeno() + " " + currentUser.getPrijmeni();
+            Prispevek prispevek = new Prispevek(taNovyPrispevek.getText(),
+                    LocalDateTime.now(), 0, cbPriorita.getValue(),
+                    currentUser.getIdUzivatele(), tfNazev.getText(), jmeno);
+
+            btnOdeslatAction.accept(prispevek);
+
+            if (inputIsOk()) {
                 taNovyPrispevek.clear();
+                tfNazev.clear();
+                cbPriorita.getSelectionModel().selectFirst();
             }
-            
         }
     }
 

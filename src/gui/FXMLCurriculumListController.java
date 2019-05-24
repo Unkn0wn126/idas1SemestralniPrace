@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -31,25 +32,43 @@ public class FXMLCurriculumListController implements Initializable {
     private Label lblTitle;
     @FXML
     private ListView<StudijniPlan> listViewCurriculum;
+
     private Consumer<StudijniPlan> showCurriculumDetailAction;
     private Consumer<StudijniPlan> deleteCurriculumAction;
 
     private ObservableList<StudijniPlan> dataset = FXCollections.observableArrayList();
+
+    private SimpleBooleanProperty giveAdminPermissions = new SimpleBooleanProperty();
+
+    private ContextMenu contextMenuCurriculum;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        giveAdminPermissions.setValue(false);
+        contextMenuCurriculum = addContextMenuCurriculum();
+
         listViewCurriculum.setItems(dataset);
         listViewCurriculum.setCellFactory(lv -> {
-            return new GroupListCell(addContextMenuCurriculum());
+            return new GroupListCell(contextMenuCurriculum);
+        });
+
+        giveAdminPermissions.addListener((observable, oldValue, newValue) -> {
+            if (newValue && contextMenuCurriculum.getItems().size() < 2) {
+                contextMenuCurriculum.getItems().add(createMenuDelete());
+            } else if (!newValue && contextMenuCurriculum.getItems().size() > 1) {
+                contextMenuCurriculum.getItems().remove(1);
+            }
         });
     }
 
-    public void setDataset(List<StudijniPlan> data) {
+    public void setDataset(List<StudijniPlan> data, boolean isAdmin) {
         dataset.clear();
         dataset.addAll(data);
+        
+        giveAdminPermissions.setValue(isAdmin);
     }
 
     public void setShowCurriculumDetailAction(Consumer<StudijniPlan> showDetailAction) {
@@ -70,14 +89,19 @@ public class FXMLCurriculumListController implements Initializable {
             }
         });
 
+        contextMenu.getItems().addAll(showDetail);
+        return contextMenu;
+    }
+
+    private MenuItem createMenuDelete() {
         MenuItem delete = new MenuItem("Odstranit");
         delete.setOnAction((event) -> {
             if (deleteCurriculumAction != null) { // TODO: Fix bug of wrong selection
                 deleteCurriculumAction.accept(listViewCurriculum.getSelectionModel().getSelectedItem());
             }
         });
-        contextMenu.getItems().addAll(showDetail, delete);
-        return contextMenu;
+
+        return delete;
     }
 
 }

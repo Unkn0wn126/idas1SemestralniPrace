@@ -151,6 +151,16 @@
                                           <TextField fx:id="tfStareHeslo" />
                                        </children>
                                     </FlowPane>
+                                    <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="10">
+                                       <children>
+                                          <Label text="Blokace:" />
+                                       </children>
+                                    </FlowPane>
+                                    <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="10">
+                                       <children>
+                                          <ComboBox fx:id="cbBlokace" disable="true" prefWidth="150.0" />
+                                       </children>
+                                    </FlowPane>
                                  </children>
                               </GridPane>
                            </content>
@@ -159,7 +169,7 @@
                   </GridPane>
                </content>
             </Tab>
-            <Tab closable="false" text="Role">
+            <Tab fx:id="tabRole" closable="false" text="Role">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
