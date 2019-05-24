@@ -40,6 +40,7 @@ public class FXMLContactsController implements Initializable {
 
     // Group variables start
     private Consumer<StudijniPlan> showGroupMembersAction;
+    private Consumer<StudijniPlan> showDetailAction;
     private Consumer<StudijniPlan> selectedGroupChangedAction;
     private ObservableList<StudijniPlan> skupiny = FXCollections.observableArrayList();
     private int selectedGroupId;
@@ -187,7 +188,13 @@ public class FXMLContactsController implements Initializable {
                 showGroupMembersAction.accept(listViewGroups.getSelectionModel().getSelectedItem());
             }
         });
-        contextMenu.getItems().addAll(showMembers);
+        MenuItem showDetail = new MenuItem("Zobrazit detail skupiny");
+        showDetail.setOnAction((event) -> {
+            if (showDetailAction != null) {
+                showDetailAction.accept(listViewGroups.getSelectionModel().getSelectedItem());
+            }
+        });
+        contextMenu.getItems().addAll(showMembers, showDetail);
         return contextMenu;
     }
 
@@ -212,6 +219,14 @@ public class FXMLContactsController implements Initializable {
      */
     public void setShowGroupMembersAction(Consumer<StudijniPlan> showGroupMembersAction) {
         this.showGroupMembersAction = showGroupMembersAction;
+    }
+
+    /**
+     * Nastaví, co se má stát při kliknutí na kontextové menu "zobrazit detail skupiny"
+     * @param showDetailAction 
+     */
+    public void setShowGroupDetailAction(Consumer<StudijniPlan> showDetailAction) {
+        this.showDetailAction = showDetailAction;
     }
 
     /**

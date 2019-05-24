@@ -5,6 +5,7 @@
  */
 package gui;
 
+import gui.customcells.GroupListCell;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -15,7 +16,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import model.StudijniPlan;
@@ -31,7 +31,8 @@ public class FXMLCurriculumListController implements Initializable {
     private Label lblTitle;
     @FXML
     private ListView<StudijniPlan> listViewCurriculum;
-    private Consumer<StudijniPlan> showDetailAction;
+    private Consumer<StudijniPlan> showCurriculumDetailAction;
+    private Consumer<StudijniPlan> deleteCurriculumAction;
 
     private ObservableList<StudijniPlan> dataset = FXCollections.observableArrayList();
 
@@ -42,30 +43,7 @@ public class FXMLCurriculumListController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         listViewCurriculum.setItems(dataset);
         listViewCurriculum.setCellFactory(lv -> {
-            ListCell<StudijniPlan> cell = new ListCell<>();
-
-            ContextMenu contextMenu = new ContextMenu();
-
-            MenuItem showDetail = new MenuItem("Zobrazit detail");
-            showDetail.setOnAction(event -> {
-                if (showDetailAction != null) {
-                    showDetailAction.accept(listViewCurriculum.getSelectionModel().getSelectedItem());
-                }
-            });
-            
-            MenuItem delete = new MenuItem("Odstranit");
-            contextMenu.getItems().addAll(showDetail, delete);
-
-            cell.textProperty().bind(cell.itemProperty().asString());
-
-            cell.emptyProperty().addListener((obs, wasEmpty, isNowEmpty) -> {
-                if (isNowEmpty) {
-                    cell.setContextMenu(null);
-                } else {
-                    cell.setContextMenu(contextMenu);
-                }
-            });
-            return cell;
+            return new GroupListCell(addContextMenuCurriculum());
         });
     }
 
@@ -74,8 +52,32 @@ public class FXMLCurriculumListController implements Initializable {
         dataset.addAll(data);
     }
 
-    public void setShowDetailAction(Consumer<StudijniPlan> showDetailAction) {
-        this.showDetailAction = showDetailAction;
+    public void setShowCurriculumDetailAction(Consumer<StudijniPlan> showDetailAction) {
+        this.showCurriculumDetailAction = showDetailAction;
+    }
+
+    public void setDeleteCurriculumAction(Consumer<StudijniPlan> deleteCurriculumAction) {
+        this.deleteCurriculumAction = deleteCurriculumAction;
+    }
+
+    private ContextMenu addContextMenuCurriculum() {
+        ContextMenu contextMenu = new ContextMenu();
+
+        MenuItem showDetail = new MenuItem("Zobrazit detail");
+        showDetail.setOnAction(event -> {
+            if (showCurriculumDetailAction != null) { // TODO: Fix bug of wrong selection
+                showCurriculumDetailAction.accept(listViewCurriculum.getSelectionModel().getSelectedItem());
+            }
+        });
+
+        MenuItem delete = new MenuItem("Odstranit");
+        delete.setOnAction((event) -> {
+            if (deleteCurriculumAction != null) { // TODO: Fix bug of wrong selection
+                deleteCurriculumAction.accept(listViewCurriculum.getSelectionModel().getSelectedItem());
+            }
+        });
+        contextMenu.getItems().addAll(showDetail, delete);
+        return contextMenu;
     }
 
 }

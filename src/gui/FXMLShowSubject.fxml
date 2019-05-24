@@ -93,7 +93,7 @@
       </TabPane>
       <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2147483647">
          <children>
-            <Label text="Přidat nebo upravit předmět">
+            <Label text="Detail předmětu">
                <font>
                   <Font size="14.0" />
                </font>

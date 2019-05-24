@@ -95,7 +95,7 @@ public class FXMLGroupFeedController implements Initializable {
 
     @FXML
     private void handleBtnOdeslatAction(ActionEvent event) {
-        if (btnOdeslatAction != null) {
+        if (btnOdeslatAction != null) { // TODO: Přidat další field pro název
             if (!taNovyPrispevek.getText().isEmpty() && taNovyPrispevek.getText().length() > 0) { // TODO: Přidat kontrolu na délku vstupu
                 String jmeno = currentUser.getJmeno() + " " + currentUser.getPrijmeni();
                 Prispevek prispevek = new Prispevek(taNovyPrispevek.getText(), LocalDateTime.now(), 0, 0, currentUser.getIdUzivatele(), "Název", jmeno);

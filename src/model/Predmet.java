@@ -26,6 +26,24 @@ public class Predmet {
     public String toString(){
         return String.format("Název: %s, Zkratka: %s, Popis: %s", nazevPredmetu, zkratkaPredmetu, popis);
     }
+
+    public int getIdPredmetu() {
+        return idPredmetu;
+    }
+
+    public String getNazevPredmetu() {
+        return nazevPredmetu;
+    }
+
+    public String getZkratkaPredmetu() {
+        return zkratkaPredmetu;
+    }
+
+    public String getPopis() {
+        return popis;
+    }
+    
+    
     
     
 }

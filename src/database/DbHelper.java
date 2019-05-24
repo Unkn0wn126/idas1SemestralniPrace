@@ -64,9 +64,7 @@ public class DbHelper {
     // Statements for uzivatele end
 
     // Statements for role start
-    private final String SELECT_ROLE = "SELECT ROLE.* FROM UZIVATELE INNER JOIN ROLE_UZIVATELU ON ROLE_UZIVATELU.UZIVATELE_ID_UZIVATELE = UZIVATELE.ID_UZIVATELE"
-            + " INNER JOIN ROLE ON ROLE_UZIVATELU.ROLE_ID_ROLE = ROLE.ID_ROLE"
-            + " WHERE UZIVATELE.ID_UZIVATELE = ?";
+    private final String SELECT_ROLE = "SELECT * FROM UZIVATELE_ROLE WHERE ID_UZIVATELE = ?";
     private final String SELECT_ROLE_ALL = "SELECT * FROM ROLE";
     // Statements for role end
 
@@ -82,7 +80,7 @@ public class DbHelper {
     private final String CV_KONTAKTY_POHLED = "CREATE OR REPLACE VIEW KONTAKTY_POHLED AS SELECT * FROM KONTAKTY";
     private final String SELECT_KONTAKTY_ALL = "SELECT * FROM KONTAKTY_POHLED WHERE uzivatele_id_uzivatele = ?";
     private final String SELECT_KONTAKTY_UZIVATELE = "SELECT k.id_kontaktu, u2.id_uzivatele, u2.jmeno, u2.prijmeni, u2.prihlasen, u2.blokace"
-            + " FROM UZIVATELE u"
+            + " FROM UZIVATELE_POHLED u"
             + " inner join kontakty_uzivatelu ku"
             + " on u.id_uzivatele = ku.uzivatele_id_uzivatele"
             + " inner join kontakty k"
@@ -125,14 +123,10 @@ public class DbHelper {
     private final String CV_STUDIJNI_PLANY_POHLED = "CREATE OR REPLACE VIEW STUDIJNI_PLANY_POHLED AS SELECT * FROM STUDIJNI_PLANY";
     private final String SELECT_STUDIJNI_PLANY = "SELECT * FROM STUDIJNI_PLANY_POHLED";
     private final String SELECT_STUDIJNI_PLAN = "SELECT * FROM STUDIJNI_PLANY_POHLED WHERE id_planu = ?";
-    private final String SELECT_STUDIJNI_PLANY_UZIVATELE = "select sp.id_planu, sp.nazev, sp.so_id_oboru,sp.popis FROM studijni_plany sp"
-            + " inner join studijni_plany_uzivatelu spu on spu.sp_id_planu = sp.id_planu"
-            + " inner join uzivatele u on u.id_uzivatele = spu.uzivatele_id_uzivatele"
-            + " where u.id_uzivatele = ?";
-    private final String SELECT_UZIVATELE_BY_STUDIJNI_PLAN = "select u.id_uzivatele, u.jmeno, u.prijmeni, u.rok_studia, u.eml, u.blokace, u.poznamka FROM uzivatele u"
-            + " inner join studijni_plany_uzivatelu spu on spu.uzivatele_id_uzivatele = u.id_uzivatele"
-            + " inner join studijni_plany sp on sp.id_planu = spu.sp_id_planu"
-            + " where sp.id_planu = ?";
+    private final String SELECT_STUDIJNI_PLANY_UZIVATELE = "select * FROM STUDIJNI_PLANY_UZIVATELE where id_uzivatele = ?";
+    private final String SELECT_STUDIJNI_PLANY_PREDMETU = "select * FROM STUDIJNI_PLANY_PREDMETU where id_predmetu = ?";
+    private final String SELECT_UZIVATELE_BY_STUDIJNI_PLAN = "select * FROM CLENOVE_SKUPINY where id_planu = ?";
+    private final String SELECT_STUDIJNI_PLANY_OBORU = "select * FROM STUDIJNI_PLANY_POHLED where SO_ID_OBORU = ?";
     private final String SELECT_STUDIJNI_PLAN_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_PLANY_POHLED WHERE UPPER(nazev) LIKE UPPER(?)";
     private final String INSERT_STUDIJNI_PLAN = "INSERT INTO STUDIJNI_PLANY(nazev, so_id_oboru, popis) VALUES (?,?,?)";
     private final String INSERT_STUDIJNI_PLANY_UZIVATELU = "INSERT INTO STUDIJNI_PLANY_UZIVATELU(UZIVATELE_ID_UZIVATELE, SP_ID_PLANU) VALUES (?, ?)";
@@ -154,6 +148,7 @@ public class DbHelper {
     private final String CV_PREDMETY_POHLED = "CREATE OR REPLACE VIEW PREDMETY_POHLED AS SELECT * FROM PREDMETY";
     private final String SELECT_PREDMETY = "SELECT * FROM PREDMETY_POHLED";
     private final String SELECT_PREDMETY_SP = "SELECT * FROM PREDMETY_SP WHERE ID_PLANU = ?";
+    private final String SELECT_PREDMETY_UZIVATELE = "SELECT * FROM PREDMETY_UZIVATELE WHERE ID_UZIVATELE = ?";
     private final String SELECT_PREDMET = "SELECT * FROM PREDMETY_POHLED WHERE id_predmetu = ?";
     private final String SELECT_PREDMET_BY_ATTRIBUTE = "SELECT * FROM PREDMETY_POHLED WHERE UPPER(zkratka_predmetu) LIKE UPPER(?) OR UPPER(nazev_predmetu) LIKE UPPER(?)";
     private final String INSERT_PREDMET = "INSERT INTO PREDMETY(nazev_predmetu,zkratka_predmetu,popis) VALUES (?,?,?)";
@@ -187,6 +182,10 @@ public class DbHelper {
         createViewStudijniPlany();
         createViewPredmety();
         createViewPrispevky();
+    }
+
+    public Connection getCon() {
+        return con;
     }
 
     // Methods for uzivatele start
@@ -234,7 +233,7 @@ public class DbHelper {
         int online = result.getInt("prihlasen");
         result.close();
         prepare.close();
-        
+
         return online;
     }
 
@@ -246,7 +245,7 @@ public class DbHelper {
         int online = result.getInt("blokace");
         result.close();
         prepare.close();
-        
+
         return online;
     }
 
@@ -393,17 +392,17 @@ public class DbHelper {
         try {
             result.next();
             int idUzivatele = result.getInt("ID_UZIVATELE");
-            
+
             int ban = selectUzivatelBan(idUzivatele);
             if (ban != 0) {
                 return 1;
             }
-            
+
             int online = selectUzivatelOnline(idUzivatele);
             if (online != 0) {
                 return 2;
             }
-            
+
             setCurrentUser(selectUzivatelById(idUzivatele));
             prepare.close();
             result.close();
@@ -941,6 +940,28 @@ public class DbHelper {
     }
 
     /**
+     * Vrátí seznam všech studijních plánů daného oboru
+     *
+     * @param idOboru id oboru
+     * @return seznam studijních plánů
+     * @throws SQLException
+     */
+    public List<StudijniPlan> selectStudijniPlanyOboru(int idOboru) throws SQLException {
+        List<StudijniPlan> listSelect = new ArrayList<>();
+        PreparedStatement prepare = con.prepareStatement(SELECT_STUDIJNI_PLANY_OBORU);
+        prepare.setInt(1, idOboru);
+        ResultSet result = prepare.executeQuery();
+
+        while (result.next()) {
+            listSelect.add(new StudijniPlan(result.getInt("id_planu"), result.getString("nazev"), result.getInt("so_id_oboru"), result.getString("popis")));
+
+        }
+        prepare.close();
+        result.close();
+        return listSelect;
+    }
+
+    /**
      * Vrátí seznam studijních plánů uživatele
      *
      * @param idUzivatele id daného uživatele
@@ -951,6 +972,25 @@ public class DbHelper {
         List<StudijniPlan> listSelect = new ArrayList<>();
         PreparedStatement prepare = con.prepareStatement(SELECT_STUDIJNI_PLANY_UZIVATELE);
         prepare.setInt(1, idUzivatele);
+        ResultSet result = prepare.executeQuery();
+
+        while (result.next()) {
+            listSelect.add(new StudijniPlan(result.getInt("id_planu"), result.getString("nazev"), result.getInt("so_id_oboru"), result.getString("popis")));
+
+        }
+        return listSelect;
+    }
+    /**
+     * Vrátí seznam studijních plánů uživatele
+     *
+     * @param idPredmetu id daného předmětu
+     * @return seznam studijních plánů uživatele
+     * @throws SQLException
+     */
+    public List<StudijniPlan> selectStudijniPlanyPredmetu(int idPredmetu) throws SQLException {
+        List<StudijniPlan> listSelect = new ArrayList<>();
+        PreparedStatement prepare = con.prepareStatement(SELECT_STUDIJNI_PLANY_PREDMETU);
+        prepare.setInt(1, idPredmetu);
         ResultSet result = prepare.executeQuery();
 
         while (result.next()) {
@@ -1115,10 +1155,13 @@ public class DbHelper {
         prepare.setInt(1, idOboru);
         StudijniObor obor;
         ResultSet result = prepare.executeQuery();
+        result.next();
         obor = new StudijniObor(result.getInt("id_oboru"),
                 result.getString("nazev"), result.getString("zkratka_oboru"),
                 result.getString("popis"),
                 result.getDate("akreditace_do").toLocalDate());
+        result.close();
+        prepare.close();
         return obor;
     }
 
@@ -1227,6 +1270,51 @@ public class DbHelper {
             listSelect.add(new Predmet(result.getInt("id_predmetu"), result.getString("nazev_predmetu"), result.getString("zkratka_predmetu"), result.getString("popis")));
 
         }
+        return listSelect;
+    }
+
+    /**
+     * Vybere všechny předměty daného uživatele z databáze
+     *
+     * @return seznam předmětů
+     * @throws SQLException
+     */
+    public List<Predmet> selectPredmetyUzivatele(int idUzivatele) throws SQLException {
+        List<Predmet> listSelect = new ArrayList<>();
+        PreparedStatement prepare = con.prepareStatement(SELECT_PREDMETY_UZIVATELE);
+        prepare.setInt(1, idUzivatele);
+        ResultSet result = prepare.executeQuery();
+
+        while (result.next()) {
+            listSelect.add(new Predmet(result.getInt("id_predmetu"), result.getString("nazev_predmetu"), result.getString("zkratka_predmetu"), result.getString("popis")));
+
+        }
+
+        result.close();
+        prepare.close();
+        return listSelect;
+    }
+
+    /**
+     * Vybere všechny předměty daného plánu z databáze
+     *
+     * @param idPlanu
+     * @return seznam předmětů
+     * @throws SQLException
+     */
+    public List<Predmet> selectPredmetyStudijnihoPlanu(int idPlanu) throws SQLException {
+        List<Predmet> listSelect = new ArrayList<>();
+        PreparedStatement prepare = con.prepareStatement(SELECT_PREDMETY_SP);
+        prepare.setInt(1, idPlanu);
+        ResultSet result = prepare.executeQuery();
+
+        while (result.next()) {
+            listSelect.add(new Predmet(result.getInt("id_predmetu"), result.getString("nazev_predmetu"), result.getString("zkratka_predmetu"), result.getString("popis")));
+
+        }
+
+        result.close();
+        prepare.close();
         return listSelect;
     }
 
@@ -1369,7 +1457,7 @@ public class DbHelper {
             String jmeno = jmena[0] + " " + jmena[1];
             listSelect.add(new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getInt("blokace"), result.getInt("priorita_prispevku"), result.getInt("id_autora"), result.getString("nazev"), jmeno)); // TODO: idAutora není potřeba
         }
-        
+
         result.close();
         prepare.close();
         return listSelect;
@@ -1474,8 +1562,8 @@ public class DbHelper {
         insertPrispevek(nazev, obsah, casOdeslani, priorita, idAutora);
         insertPrispevekSkupiny(selectLastPrispevekId(), idSkupiny);
     }
-    
-    public void sendKomentar(String obsah, LocalDateTime casOdeslani, int idAutora, int idNadrazeneho) throws SQLException{
+
+    public void sendKomentar(String obsah, LocalDateTime casOdeslani, int idAutora, int idNadrazeneho) throws SQLException {
         insertKomentar(obsah, casOdeslani, idAutora, idNadrazeneho);
     }
 

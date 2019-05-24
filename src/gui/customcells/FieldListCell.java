@@ -12,17 +12,20 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import model.Skupina;
-import model.StudijniPlan;
+import model.Predmet;
+import model.StudijniObor;
 
 /**
  *
  * @author Lukas
  */
-public class GroupListCell extends ListCell<StudijniPlan> {
+public class FieldListCell extends ListCell<StudijniObor> {
 
     @FXML
     private Label lblName;
+
+    @FXML
+    private Label lblZkratka;
     @FXML
     private ImageView imageView;
     @FXML
@@ -30,17 +33,17 @@ public class GroupListCell extends ListCell<StudijniPlan> {
 
     private FXMLLoader loader;
 
-    private StudijniPlan skupina;
+    private StudijniObor predmet;
     
     private ContextMenu contextMenu;
 
-    public GroupListCell(ContextMenu contextMenu) {
+    public FieldListCell(ContextMenu contextMenu) {
         this.contextMenu = contextMenu;
         this.setContextMenu(contextMenu);
     }
 
     @Override
-    protected void updateItem(StudijniPlan item, boolean empty) {
+    protected void updateItem(StudijniObor item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty || item == null) {
@@ -48,7 +51,7 @@ public class GroupListCell extends ListCell<StudijniPlan> {
             setGraphic(null);
         } else {
             if (loader == null) {
-                loader = new FXMLLoader(getClass().getResource("ListCellGroup.fxml"));
+                loader = new FXMLLoader(getClass().getResource("ListCellSubject.fxml"));
                 loader.setController(this);
 
                 try {
@@ -58,11 +61,12 @@ public class GroupListCell extends ListCell<StudijniPlan> {
                 }
             }
 
-            if (skupina == null) {
-                skupina = item;
+            if (predmet == null) {
+                predmet = item;
             }
 
-            lblName.setText(skupina.getNazev());
+            lblName.setText(predmet.getNazev());
+            lblZkratka.setText(predmet.getZkratka());
 
             setGraphic(gridPane);
             setPrefHeight(gridPane.getPrefHeight());

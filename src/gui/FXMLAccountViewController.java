@@ -5,6 +5,8 @@
  */
 package gui;
 
+import gui.customcells.GroupListCell;
+import gui.customcells.SubjectListCell;
 import gui.customcells.UzivatelListCell;
 import java.net.URL;
 import java.util.List;
@@ -22,6 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TabPane;
+import model.Predmet;
 import model.Role;
 import model.StudijniPlan;
 import model.Uzivatel;
@@ -51,6 +54,7 @@ public class FXMLAccountViewController implements Initializable {
     private ObservableList<Uzivatel> kontakty = FXCollections.observableArrayList();
     private ObservableList<Role> role = FXCollections.observableArrayList();
     private ObservableList<StudijniPlan> studijniPlany = FXCollections.observableArrayList();
+    private ObservableList<Predmet> predmety = FXCollections.observableArrayList();
 
     private Consumer<Uzivatel> editButtonAction;
 
@@ -58,6 +62,12 @@ public class FXMLAccountViewController implements Initializable {
     private Consumer<Uzivatel> addToContactsAction;
 
     private Predicate<Uzivatel> canEdit;
+
+    private Consumer<Predmet> showSubjectDetailAction;
+    private Consumer<Predmet> deleteSubjectAction;
+
+    private Consumer<StudijniPlan> showCurriculumDetailAction;
+    private Consumer<StudijniPlan> deleteCurriculumAction;
 
     @FXML
     private Button btnUpravit;
@@ -71,6 +81,8 @@ public class FXMLAccountViewController implements Initializable {
     private ListView<Role> listViewRole;
     @FXML
     private ListView<StudijniPlan> listViewStudijniPlany;
+    @FXML
+    private ListView<Predmet> listViewPredmety;
 
     /**
      * Initializes the controller class.
@@ -82,10 +94,18 @@ public class FXMLAccountViewController implements Initializable {
         listViewKontakty.setCellFactory((param) -> {
             return new UzivatelListCell(addContextMenuContact());
         });
-        
+
         listViewRole.setItems(role);// TODO: udělat custom cell
-        
-        listViewStudijniPlany.setItems(studijniPlany); // TODO: udělat custom cell
+
+        listViewStudijniPlany.setItems(studijniPlany);
+        listViewStudijniPlany.setCellFactory((param) -> {
+            return new GroupListCell(addContextMenuCurriculum());
+        });
+
+        listViewPredmety.setItems(predmety);
+        listViewPredmety.setCellFactory((param) -> {
+            return new SubjectListCell(addContextMenuPredmety());
+        });
     }
 
     @FXML
@@ -97,6 +117,7 @@ public class FXMLAccountViewController implements Initializable {
 
     /**
      * Nastaví akci, která se má provést při stisknutí tlačítka editovat
+     *
      * @param editButtonAction akce, která se má provést
      */
     public void setEditButtonAction(Consumer<Uzivatel> editButtonAction) {
@@ -129,6 +150,7 @@ public class FXMLAccountViewController implements Initializable {
     /**
      * Nastaví akci, která se má provést při události zobrazení profilu
      * vybraného uživatele
+     *
      * @param showProfileAction akce, která se má provést
      */
     public void setShowProfileAction(Consumer<Uzivatel> showProfileAction) {
@@ -136,8 +158,9 @@ public class FXMLAccountViewController implements Initializable {
     }
 
     /**
-     * Nastaví akci, která se má provést při události přidání uživatele
-     * do kontaktů
+     * Nastaví akci, která se má provést při události přidání uživatele do
+     * kontaktů
+     *
      * @param addToContactsAction akce, která se má provést
      */
     public void setAddToContactsAction(Consumer<Uzivatel> addToContactsAction) {
@@ -146,15 +169,18 @@ public class FXMLAccountViewController implements Initializable {
 
     /**
      * Updatuje data pro zobrazení podle uživatele
+     *
      * @param uzivatel uživatel, jehož data se mají zobrazit
      */
-    public void updateView(Uzivatel uzivatel, List<Role> role, List<StudijniPlan> studijniPlany) {
+    public void updateView(Uzivatel uzivatel, List<Role> role, List<StudijniPlan> studijniPlany, List<Predmet> predmety) {
         setUzivatel(uzivatel);
         this.role.clear();
         this.studijniPlany.clear();
-        
+        this.predmety.clear();
+
         this.role.addAll(role);
         this.studijniPlany.addAll(studijniPlany);
+        this.predmety.addAll(predmety);
 
         if (uzivatel != null && canEdit != null) {
             btnUpravit.setVisible(canEdit.test(uzivatel));
@@ -166,14 +192,15 @@ public class FXMLAccountViewController implements Initializable {
         lblEmail.setText(uzivatel.getEmail());
         lblRokStudia.setText(Integer.toString(uzivatel.getRokStudia()));
         lblPoznamka.setText(uzivatel.getPoznamka());
-        String blokace = uzivatel.getBlokace() == 0 ? "Ne": "Ano";
+        String blokace = uzivatel.getBlokace() == 0 ? "Ne" : "Ano";
         lblBan.setText(blokace);
-        
+
         tabPane.getSelectionModel().selectFirst();
     }
 
     /**
      * Nastaví seznam kontaktů uživatele, který se má zobrazit
+     *
      * @param kontakty seznam uživatelů pro zobrazení
      */
     public void setContactsDataSet(List<Uzivatel> kontakty) {
@@ -183,6 +210,7 @@ public class FXMLAccountViewController implements Initializable {
 
     /**
      * Nastaví uživatele, kterému patří profil
+     *
      * @param uzivatel uživatel, kterému patří profil
      */
     public void setUzivatel(Uzivatel uzivatel) {
@@ -191,10 +219,65 @@ public class FXMLAccountViewController implements Initializable {
 
     /**
      * Nastaví akci, podle které se určí, jestli má daný uživatel právo úprav
+     *
      * @param canEdit akce, která se má provést
      */
     public void setCanEditAction(Predicate<Uzivatel> canEdit) {
         this.canEdit = canEdit;
+    }
+
+    private ContextMenu addContextMenuPredmety() {
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem showDetail = new MenuItem("Zobrazit detail předmětu");
+        showDetail.setOnAction((event) -> {
+            if (showSubjectDetailAction != null) {
+                showSubjectDetailAction.accept(listViewPredmety.getSelectionModel().getSelectedItem());
+            }
+        });
+        MenuItem delete = new MenuItem("Odstranit předmět");
+        delete.setOnAction((event) -> {
+            if (deleteSubjectAction != null) {
+                deleteSubjectAction.accept(listViewPredmety.getSelectionModel().getSelectedItem());
+            }
+        });
+        contextMenu.getItems().addAll(showDetail, delete);
+        return contextMenu;
+    }
+
+    public void setShowSubjectDetailAction(Consumer<Predmet> showSubjectDetailAction) {
+        this.showSubjectDetailAction = showSubjectDetailAction;
+    }
+
+    public void setDeleteSubjectAction(Consumer<Predmet> deleteAction) {
+        this.deleteSubjectAction = deleteAction;
+    }
+
+    public void setShowCurriculumDetailAction(Consumer<StudijniPlan> showDetailAction) {
+        this.showCurriculumDetailAction = showDetailAction;
+    }
+
+    public void setDeleteCurriculumAction(Consumer<StudijniPlan> deleteCurriculumAction) {
+        this.deleteCurriculumAction = deleteCurriculumAction;
+    }
+
+    private ContextMenu addContextMenuCurriculum() {
+        ContextMenu contextMenu = new ContextMenu();
+
+        MenuItem showDetail = new MenuItem("Zobrazit detail");
+        showDetail.setOnAction(event -> {
+            if (showCurriculumDetailAction != null) { // TODO: Fix bug of wrong selection
+                showCurriculumDetailAction.accept(listViewStudijniPlany.getSelectionModel().getSelectedItem());
+            }
+        });
+
+        MenuItem delete = new MenuItem("Odstranit studijní plán");
+        delete.setOnAction((event) -> {
+            if (deleteCurriculumAction != null) { // TODO: Fix bug of wrong selection
+                deleteCurriculumAction.accept(listViewStudijniPlany.getSelectionModel().getSelectedItem());
+            }
+        });
+        contextMenu.getItems().addAll(showDetail, delete);
+        return contextMenu;
     }
 
 }

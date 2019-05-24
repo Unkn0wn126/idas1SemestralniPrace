@@ -5,15 +5,26 @@
  */
 package gui;
 
+import gui.customcells.GroupListCell;
 import java.net.URL;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
+import model.Predmet;
+import model.StudijniObor;
+import model.StudijniPlan;
 
 /**
  * FXML Controller class
@@ -21,6 +32,14 @@ import javafx.scene.control.TextArea;
  * @author Lukas
  */
 public class FXMLShowFieldController implements Initializable {
+
+    private ObservableList<StudijniPlan> plany = FXCollections.observableArrayList();
+
+    private Consumer<StudijniPlan> showCurriculumDetailAction;
+    private Consumer<StudijniPlan> deleteCurriculumAction;
+    private Consumer<StudijniObor> btnUpravitAction;
+
+    private StudijniObor obor;
 
     @FXML
     private Label lblNazev;
@@ -31,7 +50,7 @@ public class FXMLShowFieldController implements Initializable {
     @FXML
     private TextArea taPopis;
     @FXML
-    private ListView<?> listViewPlany;
+    private ListView<StudijniPlan> listViewPlany;
     @FXML
     private Button btnUpravit;
 
@@ -40,11 +59,63 @@ public class FXMLShowFieldController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
+        listViewPlany.setItems(plany);
+        listViewPlany.setCellFactory((param) -> {
+            return new GroupListCell(addContextMenuCurriculum());
+        });
+    }
 
     @FXML
     private void handleBtnUpravitAction(ActionEvent event) {
+        if (btnUpravitAction != null) {
+            btnUpravitAction.accept(this.obor);
+        }
     }
-    
+
+    public void setDataset(List<StudijniPlan> plany, StudijniObor obor) {
+        this.obor = obor;
+        this.plany.clear();
+        this.plany.addAll(plany);
+        updateViews();
+    }
+
+    private void updateViews() {
+        lblNazev.setText(obor.getNazev());
+        lblZkratka.setText(obor.getZkratka());
+        lblAkreditaceDo.setText(obor.getAkreditaceDo().format(DateTimeFormatter.ISO_DATE));
+        taPopis.setText(obor.getPopis());
+    }
+
+    public void setShowCurriculumDetailAction(Consumer<StudijniPlan> showDetailAction) {
+        this.showCurriculumDetailAction = showDetailAction;
+    }
+
+    public void setDeleteCurriculumAction(Consumer<StudijniPlan> deleteCurriculumAction) {
+        this.deleteCurriculumAction = deleteCurriculumAction;
+    }
+
+    public void setBtnUpravitAction(Consumer<StudijniObor> btnUpravitAction) {
+        this.btnUpravitAction = btnUpravitAction;
+    }
+
+    private ContextMenu addContextMenuCurriculum() {
+        ContextMenu contextMenu = new ContextMenu();
+
+        MenuItem showDetail = new MenuItem("Zobrazit detail");
+        showDetail.setOnAction(event -> {
+            if (showCurriculumDetailAction != null) { // TODO: Fix bug of wrong selection
+                showCurriculumDetailAction.accept(listViewPlany.getSelectionModel().getSelectedItem());
+            }
+        });
+
+        MenuItem delete = new MenuItem("Odstranit");
+        delete.setOnAction((event) -> {
+            if (deleteCurriculumAction != null) { // TODO: Fix bug of wrong selection
+                deleteCurriculumAction.accept(listViewPlany.getSelectionModel().getSelectedItem());
+            }
+        });
+        contextMenu.getItems().addAll(showDetail, delete);
+        return contextMenu;
+    }
+
 }

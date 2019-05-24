@@ -104,7 +104,7 @@ public class PostListCell extends ListCell<Prispevek> {
 
     @FXML
     private void handleBtnOdeslatAction(ActionEvent event) {
-        if (taReply.getText().length() > 0) {
+        if (taReply.getText().length() > 0) { // TODO: Přidat kontrolu vstupu
             if (btnOdeslatAction != null) {
                 Prispevek pr = new Prispevek(taReply.getText(), LocalDateTime.now(), currentUser.getIdUzivatele(), prispevek.getIdPrispevku());
                 btnOdeslatAction.accept(pr);
