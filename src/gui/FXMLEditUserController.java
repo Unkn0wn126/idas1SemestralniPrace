@@ -27,6 +27,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import model.Prispevek;
 import model.Role;
 import model.StudijniObor;
 import model.StudijniPlan;
@@ -69,6 +70,8 @@ public class FXMLEditUserController implements Initializable {
 
     private Predicate<Uzivatel> canEdit;
 
+    private List<StudijniPlan> planyAll = new ArrayList<>();
+
     @FXML
     private TextField tfStareHeslo;
     @FXML
@@ -107,15 +110,31 @@ public class FXMLEditUserController implements Initializable {
             return new PickCurriculumListCell();
         });
 
-        listViewRole.setItems(role);
-        listViewRole.setCellFactory((param) -> {
-            return new PickRoleListCell();
+        cbObor.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            studijniPlany.clear();
+
+            List<StudijniPlan> currPlany = planyAll.stream().filter((t) -> {
+                return t.getIdOboru() == newValue.getIdOboru();
+            }).collect(Collectors.toList());
+            
+            for (StudijniPlan studijniPlan : planyAll) {
+                if (!currPlany.contains(studijniPlan)) {
+                    studijniPlan.setSelected(false);
+                }
+            }
+            
+            studijniPlany.addAll(currPlany);
         });
 
-        giveAdminPermissions.addListener((observable, oldValue, newValue) -> {
-            tabRole.setDisable(!newValue);
-        });
-    }
+            listViewRole.setItems(role);
+            listViewRole.setCellFactory((param) -> {
+                return new PickRoleListCell();
+            });
+
+            giveAdminPermissions.addListener((observable, oldValue, newValue) -> {
+                tabRole.setDisable(!newValue);
+            });
+        }
 
     public void updateViews(Uzivatel uzivatel, boolean isAdmin) {
         this.uzivatel = uzivatel;
@@ -126,9 +145,9 @@ public class FXMLEditUserController implements Initializable {
         cbRocnik.getSelectionModel().select(uzivatel.getRokStudia());
 
         giveAdminPermissions.setValue(isAdmin);
-        
+
         cbBlokace.getSelectionModel().select(uzivatel.getBlokace());
-        
+
         if (canEdit != null) {
             cbBlokace.setDisable(!canEdit.test(uzivatel));
         }
@@ -142,6 +161,8 @@ public class FXMLEditUserController implements Initializable {
     }
 
     public void updateStudijniPlany(List<StudijniPlan> data) {
+        planyAll.clear();
+        planyAll.addAll(data);
         studijniPlany.clear();
         studijniPlany.addAll(data);
     }
@@ -215,7 +236,7 @@ public class FXMLEditUserController implements Initializable {
                 showAlert("Nesprávné staré heslo");
                 numOfErrors++;
             }
-        }else{
+        } else {
             this.uzivatel.setHeslo(oldPassword);
             checkForPassword = false;
         }

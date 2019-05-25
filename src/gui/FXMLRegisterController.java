@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -52,10 +53,12 @@ public class FXMLRegisterController implements Initializable {
     @FXML
     private TextArea taPoznamka;
 
-    private ObservableList<StudijniPlan> plany = FXCollections.observableArrayList();
+    private ObservableList<StudijniPlan> studijniPlany = FXCollections.observableArrayList();
     private ObservableList<StudijniObor> obory = FXCollections.observableArrayList();
     private ObservableList<Role> role = FXCollections.observableArrayList();
     private ObservableList<Integer> rocniky = FXCollections.observableArrayList();
+
+    private List<StudijniPlan> planyAll = new ArrayList<>();
 
     private int numOfErrors;
 
@@ -75,7 +78,7 @@ public class FXMLRegisterController implements Initializable {
         cbRocnik.setItems(rocniky);
         rocniky.addAll(0, 1, 2, 3, 4, 5, 6);
 
-        listViewStudijniPlany.setItems(plany);
+        listViewStudijniPlany.setItems(studijniPlany);
         listViewStudijniPlany.setCellFactory((param) -> {
             return new PickCurriculumListCell();
         });
@@ -86,6 +89,22 @@ public class FXMLRegisterController implements Initializable {
         });
 
         cbObor.setItems(obory);
+
+        cbObor.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            studijniPlany.clear();
+
+            List<StudijniPlan> currPlany = planyAll.stream().filter((t) -> {
+                return t.getIdOboru() == newValue.getIdOboru();
+            }).collect(Collectors.toList());
+
+            for (StudijniPlan studijniPlan : planyAll) {
+                if (!currPlany.contains(studijniPlan)) {
+                    studijniPlan.setSelected(false);
+                }
+            }
+
+            studijniPlany.addAll(currPlany);
+        });
     }
 
     public void setRegisterAction(Consumer<Uzivatel> registerAction) {
@@ -97,8 +116,10 @@ public class FXMLRegisterController implements Initializable {
     }
 
     public void setPlanyDataset(List<StudijniPlan> data) {
-        plany.clear();
-        plany.addAll(data);
+        planyAll.clear();
+        planyAll.addAll(data);
+        studijniPlany.clear();
+        studijniPlany.addAll(data);
     }
 
     public void setOboryDataset(List<StudijniObor> data) {
@@ -170,15 +191,15 @@ public class FXMLRegisterController implements Initializable {
 
         return heslo;
     }
-    
-    public String getHeslo(){
+
+    public String getHeslo() {
         String heslo1 = getHesloFirst();
         String heslo2 = getHesloConfirm();
         if (!heslo1.equals(heslo2)) {
             showAlert("Hesla se neshodují");
             numOfErrors++;
         }
-        
+
         return heslo1;
     }
 
@@ -231,7 +252,7 @@ public class FXMLRegisterController implements Initializable {
 
     public List<StudijniPlan> getStudijniPlan() {
         List<StudijniPlan> selectedPlany = new ArrayList<>();
-        for (StudijniPlan studijniPlan : plany) {
+        for (StudijniPlan studijniPlan : studijniPlany) {
             if (studijniPlan.isSelected()) {
                 selectedPlany.add(studijniPlan);
             }

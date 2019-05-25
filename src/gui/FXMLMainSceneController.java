@@ -828,6 +828,7 @@ public class FXMLMainSceneController implements Initializable {
             int blokace = t.getBlokace();
             try {
                 dbHelper.updatePrispevekBlokace(++blokace % 2, t.getIdPrispevku());
+                loadGroupFeedMenu(contactsController.getSelectedGroupId());
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -837,6 +838,7 @@ public class FXMLMainSceneController implements Initializable {
             try {
                 dbHelper.deletePrispevek(t.getIdPrispevku());
                 showDialog("Příspěvek úspěšně smazán");
+                loadGroupFeedMenu(contactsController.getSelectedGroupId());
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -960,6 +962,7 @@ public class FXMLMainSceneController implements Initializable {
             try {
                 dbHelper.updatePredmet(t.getNazevPredmetu(), t.getZkratkaPredmetu(), t.getPopis(), t.getIdPredmetu());
                 showDialog("Předmět úspěšně aktualizován");
+                paneCenter.getChildren().clear();
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1037,6 +1040,7 @@ public class FXMLMainSceneController implements Initializable {
             try {
                 dbHelper.insertStudijniObor(t.getNazev(), t.getZkratka(), t.getPopis(), t.getAkreditaceDo());
                 showDialog("Obor úspěšně nahrán");
+                paneCenter.getChildren().clear();
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1046,6 +1050,7 @@ public class FXMLMainSceneController implements Initializable {
             try {
                 dbHelper.updateObor(t.getNazev(), t.getPopis(), t.getAkreditaceDo(), t.getIdOboru());
                 showDialog("Obor úspěšně aktualizován");
+                loadShowFieldMenu(t);
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1106,7 +1111,8 @@ public class FXMLMainSceneController implements Initializable {
         addCurriculumController.setUpdateAction((t) -> {
             try {
                 dbHelper.updateStudijniPlan(t.getNazev(), t.getPopis(), t.getIdOboru(), t.getIdPlanu());
-                showDialog("Předmět úspěšně aktualizován");
+                showDialog("Studijní plán úspěšně aktualizován");
+                loadShowCurriculumMenu(t);
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1115,7 +1121,8 @@ public class FXMLMainSceneController implements Initializable {
         addCurriculumController.setAddAction((t) -> {
             try {
                 dbHelper.insertStudijniPlan(t.getNazev(), t.getIdOboru(), t.getPopis());
-                showDialog("Předmět úspěšně vložen");
+                showDialog("Studijní plán úspěšně vložen");
+                paneCenter.getChildren().clear();
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1213,6 +1220,8 @@ public class FXMLMainSceneController implements Initializable {
                         Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
+                showDialog("Změny úspěšně uloženy");
+                loadAccountMenu(t);
             }
         });
 
@@ -1491,6 +1500,7 @@ public class FXMLMainSceneController implements Initializable {
             try {
                 dbHelper.updatePrispevek(t.getNazev(), t.getObsahPrispevku(), t.getBlokace(), t.getIdPrispevku(), t.getPriorita());
                 showDialog("Příspěvěk úspěšně aktualizován");
+                paneCenter.getChildren().clear();
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
