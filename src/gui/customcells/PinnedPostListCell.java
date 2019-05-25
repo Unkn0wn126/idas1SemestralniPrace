@@ -8,6 +8,7 @@ package gui.customcells;
 import java.time.format.DateTimeFormatter;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.TextArea;
@@ -39,6 +40,7 @@ public class PinnedPostListCell extends ListCell<Prispevek> {
 
     private Prispevek prispevek;
 
+    
     @Override
     protected void updateItem(Prispevek item, boolean empty) {
         super.updateItem(item, empty);

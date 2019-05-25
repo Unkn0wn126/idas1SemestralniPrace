@@ -14,12 +14,14 @@ public class Predmet {
     private String nazevPredmetu;
     private String zkratkaPredmetu;
     private String popis;
+    private boolean selected;
 
     public Predmet(int idPredmetu, String nazevPredmetu, String zkratkaPredmetu, String popis) {
         this.idPredmetu = idPredmetu;
         this.nazevPredmetu = nazevPredmetu;
         this.zkratkaPredmetu = zkratkaPredmetu;
         this.popis = popis;
+        this.selected = false;
     }
     
     @Override
@@ -42,8 +44,13 @@ public class Predmet {
     public String getPopis() {
         return popis;
     }
-    
-    
-    
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
     
 }

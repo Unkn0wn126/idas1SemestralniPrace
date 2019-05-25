@@ -305,7 +305,7 @@ public class FXMLAccountViewController implements Initializable {
 
         MenuItem showDetail = new MenuItem("Zobrazit detail");
         showDetail.setOnAction(event -> {
-            if (showCurriculumDetailAction != null) { // TODO: Fix bug of wrong selection
+            if (showCurriculumDetailAction != null) {
                 showCurriculumDetailAction.accept(listViewStudijniPlany.getSelectionModel().getSelectedItem());
             }
         });
@@ -317,7 +317,7 @@ public class FXMLAccountViewController implements Initializable {
     private MenuItem createMenuDeleteCurriculum() {
         MenuItem delete = new MenuItem("Odstranit studijní plán");
         delete.setOnAction((event) -> {
-            if (deleteCurriculumAction != null) { // TODO: Fix bug of wrong selection
+            if (deleteCurriculumAction != null) {
                 deleteCurriculumAction.accept(listViewStudijniPlany.getSelectionModel().getSelectedItem());
             }
         });

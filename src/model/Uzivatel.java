@@ -78,6 +78,10 @@ public class Uzivatel {
         return blokace;
     }
 
+    public void setBlokace(int blokace) {
+        this.blokace = blokace;
+    }
+
     public List<Kontakt> getKontakty() {
         return kontakty;
     }

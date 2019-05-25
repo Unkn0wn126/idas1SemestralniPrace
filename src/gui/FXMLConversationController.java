@@ -21,7 +21,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseEvent;
 import model.KontaktVypis;
+import model.Predmet;
+import model.Uzivatel;
 import model.Zprava;
 
 /**
@@ -40,6 +43,8 @@ public class FXMLConversationController implements Initializable {
     private String jmenoLocalUzivatele;
     private List<KontaktVypis> prijemci = new ArrayList<>();
     // Jmena variables end
+
+    private int idLokalnihoUzivatele;
 
     @FXML
     private TextArea tAMessage;
@@ -60,6 +65,14 @@ public class FXMLConversationController implements Initializable {
         listView.setCellFactory((param) -> {
             return new MessageListCell();
         });
+
+        listView.addEventFilter(MouseEvent.MOUSE_PRESSED, (event) -> {
+            switch (event.getButton()) {
+                case PRIMARY:
+                    event.consume();
+                    break;
+            }
+        });
     }
 
     @FXML
@@ -76,6 +89,7 @@ public class FXMLConversationController implements Initializable {
 
     /**
      * Nastaví, co se má provést při odeslání zprávy
+     *
      * @param poslatZpravuAction akce, která se má provést
      */
     public void setPoslatZpravuAction(Consumer<Zprava> poslatZpravuAction) {
@@ -86,22 +100,29 @@ public class FXMLConversationController implements Initializable {
      * Nastaví zprávy pro zobrazení
      *
      * @param zprava seznam zpráv pro zobrazení
-     * @param jmenoUzivatele jméno lokálního uživatele
+     * @param localUzivatel lokální uživatel
      * @param prijemci seznam příjemců zprávy
      */
-    public void updateMessages(List<Zprava> zprava, String jmenoUzivatele, List<KontaktVypis> prijemci) {
+    public void updateMessages(List<Zprava> zprava, Uzivatel localUzivatel, List<KontaktVypis> prijemci) {
+        this.jmenoLocalUzivatele = localUzivatel.getJmeno();
+        this.idLokalnihoUzivatele = localUzivatel.getIdUzivatele();
+
+        for (Zprava zpr : zprava) {
+            zpr.setMessageIsFromHere(zpr.getIdAutora() == idLokalnihoUzivatele);
+        }
+
         zpravy.clear();
         zpravy.addAll(zprava);
         this.prijemci.clear();
         this.prijemci.addAll(prijemci);
         updateLabelNames();
-        this.jmenoLocalUzivatele = jmenoUzivatele;
 
         listView.scrollTo(zpravy.size() - 1);
     }
 
     /**
      * Vrátí seznam příjemců zprávy
+     *
      * @return seznam příjemců
      */
     public List<KontaktVypis> getPrijemci() {

@@ -43,10 +43,11 @@ public class DbHelper {
 
     // Statements for uzivatele start
     private final String CV_UZIVATELE_POHLED = "CREATE OR REPLACE VIEW UZIVATELE_POHLED AS SELECT * FROM UZIVATELE";
-    private final String SET_UZIVATEL_ONLINE = "UPDATE UZIVATELE_POHLED SET PRIHLASEN = 1 WHERE ID_UZIVATELE = ?";
-    private final String SET_UZIVATEL_OFFLINE = "UPDATE UZIVATELE_POHLED SET PRIHLASEN = 0 WHERE ID_UZIVATELE = ?";
+    private final String SET_UZIVATEL_ONLINE = "UPDATE UZIVATELE SET PRIHLASEN = 1 WHERE ID_UZIVATELE = ?";
+    private final String SET_UZIVATEL_OFFLINE = "UPDATE UZIVATELE SET PRIHLASEN = 0 WHERE ID_UZIVATELE = ?";
     private final String SELECT_UZIVATEL_ONLINE = "SELECT prihlasen FROM STAVY_ONLINE WHERE ID_UZIVATELE = ?";
     private final String SELECT_UZIVATEL_ZABLOKOVAN = "SELECT BLOKACE FROM UZIVATELE_BLOKACE WHERE ID_UZIVATELE = ?";
+    private final String SET_UZIVATEL_ZABLOKOVAN = "UPDATE UZIVATELE SET BLOKACE = ? WHERE ID_UZIVATELE = ?";
     private final String SELECT_UZIVATELE_ALL = "SELECT * FROM UZIVATELE_POHLED";
     private final String SELECT_UZIVATEL_BY_ID = "SELECT * FROM UZIVATELE_POHLED WHERE id_uzivatele = ?";
     private final String SELECT_JMENO_UZIVATEL_BY_ID = "SELECT * FROM UZIVATEL_JMENO_PRIJMENI WHERE id_uzivatele = ?";
@@ -61,6 +62,7 @@ public class DbHelper {
     private final String SELECT_UZIVATELE_COUNT = "SELECT COUNT(*) from UZIVATELE_POHLED";
     private final String INSERT_UZIVATEL = "INSERT INTO UZIVATELE(login, heslo, jmeno, prijmeni, rok_studia, eml, blokace, poznamka) VALUES (?,?,?,?,?,?,?,?)";
     private final String DELETE_UZIVATEL = "DELETE FROM UZIVATELE WHERE id_uzivatele = ?";
+    private final String UPDATE_UZIVATEL = "UPDATE UZIVATELE SET  JMENO = ?, PRIJMENI = ?, ROK_STUDIA = ?, EML = ?, BLOKACE = ?, POZNAMKA = ? HESLO = ? WHERE id_uzivatele = ?";
     // Statements for uzivatele end
 
     // Statements for role start
@@ -79,6 +81,7 @@ public class DbHelper {
     private final String SELECT_KONTAKT_ID_BY_USER_ID = "SELECT id_kontaktu from KONTAKTY_POHLED WHERE UZIVATELE_ID_UZIVATELE = ?";
     private final String CV_KONTAKTY_POHLED = "CREATE OR REPLACE VIEW KONTAKTY_POHLED AS SELECT * FROM KONTAKTY";
     private final String SELECT_KONTAKTY_ALL = "SELECT * FROM KONTAKTY_POHLED WHERE uzivatele_id_uzivatele = ?";
+    private final String SELECT_ID_KONTAKTU_BY_ID_UZIVATELE = "SELECT * FROM KONTAKTY_POHLED WHERE UZIVATELE_ID_UZIVATELE = ?";
     private final String SELECT_KONTAKTY_UZIVATELE = "SELECT k.id_kontaktu, u2.id_uzivatele, u2.jmeno, u2.prijmeni, u2.prihlasen, u2.blokace"
             + " FROM UZIVATELE_POHLED u"
             + " inner join kontakty_uzivatelu ku"
@@ -92,7 +95,7 @@ public class DbHelper {
     private final String INSERT_KONTAKT = "INSERT INTO KONTAKTY(uzivatele_id_uzivatele) VALUES (?)";
     private final String INSERT_KONTAKTY_UZIVATELU = "INSERT INTO KONTAKTY_UZIVATELU(UZIVATELE_ID_UZIVATELE, KONTAKTY_ID_KONTAKTU) VALUES (?,?)";
     private final String DELETE_KONTAKT = "DELETE FROM KONTAKTY WHERE id_kontaktu = ? AND uzivatele_id_uzivatele = ?";
-    private final String ODEBRAT_Z_KONTAKTU = "DELETE FROM KONTAKTY_UZIVATELU WHERE KONTAKTY_ID_KONTAKTU = ? AND UZIVATELE_ID_UZIVATELE = ?"; // TODO: dodělat
+    private final String ODEBRAT_Z_KONTAKTU = "DELETE FROM KONTAKTY_UZIVATELU WHERE KONTAKTY_ID_KONTAKTU = ? AND UZIVATELE_ID_UZIVATELE = ?";
     // Statements for kontakty end
 
     // Statements for zpravy start
@@ -115,8 +118,8 @@ public class DbHelper {
     private final String INSERT_ZPRAVA = "INSERT INTO ZPRAVY(obsah_zpravy,cas_odeslani, id_odesilatele) VALUES (?,?,?)";
     private final String INSERT_ZPRAVY_KONTAKTU = "INSERT INTO ZPRAVY_KONTAKTU(zpravy_id_zpravy, kontakty_id_kontaktu) VALUES (?, ?)";
     // Posílání zpráv end
-    private final String DELETE = "DELETE FROM ZPRAVY WHERE id_zpravy = ?";
-    private final String UPDATE_ZPRAVA = "UPDATE ZPRAVY SET nazev = ?, obsah_zpravy = ?  where id_zpravy = ?";
+    private final String DELETE_ZPRAVA = "DELETE FROM ZPRAVY WHERE id_zpravy = ?";
+    private final String UPDATE_ZPRAVA = "UPDATE ZPRAVY SET obsah_zpravy = ?  where id_zpravy = ?";
     // Statements for zpravy end
 
     // Statements for studijniPlany start
@@ -130,6 +133,8 @@ public class DbHelper {
     private final String SELECT_STUDIJNI_PLAN_BY_ATTRIBUTE = "SELECT * FROM STUDIJNI_PLANY_POHLED WHERE UPPER(nazev) LIKE UPPER(?)";
     private final String INSERT_STUDIJNI_PLAN = "INSERT INTO STUDIJNI_PLANY(nazev, so_id_oboru, popis) VALUES (?,?,?)";
     private final String INSERT_STUDIJNI_PLANY_UZIVATELU = "INSERT INTO STUDIJNI_PLANY_UZIVATELU(UZIVATELE_ID_UZIVATELE, SP_ID_PLANU) VALUES (?, ?)";
+    private final String DELETE_STUDIJNI_PLANY_UZIVATELU_BY_UZIVATEL = "DELETE FROM STUDIJNI_PLANY_UZIVATELU WHERE UZIVATELE_ID_UZIVATELE = ?";
+    private final String DELETE_STUDIJNI_PLANY_UZIVATELU_BY_SP = "DELETE FROM STUDIJNI_PLANY_UZIVATELU WHERE SP_ID_PLANU = ?";
     private final String DELETE_STUDIJNI_PLAN = "DELETE FROM STUDIJNI_PLANY WHERE id_planu = ?";
     private final String UPDATE_STUDIJNI_PLAN = "UPDATE STUDIJNI_PLANY SET nazev = ?, popis = ?, so_id_oboru = ? where id_planu = ?";
     // Statements for studijniPlany end
@@ -171,7 +176,7 @@ public class DbHelper {
     private final String INSERT_KOMENTAR = "INSERT INTO PRISPEVKY(obsah_prispevku, cas_odeslani, blokace, priorita_prispevku, id_autora, prispevky_id_prispevku) VALUES (?,?,?,?,?,?)";
     private final String INSERT_PRISPEVEK_SKUPINY = "INSERT INTO SKUPINY(PRISPEVKY_ID_PRISPEVKU, SP_ID_PLANU) VALUES (?,?)";
     private final String DELETE_PRISPEVEK = "DELETE FROM PRISPEVKY WHERE id_prispevku = ?";
-    private final String UPDATE_PRISPEVEK = "UPDATE PRISPEVKY SET nazev = ?, obsah = ?, blokace = ?  where id_prispevku = ?";
+    private final String UPDATE_PRISPEVEK = "UPDATE PRISPEVKY SET nazev = ?, obsah = ?, blokace = ?, priorita = ?  where id_prispevku = ?";
     // Statements for prispevky end
 
     public DbHelper(Connection con) throws SQLException {
@@ -485,6 +490,22 @@ public class DbHelper {
     }
 
     /**
+     * Zabanuje nebo odbanuje daného uživatele
+     *
+     * @param idUzivatele id uživatele pro zablokování
+     * @param blokace stav blokace pro nastavení
+     * @throws SQLException
+     */
+    public void setUserBanned(int idUzivatele, int blokace) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SET_UZIVATEL_ZABLOKOVAN, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        prepare.setInt(1, blokace);
+        prepare.setInt(2, idUzivatele);
+
+        prepare.execute();
+        con.commit();
+    }
+
+    /**
      * Zaregistruje uživatele
      *
      * @param name jméno uživatele
@@ -506,6 +527,13 @@ public class DbHelper {
         prepare.setString(5, eml);
         prepare.setInt(6, 0);
         prepare.setString(7, poznamka);
+        prepare.execute();
+        con.commit();
+    }
+
+    public void deleteUser(int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(DELETE_UZIVATEL, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        prepare.setInt(1, idUzivatele);
         prepare.execute();
         con.commit();
     }
@@ -584,6 +612,20 @@ public class DbHelper {
         return listSelect;
     }
 
+    public int selectIdKontaktuByIdUzivatele(int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SELECT_KONTAKTY_UZIVATELE);
+        prepare.setInt(1, idUzivatele);
+        ResultSet result = prepare.executeQuery();
+        result.next();
+        
+        int idKontaktu = result.getInt("id_konaktu");
+        
+        result.close();
+        prepare.close();
+        
+        return idKontaktu;
+    }
+
     /**
      * Vybere kontakt uživatele
      *
@@ -592,10 +634,10 @@ public class DbHelper {
      * @return kontakt
      * @throws SQLException
      */
-    public Kontakt selectKontakt(String id_kontaktu, String id_uzivatele) throws SQLException {
+    public Kontakt selectKontakt(int id_kontaktu, int id_uzivatele) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(SELECT_KONTAKT);
-        prepare.setString(1, id_kontaktu);
-        prepare.setString(2, id_uzivatele);
+        prepare.setInt(1, id_kontaktu);
+        prepare.setInt(2, id_uzivatele);
         Kontakt kontakt;
         ResultSet result = prepare.executeQuery();
         kontakt = new Kontakt(result.getInt("id_kontaktu"),
@@ -668,15 +710,31 @@ public class DbHelper {
      * @param idUzivatele id uživatele
      * @throws SQLException
      */
-    public void deleteKontakt(String idKontaktu, String idUzivatele) throws SQLException {
+    public void deleteKontakt(int idKontaktu, int idUzivatele) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(DELETE_KONTAKT, ResultSet.CLOSE_CURSORS_AT_COMMIT);
-        prepare.setString(1, idKontaktu);
-        prepare.setString(2, idUzivatele);
+        prepare.setInt(1, idKontaktu);
+        prepare.setInt(2, idUzivatele);
         prepare.execute();
         con.commit();
     }
-    // Methods for kontakty end
 
+    private void deleteUserContact(int idKontaktu, int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(ODEBRAT_Z_KONTAKTU, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        prepare.setInt(1, idKontaktu);
+        prepare.setInt(2, idUzivatele);
+        prepare.execute();
+        con.commit();
+    }
+
+    public void odebratZKontaktu(int idKontaktu, int idUzivatele) throws SQLException {
+        int idRemoteUzivatele = selectUzivatelByIdKontaktu(idKontaktu).getIdUzivatele();
+        int idLocalContact = selectContactIdByUserId(idUzivatele);
+        
+        deleteUserContact(idKontaktu, idUzivatele);
+        deleteUserContact(idLocalContact, idRemoteUzivatele);
+    }
+
+    // Methods for kontakty end
     // Methods for zpravy start
     private void createViewZpravyPohled() throws SQLException {
         PreparedStatement prepare = con.prepareStatement(CV_ZPRAVY_POHLED, ResultSet.CLOSE_CURSORS_AT_COMMIT);
@@ -744,7 +802,9 @@ public class DbHelper {
             String jmenoAutora = selectJmenoAutora(result.getInt("id_odesilatele"));
             int count = getPocetVyskytu(result.getInt("id_zpravy"));
             if (selectGroupMessage && count > 1 || !selectGroupMessage) {
-                listSelect.add(new Zprava(result.getInt("id_zpravy"), result.getString("obsah_zpravy"), result.getTimestamp("cas_odeslani").toLocalDateTime(), jmenoAutora));
+                Zprava zpr = new Zprava(result.getInt("id_zpravy"), result.getString("obsah_zpravy"), result.getTimestamp("cas_odeslani").toLocalDateTime(), jmenoAutora);
+                zpr.setIdAutora(result.getInt("id_odesilatele"));
+                listSelect.add(zpr);
             }
 
         }
@@ -884,7 +944,7 @@ public class DbHelper {
      * @throws SQLException
      */
     public void deleteZprava(int idZpravy) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(DELETE, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        PreparedStatement prepare = con.prepareStatement(DELETE_ZPRAVA, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.setInt(1, idZpravy);
         prepare.execute();
         con.commit();
@@ -980,6 +1040,7 @@ public class DbHelper {
         }
         return listSelect;
     }
+
     /**
      * Vrátí seznam studijních plánů uživatele
      *
@@ -1082,7 +1143,7 @@ public class DbHelper {
      * @throws SQLException
      */
     public void deleteStudijniPlan(int idOboru) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(DELETE);
+        PreparedStatement prepare = con.prepareStatement(DELETE_STUDIJNI_PLAN);
         prepare.setInt(1, idOboru);
         prepare.execute();
         con.commit();
@@ -1216,7 +1277,7 @@ public class DbHelper {
      * @throws SQLException
      */
     public void deleteObor(int idOboru) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(DELETE);
+        PreparedStatement prepare = con.prepareStatement(DELETE_OBOR);
         prepare.setInt(1, idOboru);
         prepare.execute();
         con.commit();
@@ -1381,7 +1442,7 @@ public class DbHelper {
      * @throws SQLException
      */
     public void deletePredmet(int idPredmetu) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(DELETE);
+        PreparedStatement prepare = con.prepareStatement(DELETE_PREDMET);
         prepare.setInt(1, idPredmetu);
         prepare.execute();
         con.commit();
@@ -1455,7 +1516,7 @@ public class DbHelper {
         while (result.next()) {
             String[] jmena = selectJmenoUzivateleById(result.getInt("id_autora"));
             String jmeno = jmena[0] + " " + jmena[1];
-            listSelect.add(new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getInt("blokace"), result.getInt("priorita_prispevku"), result.getInt("id_autora"), result.getString("nazev"), jmeno)); // TODO: idAutora není potřeba
+            listSelect.add(new Prispevek(result.getInt("id_prispevku"), result.getString("obsah_prispevku"), result.getTimestamp("cas_odeslani").toLocalDateTime(), result.getInt("blokace"), result.getInt("priorita_prispevku"), result.getInt("id_autora"), result.getString("nazev"), jmeno));
         }
 
         result.close();
@@ -1576,7 +1637,7 @@ public class DbHelper {
      * @throws SQLException
      */
     public void deletePrispevek(int idPrispevku) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(DELETE, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        PreparedStatement prepare = con.prepareStatement(DELETE_PRISPEVEK, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.setInt(1, idPrispevku);
         prepare.execute();
         con.commit();

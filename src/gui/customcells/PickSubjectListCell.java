@@ -59,6 +59,11 @@ public class PickSubjectListCell extends ListCell<Predmet> {
 
             lblName.setText(predmet.getNazevPredmetu());
             lblZkratka.setText(predmet.getZkratkaPredmetu());
+            cbAddSubject.setSelected(predmet.isSelected());
+            
+            cbAddSubject.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                predmet.setSelected(newValue);
+            });
 
             setGraphic(gridPane);
             setPrefHeight(gridPane.getPrefHeight());

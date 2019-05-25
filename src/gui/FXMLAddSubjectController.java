@@ -15,11 +15,10 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import model.StudijniObor;
+import model.Predmet;
 import model.StudijniPlan;
 
 /**
@@ -37,9 +36,14 @@ public class FXMLAddSubjectController implements Initializable {
     private TextField tfNazevPredmetu;
 
     private ObservableList<StudijniPlan> plany = FXCollections.observableArrayList();
-    
+
     private Consumer<ActionEvent> btnSaveAction;
     private Consumer<ActionEvent> btnCancelAction;
+
+    private Predmet currPredmet;
+
+    private boolean updating;
+
     @FXML
     private ListView<StudijniPlan> listViewPlany;
 
@@ -54,9 +58,35 @@ public class FXMLAddSubjectController implements Initializable {
         });
     }
 
-    public void setPlanyData(List<StudijniPlan> data) {
+    public void setPlanyData(List<StudijniPlan> planyAll) { // TODO: Přidávat všechny plány a zaškrtnout ty, do kterých patří
         this.plany.clear();
-        this.plany.addAll(data);
+        this.plany.addAll(planyAll);
+        this.currPredmet = null;
+        updating = false;
+        clearInputs();
+    }
+
+    public void setPlanyData(List<StudijniPlan> planyAll,
+            List<StudijniPlan> planySelected, Predmet currPredmet) { // TODO: Přidávat všechny plány a zaškrtnout ty, do kterých patří
+
+        for (StudijniPlan plan : planyAll) {
+            plan.setSelected(planySelected.stream().anyMatch((t) -> {
+                return plan.getIdPlanu() == t.getIdPlanu();
+            }));
+        }
+
+        this.plany.clear();
+        this.plany.addAll(planyAll);
+        
+        this.currPredmet = currPredmet;
+        updating = true;
+        updateViews();
+    }
+
+    private void updateViews() {
+        tfPopis.setText(currPredmet.getPopis());
+        tfNazevPredmetu.setText(currPredmet.getNazevPredmetu());
+        tfZkratkaPredmetu.setText(currPredmet.getZkratkaPredmetu());
     }
 
     public String getPopis() throws IllegalArgumentException {
@@ -85,8 +115,8 @@ public class FXMLAddSubjectController implements Initializable {
         }
         return nazev;
     }
-    
-    public void clearInputs(){
+
+    public void clearInputs() {
         tfNazevPredmetu.setText(null);
         tfPopis.setText(null);
         tfZkratkaPredmetu.setText(null);

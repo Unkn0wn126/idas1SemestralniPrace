@@ -130,7 +130,7 @@ public class FXMLUserListController implements Initializable {
     }
 
     public MenuItem createMenuBan() {
-        MenuItem delete = new MenuItem("Zablokovat uživatele");
+        MenuItem delete = new MenuItem("Zablokovat/Odblokovat uživatele");
         delete.setOnAction((event) -> {
             if (banUserAction != null) {
                 banUserAction.accept(listViewUzivatele.getSelectionModel().getSelectedItem());

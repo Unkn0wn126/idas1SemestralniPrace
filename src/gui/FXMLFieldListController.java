@@ -84,7 +84,7 @@ public class FXMLFieldListController implements Initializable {
 
         MenuItem showDetail = new MenuItem("Zobrazit detail");
         showDetail.setOnAction(event -> {
-            if (showFieldDetailAction != null) { // TODO: Fix bug of wrong selection
+            if (showFieldDetailAction != null) {
                 showFieldDetailAction.accept(listViewObory.getSelectionModel().getSelectedItem());
             }
         });
@@ -95,7 +95,7 @@ public class FXMLFieldListController implements Initializable {
     private MenuItem createMenuDelete() {
         MenuItem delete = new MenuItem("Odstranit");
         delete.setOnAction((event) -> {
-            if (deleteFieldAction != null) { // TODO: Fix bug of wrong selection
+            if (deleteFieldAction != null) {
                 deleteFieldAction.accept(listViewObory.getSelectionModel().getSelectedItem());
             }
         });

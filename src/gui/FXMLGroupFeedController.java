@@ -19,7 +19,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import model.Prispevek;
@@ -43,6 +45,11 @@ public class FXMLGroupFeedController implements Initializable {
 
     private Consumer<Prispevek> btnOdeslatAction;
     private Consumer<Prispevek> komentarBtnOdeslatAction;
+    private Consumer<Prispevek> editPostAction;
+    private Consumer<Prispevek> deletePostAction;
+    private Consumer<Prispevek> blockPostAction;
+    
+    private boolean isAdmin;
 
     private Uzivatel currentUser;
 
@@ -59,11 +66,12 @@ public class FXMLGroupFeedController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         cbPriorita.setItems(priority);
+        isAdmin = false;
 
         listViewPrispevkyRegular.setItems(prispevkyRegular);
 
         listViewPrispevkyRegular.setCellFactory((param) -> {
-            return new PostListCell(komentarBtnOdeslatAction, currentUser);
+            return new PostListCell(komentarBtnOdeslatAction, currentUser, isAdmin, editPostAction, blockPostAction, deletePostAction);
         });
 
         listViewPrispevkyPinned.setItems(prispevkyPinned);
@@ -73,10 +81,11 @@ public class FXMLGroupFeedController implements Initializable {
         });
     }
 
-    public void updateFeed(List<Prispevek> prispevky, Uzivatel currentUser) {
+    public void updateFeed(List<Prispevek> prispevky, Uzivatel currentUser, boolean isAdmin) {
         this.currentUser = currentUser;
         prispevkyRegular.clear();
         prispevkyRegular.addAll(prispevky);
+        this.isAdmin = isAdmin;
 
         prispevkyPinned.clear();
 
@@ -89,6 +98,18 @@ public class FXMLGroupFeedController implements Initializable {
         });
 
         prispevkyPinned.addAll(pinned);
+    }
+
+    public void setEditPostAction(Consumer<Prispevek> editPostAction) {
+        this.editPostAction = editPostAction;
+    }
+
+    public void setDeletePostAction(Consumer<Prispevek> deletePostAction) {
+        this.deletePostAction = deletePostAction;
+    }
+
+    public void setBlockPostAction(Consumer<Prispevek> blockPostAction) {
+        this.blockPostAction = blockPostAction;
     }
 
     public void updatePriorities(List<Integer> priority) {

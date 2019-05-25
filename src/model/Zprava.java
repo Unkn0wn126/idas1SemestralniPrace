@@ -15,6 +15,8 @@ public class Zprava {
     private String obsahZpravy;
     private LocalDateTime casOdeslani;
     private String jmenoAutora;
+    private boolean messageIsFromHere = false;
+    private int idAutora;
 
     public Zprava(int idZpravy, String obsahZpravy, LocalDateTime casOdeslani, String jmenoAutora) {
         this.idZpravy = idZpravy;
@@ -43,5 +45,21 @@ public class Zprava {
 
     public int getIdZpravy() {
         return idZpravy;
+    }
+
+    public boolean isMessageIsFromHere() {
+        return messageIsFromHere;
+    }
+
+    public void setMessageIsFromHere(boolean messageIsFromHere) {
+        this.messageIsFromHere = messageIsFromHere;
+    }
+
+    public int getIdAutora() {
+        return idAutora;
+    }
+
+    public void setIdAutora(int idAutora) {
+        this.idAutora = idAutora;
     }
 }

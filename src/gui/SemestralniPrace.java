@@ -34,6 +34,8 @@ public class SemestralniPrace extends Application {
      */
     private DbHelper dbHelper;
 
+    private boolean databaseConnected = false;
+
     @Override
     public void start(Stage stage) throws Exception {
         primaryStage = stage;
@@ -54,7 +56,9 @@ public class SemestralniPrace extends Application {
             // Vytvoření instance třídy pro ovládání databáze
             // Ve zbytku aplikace řešeno dependency injection
             dbHelper = new DbHelper(OracleConnector.getConnection());
+            databaseConnected = true;
         } catch (SQLException ex) {
+            databaseConnected = false;
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText(null);
@@ -158,11 +162,13 @@ public class SemestralniPrace extends Application {
         if (!result.get().equals(ButtonType.OK)) {
             t.consume();
         } else {
-            try {
-                dbHelper.unsetCurrentUser();
-                OracleConnector.closeConnection(true);
-            } catch (SQLException ex) {
-                Logger.getLogger(SemestralniPrace.class.getName()).log(Level.SEVERE, null, ex);
+            if (databaseConnected) {
+                try {
+                    dbHelper.unsetCurrentUser();
+                    OracleConnector.closeConnection(true);
+                } catch (SQLException ex) {
+                    Logger.getLogger(SemestralniPrace.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }

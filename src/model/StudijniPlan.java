@@ -14,9 +14,16 @@ public class StudijniPlan {
     private String nazev;
     private int idOboru;
     private String popis;
+    private boolean selected;
 
     public StudijniPlan(int idPlanu, String nazev, int idOboru, String popis) {
         this.idPlanu = idPlanu;
+        this.nazev = nazev;
+        this.idOboru = idOboru;
+        this.popis = popis;
+    }
+    
+    public StudijniPlan(String nazev, int idOboru, String popis) {
         this.nazev = nazev;
         this.idOboru = idOboru;
         this.popis = popis;
@@ -37,8 +44,14 @@ public class StudijniPlan {
     public String getPopis() {
         return popis;
     }
-    
-    
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
     
     public String toString(){
         return String.format("Název plánu: %s Popis: %s", nazev, popis);

@@ -5,21 +5,16 @@
  */
 package gui;
 
-import gui.customcells.PickCurriculumListCell;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import model.StudijniPlan;
+import model.StudijniObor;
 
 /**
  * FXML Controller class
@@ -37,26 +32,26 @@ public class FXMLAddFieldController implements Initializable {
     @FXML
     private DatePicker dpAkreditace;
 
-    private Consumer<ActionEvent> btnSaveAction;
+    private Consumer<StudijniObor> addFieldAction;
+    private Consumer<StudijniObor> updateFieldAction;
     private Consumer<ActionEvent> btnCancelAction;
-    
-    private ObservableList<StudijniPlan> plany = FXCollections.observableArrayList();
-    @FXML
-    private ListView<StudijniPlan> listViewPlany;
+
+    private StudijniObor obor;
+    private boolean updating;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        listViewPlany.setItems(plany);
-        listViewPlany.setCellFactory((param) -> {
-            return new PickCurriculumListCell();
-        });
     }
 
-    public void setBtnSaveAction(Consumer<ActionEvent> btnSaveAction) {
-        this.btnSaveAction = btnSaveAction;
+    public void setAddFieldAction(Consumer<StudijniObor> addFieldAction) {
+        this.addFieldAction = addFieldAction;
+    }
+
+    public void setUpdateFieldAction(Consumer<StudijniObor> updateFieldAction) {
+        this.updateFieldAction = updateFieldAction;
     }
 
     public void setBtnCancelAction(Consumer<ActionEvent> btnCancelAction) {
@@ -103,16 +98,36 @@ public class FXMLAddFieldController implements Initializable {
         tfZkratkaOboru.setText(null);
         dpAkreditace.setValue(null);
     }
-    
-    public void setDataset(List<StudijniPlan> plany){
-        this.plany.clear();
-        this.plany.addAll(plany);
+
+    public void setDataset(StudijniObor obor) {
+        this.obor = obor;
+        updating = true;
+        updateViews();
+    }
+
+    private void updateViews() {
+        tfNazev.setText(obor.getNazev());
+        tfPopis.setText(obor.getPopis());
+        tfZkratkaOboru.setText(obor.getZkratka());
+        dpAkreditace.setValue(obor.getAkreditaceDo());
+    }
+
+    public void setDataset() {
+        this.obor = null;
+        updating = false;
+        clearInputs();
     }
 
     @FXML
     private void handleBtnUlozitAction(ActionEvent event) {
-        if (btnSaveAction != null) {
-            btnSaveAction.accept(event);
+        if (updating) { // TODO: Dodělat
+            if (updateFieldAction != null) {
+                updateFieldAction.accept(obor);
+            }
+        }else{
+            if (addFieldAction != null) {
+                addFieldAction.accept(obor);
+            }
         }
     }
 

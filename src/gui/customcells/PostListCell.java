@@ -13,6 +13,8 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -39,6 +41,12 @@ public class PostListCell extends ListCell<Prispevek> {
     @FXML
     private TextArea taReply;
     @FXML
+    private Button btnEditovat;
+    @FXML
+    private Button btnZablokovat;
+    @FXML
+    private Button btnSmazat;
+    @FXML
     private ListView listViewReplies;
 
     @FXML
@@ -53,10 +61,25 @@ public class PostListCell extends ListCell<Prispevek> {
 
     private ObservableList<Prispevek> komentare = FXCollections.observableArrayList();
     private Consumer<Prispevek> btnOdeslatAction;
+    private Consumer<Prispevek> btnEditovatAction;
+    private Consumer<Prispevek> btnZablokovatAction;
+    private Consumer<Prispevek> btnSmazatAction;
 
-    public PostListCell(Consumer<Prispevek> btnOdeslatAction, Uzivatel currentUser) {
+    private boolean isAdmin;
+    private boolean canEdit;
+
+    public PostListCell(Consumer<Prispevek> btnOdeslatAction, 
+            Uzivatel currentUser, boolean isAdmin, 
+            Consumer<Prispevek> btnEditovatAction, 
+            Consumer<Prispevek> btnZablokovatAction, 
+            Consumer<Prispevek> btnSmazatAction) {
         this.btnOdeslatAction = btnOdeslatAction;
+        this.btnEditovatAction = btnEditovatAction;
+        this.btnZablokovatAction = btnZablokovatAction;
+        this.btnSmazatAction = btnSmazatAction;
         this.currentUser = currentUser;
+        this.isAdmin = isAdmin;
+        this.canEdit = false;
     }
 
     @Override
@@ -82,7 +105,10 @@ public class PostListCell extends ListCell<Prispevek> {
 
             listViewReplies.setItems(komentare);
             listViewReplies.setCellFactory((param) -> {
-                return new PostListCell(this.btnOdeslatAction, currentUser);
+                return new PostListCell(this.btnOdeslatAction, 
+                        currentUser, isAdmin, 
+                        this.btnEditovatAction, 
+                        this.btnZablokovatAction, this.btnSmazatAction);
             });
             komentare.clear();
             if (item.getKomentare() != null) {
@@ -92,6 +118,14 @@ public class PostListCell extends ListCell<Prispevek> {
             if (item.getNazev() != null) {
                 lblPostName.setText(item.getNazev());
             }
+
+            canEdit = currentUser.getIdUzivatele() == item.getIdAutora();
+
+            btnEditovat.setDisable(!canEdit);
+
+            btnSmazat.setDisable(!isAdmin);
+            btnZablokovat.setDisable(!isAdmin);
+
             String casOdeslani = item.getCasOdeslani().format(DateTimeFormatter.ISO_DATE_TIME);
             lblTime.setText(casOdeslani);
             taMessage.setText(item.getObsahPrispevku());
@@ -110,7 +144,27 @@ public class PostListCell extends ListCell<Prispevek> {
                 taReply.clear();
             }
         }
+    }
 
+    @FXML
+    private void handleBtnEditovatAction(ActionEvent event) {
+        if (btnEditovatAction != null) {
+            btnEditovatAction.accept(prispevek);
+        }
+    }
+
+    @FXML
+    private void handleBtnZablokovatAction(ActionEvent event) {
+        if (btnZablokovatAction != null) {
+            btnZablokovatAction.accept(prispevek);
+        }
+    }
+
+    @FXML
+    private void handleBtnSmazatAction(ActionEvent event) {
+        if (btnSmazatAction != null) {
+            btnSmazatAction.accept(prispevek);
+        }
     }
 
 }

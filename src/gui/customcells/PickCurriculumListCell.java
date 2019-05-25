@@ -8,10 +8,8 @@ package gui.customcells;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import model.StudijniPlan;
 
@@ -54,6 +52,12 @@ public class PickCurriculumListCell extends ListCell<StudijniPlan> {
             skupina = item;
 
             lblName.setText(skupina.getNazev());
+            
+            cbAddCurriculum.setSelected(skupina.isSelected());
+            
+            cbAddCurriculum.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                skupina.setSelected(newValue);
+            });
 
             setGraphic(gridPane);
             setPrefHeight(gridPane.getPrefHeight());

@@ -84,7 +84,7 @@ public class FXMLCurriculumListController implements Initializable {
 
         MenuItem showDetail = new MenuItem("Zobrazit detail");
         showDetail.setOnAction(event -> {
-            if (showCurriculumDetailAction != null) { // TODO: Fix bug of wrong selection
+            if (showCurriculumDetailAction != null) {
                 showCurriculumDetailAction.accept(listViewCurriculum.getSelectionModel().getSelectedItem());
             }
         });
@@ -96,7 +96,7 @@ public class FXMLCurriculumListController implements Initializable {
     private MenuItem createMenuDelete() {
         MenuItem delete = new MenuItem("Odstranit");
         delete.setOnAction((event) -> {
-            if (deleteCurriculumAction != null) { // TODO: Fix bug of wrong selection
+            if (deleteCurriculumAction != null) {
                 deleteCurriculumAction.accept(listViewCurriculum.getSelectionModel().getSelectedItem());
             }
         });
