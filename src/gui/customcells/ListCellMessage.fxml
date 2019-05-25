@@ -24,7 +24,7 @@
          <children>
             <ImageView fx:id="imageView" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../source/fei_logo.png" />
+                  <Image url="@../../source/user_avatar.png" />
                </image>
             </ImageView>
          </children>

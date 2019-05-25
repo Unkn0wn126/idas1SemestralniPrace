@@ -39,7 +39,7 @@
          <children>
             <ImageView fx:id="imageView" fitHeight="45.0" fitWidth="45.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../source/fei_logo.png" />
+                  <Image url="@../../source/subject_avatar.png" />
                </image></ImageView>
          </children>
       </FlowPane>

@@ -33,7 +33,7 @@
          <children>
             <ImageView fx:id="imageView" fitHeight="35.0" fitWidth="35.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../source/fei_logo.png" />
+                  <Image url="@../../source/user_avatar.png" />
                </image>
             </ImageView>
             <Label fx:id="lblName" text="Label" />
