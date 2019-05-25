@@ -67,6 +67,7 @@ public class FXMLEditUserController implements Initializable {
     private ObservableList<Integer> blokace = FXCollections.observableArrayList();
 
     private SimpleBooleanProperty giveAdminPermissions = new SimpleBooleanProperty();
+    private SimpleBooleanProperty userEditingSelf = new SimpleBooleanProperty();
 
     private Predicate<Uzivatel> canEdit;
 
@@ -96,6 +97,7 @@ public class FXMLEditUserController implements Initializable {
         numOfErrors = 0;
 
         giveAdminPermissions.setValue(false);
+        userEditingSelf.setValue(false);
         tabRole.setDisable(true);
 
         rocniky.addAll(0, 1, 2, 3, 4, 5, 6);
@@ -114,27 +116,31 @@ public class FXMLEditUserController implements Initializable {
             studijniPlany.clear();
 
             List<StudijniPlan> currPlany = planyAll.stream().filter((t) -> {
-                return t.getIdOboru() == newValue.getIdOboru();
+                if (newValue != null) {
+                    return t.getIdOboru() == newValue.getIdOboru();
+                }
+                return false;
+
             }).collect(Collectors.toList());
-            
+
             for (StudijniPlan studijniPlan : planyAll) {
                 if (!currPlany.contains(studijniPlan)) {
                     studijniPlan.setSelected(false);
                 }
             }
-            
+
             studijniPlany.addAll(currPlany);
         });
 
-            listViewRole.setItems(role);
-            listViewRole.setCellFactory((param) -> {
-                return new PickRoleListCell();
-            });
+        listViewRole.setItems(role);
+        listViewRole.setCellFactory((param) -> {
+            return new PickRoleListCell(userEditingSelf);
+        });
 
-            giveAdminPermissions.addListener((observable, oldValue, newValue) -> {
-                tabRole.setDisable(!newValue);
-            });
-        }
+        giveAdminPermissions.addListener((observable, oldValue, newValue) -> {
+            tabRole.setDisable(!newValue);
+        });
+    }
 
     public void updateViews(Uzivatel uzivatel, boolean isAdmin) {
         this.uzivatel = uzivatel;
@@ -165,6 +171,10 @@ public class FXMLEditUserController implements Initializable {
         planyAll.addAll(data);
         studijniPlany.clear();
         studijniPlany.addAll(data);
+    }
+
+    public void setUserEditingSelf(boolean userEditingSelf) {
+        this.userEditingSelf.setValue(userEditingSelf);
     }
 
     public void updateStudijniObory(List<StudijniObor> data) {

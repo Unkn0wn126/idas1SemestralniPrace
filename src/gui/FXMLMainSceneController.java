@@ -459,9 +459,9 @@ public class FXMLMainSceneController implements Initializable {
         });
 
         accountController.setDeleteSubjectAction((t) -> {
-            System.out.println("Mažu " + t.toString());
             try {
                 deletePredmet(t.getIdPredmetu());
+                showDialog("Předmět úspěšně smazán");
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -469,8 +469,8 @@ public class FXMLMainSceneController implements Initializable {
 
         accountController.setDeleteCurriculumAction((t) -> {
             try {
-                System.out.println("Mažu " + t.toString());
                 deletePlan(t.getIdPlanu());
+                showDialog("Studijní plán úspěšně smazán");
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -501,8 +501,12 @@ public class FXMLMainSceneController implements Initializable {
 
         userListController.setDeleteUserAction((t) -> {
             try {
-                System.out.println("Mažu: " + t.getJmeno());
-                deleteUser(t.getIdUzivatele());
+                if (t.getIdUzivatele() != dbHelper.getCurrentUser().getIdUzivatele()) {
+                    deleteUser(t.getIdUzivatele());
+                    showDialog("Uživatel úspěšně smazán");
+                }else{
+                    showAlert("Sebe sama nelze odstranit!");
+                }
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1247,6 +1251,8 @@ public class FXMLMainSceneController implements Initializable {
             editUserController.setCurrentObor(obor);
         }
         
+        editUserController.setUserEditingSelf(uzivatel.getIdUzivatele() == dbHelper.getCurrentUser().getIdUzivatele());
+        
     }
 
     /**
@@ -1310,9 +1316,9 @@ public class FXMLMainSceneController implements Initializable {
         });
 
         showCurriculumController.setDeleteAction((t) -> {
-            System.out.println("Mažu: " + t.toString());
             try {
                 dbHelper.deletePredmet(t.getIdPredmetu());
+                showDialog("Předmět úspěšně smazán");
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1368,9 +1374,9 @@ public class FXMLMainSceneController implements Initializable {
     // ShowField menu section start
     private void setShowFieldMenuActions() {
         showFieldController.setDeleteCurriculumAction((t) -> {
-            System.out.println("Mažu: " + t.toString());
             try {
                 deletePlan(t.getIdPlanu());
+                showDialog("Studijní plán úspěšně smazán");
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1427,9 +1433,9 @@ public class FXMLMainSceneController implements Initializable {
     // ShowSubjectMenu section start
     private void setShowSubjectMenuActions() {
         showSubjectController.setDeleteCurriculumAction((t) -> {
-            System.out.println("Mažu: " + t.toString());
             try {
                 deletePlan(t.getIdPlanu());
+                showDialog("Studijní plán úspěšně smazán");
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }

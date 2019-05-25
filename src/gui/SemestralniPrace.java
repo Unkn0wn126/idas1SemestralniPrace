@@ -41,6 +41,7 @@ public class SemestralniPrace extends Application {
         primaryStage = stage;
         setUpConnection();
         loadLoginScene(stage);
+        stage.setTitle("FEIBook");
         stage.show();
     }
 

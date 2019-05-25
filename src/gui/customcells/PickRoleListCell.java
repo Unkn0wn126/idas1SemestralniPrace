@@ -5,6 +5,8 @@
  */
 package gui.customcells;
 
+import java.util.function.Predicate;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.CheckBox;
@@ -24,7 +26,7 @@ public class PickRoleListCell extends ListCell<Role> {
 
     @FXML
     private Label lblOpravneni;
-    
+
     @FXML
     private Label lblPoznamka;
     @FXML
@@ -35,7 +37,15 @@ public class PickRoleListCell extends ListCell<Role> {
     private FXMLLoader loader;
 
     private Role role;
+    private SimpleBooleanProperty admin;
 
+    public PickRoleListCell(SimpleBooleanProperty admin) {
+        this.admin = admin;
+    }
+
+    public PickRoleListCell() {
+        this.admin = new SimpleBooleanProperty(false);
+    }
 
     @Override
     protected void updateItem(Role item, boolean empty) {
@@ -57,13 +67,17 @@ public class PickRoleListCell extends ListCell<Role> {
             }
 
             role = item;
-            
+
+            cbAddRole.setDisable(false);
+
             cbAddRole.setSelected(role.isSelected());
-            
+
+            cbAddRole.setDisable(item.getIdRole() == 1 && admin.getValue());
+
             cbAddRole.selectedProperty().addListener((observable, oldValue, newValue) -> {
                 role.setSelected(newValue);
             });
-            
+
             lblName.setText(role.getJmenoRole());
             lblOpravneni.setText(role.getOpravneni());
             lblPoznamka.setText(role.getPoznamka());
