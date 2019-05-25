@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -635,8 +634,8 @@ public class FXMLMainSceneController implements Initializable {
     private void setFieldListMenuActions() {
         fieldListController.setDeleteFieldAction((t) -> {
             try {
-                System.out.println("Mažu: " + t.toString());
                 deleteObor(t.getIdOboru());
+                showDialog("Obor úspěšně smazán");
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -789,6 +788,7 @@ public class FXMLMainSceneController implements Initializable {
         List<Prispevek> komentare = prispevek.getKomentare();
         if (komentare != null) {
             for (Prispevek prispevek1 : komentare) {
+                prispevek1.setIdRodice(prispevek.getIdPrispevku());
                 loadComments(prispevek1);
             }
         }
@@ -825,13 +825,21 @@ public class FXMLMainSceneController implements Initializable {
         });
 
         groupFeedController.setBlockPostAction((t) -> {
-            System.out.println("Blokuju");
-            // TODO: Dodělat blokování
+            int blokace = t.getBlokace();
+            try {
+                dbHelper.updatePrispevekBlokace(++blokace % 2, t.getIdPrispevku());
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
 
         groupFeedController.setDeletePostAction((t) -> {
-            System.out.println("Mažu");
-            // TODO: Dodělat mazání
+            try {
+                dbHelper.deletePrispevek(t.getIdPrispevku());
+                showDialog("Příspěvek úspěšně smazán");
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
     }
 
@@ -866,31 +874,18 @@ public class FXMLMainSceneController implements Initializable {
      * Nastaví akce, které se mají provést v menu registrace uživatele
      */
     private void setRegisterMenuActions() {
-        registerController.setRegisterAction((t) -> { // TODO: ošetřit vstupy
-            String jmeno = registerController.getJmeno();
-            String prijmeni = registerController.getPrijmeni();
-            String login = registerController.getLogin();
-            String heslo1 = registerController.getHeslo();
-            String heslo2 = registerController.getHesloConfirm();
-            String email = registerController.getEmail();
-            String poznamka = registerController.getPoznamka();
-            Integer rok = registerController.getRocnik();
-//            StudijniPlan obor = registerController.getStudijniPlan();
+        registerController.setRegisterAction((t) -> {
+            Uzivatel uziv = t;
+            List<Role> role = registerController.getRoleUzivatele();
+            List<StudijniPlan> plany = registerController.getStudijniPlan();
 
-            if (jmeno.length() > 0 && prijmeni.length() > 0
-                    && login.length() > 0 && heslo1.length() > 0
-                    && heslo2.length() > 0 && heslo1.equals(heslo2)
-                    && email.length() > 0 && poznamka.length() > 0
-                    && rok != null) {
-//                try {
-//                    // TODO: Dodělat zapsání uživatele do studijních plánů, atd.
-//                    dbHelper.registerUser(jmeno, prijmeni, login, heslo1, email, poznamka, rok);
-//String name, String surname, String password, String eml, String poznamka, Integer rocnik, List<StudijniPlan> studijniPlan, List<Role> roleUzivatele
-//                } catch (SQLException ex) {
-//                    Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
-//                }
+            try {
+                dbHelper.registerUser(t.getJmeno(), t.getPrijmeni(), t.getHeslo(), t.getEmail(), t.getPoznamka(), t.getRokStudia(), plany, role);
                 showDialog("Uživatel úspěšně nahrán do databáze");
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
+
         });
 
         // Při zrušení registrace se vyprázdní hlavní panel
@@ -947,20 +942,42 @@ public class FXMLMainSceneController implements Initializable {
             paneCenter.getChildren().clear();
         });
 
-        addSubjectController.setBtnSaveAction((t) -> {
-//            try {
-//                String popis = addSubjectController.getPopis();
-//                String nazev = addSubjectController.getNazevPredmetu();
-//                String zkratka = addSubjectController.getZkratkaPredmetu();
-//
-//                db.getPredmetManager().insertPredmet(nazev, zkratka, popis);
-//                addSubjectController.clearInputs();
-//                showDialog("Předmět úspěšně přidán do databáze");
-//            } catch (IllegalArgumentException e) {
-//                showAlert(e.getLocalizedMessage());
-//            } catch (SQLException ex) {
-//                showAlert(ex.getLocalizedMessage());
-//            }
+        addSubjectController.setUpdateAction((t) -> {
+            Predmet pr = t;
+            List<StudijniPlan> plany = addSubjectController.getSeznamPlanu();
+            try {
+                dbHelper.deletePredmetSPByPredmetId(t.getIdPredmetu());
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            for (StudijniPlan studijniPlan : plany) {
+                try {
+                    dbHelper.insertPredmetSp(studijniPlan.getIdPlanu(), t.getIdPredmetu());
+                } catch (SQLException ex) {
+                    Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            try {
+                dbHelper.updatePredmet(t.getNazevPredmetu(), t.getZkratkaPredmetu(), t.getPopis(), t.getIdPredmetu());
+                showDialog("Předmět úspěšně aktualizován");
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+
+        addSubjectController.setAddAction((t) -> {
+            Predmet pr = t;
+            List<StudijniPlan> plany = addSubjectController.getSeznamPlanu();
+            List<Integer> idPlanu = new ArrayList<>();
+            for (StudijniPlan studijniPlan : plany) {
+                idPlanu.add(studijniPlan.getIdPlanu());
+            }
+            try {
+                dbHelper.vlozPredmet(t.getNazevPredmetu(), t.getZkratkaPredmetu(), t.getPopis(), idPlanu);
+                showDialog("Předmět úspěšně nahrán");
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
     }
 
@@ -1017,27 +1034,21 @@ public class FXMLMainSceneController implements Initializable {
 
         // Akce, která se má provést při pokusu o uložení oboru
         addFieldController.setAddFieldAction((t) -> {
-            System.out.println("Nahrávám nový záznam");
-//            try {
-//                String nazev = addFieldController.getNazev();
-//                String zkratka = addFieldController.getZkratka();
-//                String popis = addFieldController.getPopis();
-//                LocalDate akreditaceDo = addFieldController.getAkreditaceDo();
-//
-//                db.getStudijniOborManager().insertStudijniObor(nazev, zkratka, popis, akreditaceDo);
-//                addFieldController.clearInputs();
-//
-//                showDialog("Obor byl úspěšně nahrán");
-//            } catch (IllegalArgumentException e) {
-//                showAlert(e.getLocalizedMessage());
-//            } catch (SQLException ex) {
-//                showAlert(ex.getLocalizedMessage());
-//            }
+            try {
+                dbHelper.insertStudijniObor(t.getNazev(), t.getZkratka(), t.getPopis(), t.getAkreditaceDo());
+                showDialog("Obor úspěšně nahrán");
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
 
         addFieldController.setUpdateFieldAction((t) -> {
-            System.out.println("Updatuji: " + t.toString());
-            // TODO: Dodělat
+            try {
+                dbHelper.updateObor(t.getNazev(), t.getPopis(), t.getAkreditaceDo(), t.getIdOboru());
+                showDialog("Obor úspěšně aktualizován");
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
     }
 
@@ -1093,33 +1104,29 @@ public class FXMLMainSceneController implements Initializable {
 
         // Akce, která se má provést při pokusu o uložení studijního plánu
         addCurriculumController.setUpdateAction((t) -> {
-//            try {
-//                String nazev = addCurriculumController.getNazev();
-//                String popis = addCurriculumController.getPopis();
-//                StudijniObor obor = addCurriculumController.getObor();
-//                db.getStudijniPlanManager().insertStudijniPlan(nazev, obor.getIdOboru(), popis);
-//                addCurriculumController.clearInputs();
-//                showDialog("Studijní plán úspěšně nahrán");
-//            } catch (IllegalArgumentException e) {
-//                showAlert(e.getLocalizedMessage());
-//            } catch (SQLException ex) {
-//                showAlert(ex.getLocalizedMessage());
-//            }
-
-            System.out.println(t);
-            System.out.println(Arrays.toString(addCurriculumController.getSelectedPredmety().toArray()));
+            try {
+                dbHelper.updateStudijniPlan(t.getNazev(), t.getPopis(), t.getIdOboru(), t.getIdPlanu());
+                showDialog("Předmět úspěšně aktualizován");
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
 
         addCurriculumController.setAddAction((t) -> {
-            System.out.println(Arrays.toString(addCurriculumController.getSelectedPredmety().toArray()));
+            try {
+                dbHelper.insertStudijniPlan(t.getNazev(), t.getIdOboru(), t.getPopis());
+                showDialog("Předmět úspěšně vložen");
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
     }
 
-    private void setAddCurriculumMenuData(List<StudijniObor> obory, List<Predmet> predmety, StudijniPlan plan) throws SQLException {
+    private void setAddCurriculumMenuData(List<StudijniObor> obory, StudijniPlan plan) throws SQLException {
         if (plan == null) {
-            addCurriculumController.setDataset(obory, predmety);
+            addCurriculumController.setDataset(obory);
         } else {
-            addCurriculumController.setDataset(obory, predmety, plan, getPredmetyPlanu(plan.getIdPlanu()));
+            addCurriculumController.setDataset(obory, plan);
         }
 
     }
@@ -1129,7 +1136,7 @@ public class FXMLMainSceneController implements Initializable {
      *
      * @param obory seznam oborů
      */
-    private void loadAddCurriculumMenu(List<StudijniObor> obory, List<Predmet> predmety, StudijniPlan plan) {
+    private void loadAddCurriculumMenu(List<StudijniObor> obory, StudijniPlan plan) {
         if (addCurriculumMenu == null) {
             loader = new FXMLLoader();
             try {
@@ -1152,7 +1159,7 @@ public class FXMLMainSceneController implements Initializable {
 
         try {
             // Aktualizuje seznam oborů pro zobrazení
-            setAddCurriculumMenuData(obory, predmety, plan);
+            setAddCurriculumMenuData(obory, plan);
         } catch (SQLException ex) {
             Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -1166,14 +1173,47 @@ public class FXMLMainSceneController implements Initializable {
      *
      * @param uzivatel
      */
-    private void setEditUserMenuActions() { // TODO: Dodělat
+    private void setEditUserMenuActions() {
         // Při zrušení editace se neuloží změny a zobrazí se info profilu
         editUserController.setBtnCancelEvent((t) -> {
             loadAccountMenu(t);
         });
 
         editUserController.setBtnSaveEvent((t) -> {
-            // TODO: Update do tabulek
+            boolean inserted = false;
+            try {
+                editUserController.oldPasswordAgrees(dbHelper.selectHesloUzivatele(t.getIdUzivatele()));
+                dbHelper.updateUzivatel(t.getJmeno(), t.getPrijmeni(), t.getRokStudia(), t.getEmail(), t.getBlokace(), t.getPoznamka(), t.getHeslo(), t.getIdUzivatele());
+                inserted = true;
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if (inserted) {
+                try {
+                    dbHelper.deleteRoleUzivatele(t.getIdUzivatele());
+                    dbHelper.deleteStudijniPlanUzivatele(t.getIdUzivatele());
+                } catch (SQLException ex) {
+                    Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                List<Role> roleUzivatele = editUserController.getRoleUzivatele();
+                List<StudijniPlan> planyUzivatele = editUserController.getStudijniPlan();
+                for (Role role : roleUzivatele) {
+                    try {
+                        dbHelper.insertRoleUzivatele(role.getIdRole(), t.getIdUzivatele());
+                    } catch (SQLException ex) {
+                        Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+                for (StudijniPlan studijniPlan : planyUzivatele) {
+                    try {
+                        dbHelper.insertStudijniPlanUzivatele(studijniPlan.getIdPlanu(), t.getIdUzivatele());
+                    } catch (SQLException ex) {
+                        Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
         });
 
         editUserController.setCanEditAction((t) -> {
@@ -1189,6 +1229,15 @@ public class FXMLMainSceneController implements Initializable {
         editUserController.updateRole(getRole());
         editUserController.updateStudijniObory(getStudijniObory());
         editUserController.updateStudijniPlany(getStudijniPlany());
+
+        editUserController.setCurrentRole(getRoleUzivatele(uzivatel.getIdUzivatele()));
+        List<StudijniPlan> planyUzivatele = getStudijniPlanyUzivatele(uzivatel.getIdUzivatele());
+                editUserController.setCurrentPlany(planyUzivatele);
+        if (planyUzivatele.size() > 0) {
+            StudijniObor obor = dbHelper.selectStudijniObor(planyUzivatele.get(0).getIdOboru());
+            editUserController.setCurrentObor(obor);
+        }
+        
     }
 
     /**
@@ -1241,7 +1290,7 @@ public class FXMLMainSceneController implements Initializable {
 
         showCurriculumController.setBtnUpravitAction((t) -> {
             try {
-                loadAddCurriculumMenu(getStudijniObory(), getPredmety(), t);
+                loadAddCurriculumMenu(getStudijniObory(), t);
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1434,12 +1483,23 @@ public class FXMLMainSceneController implements Initializable {
     // ShowSubjectMenu section end
     // EditPost section start
     private void setEditPostMenuActions() {
-        // TODO: Dodělat
+        editPostController.setBtnCancelAction((t) -> {
+            paneCenter.getChildren().clear();
+        });
+
+        editPostController.setBtnSaveAction((t) -> {
+            try {
+                dbHelper.updatePrispevek(t.getNazev(), t.getObsahPrispevku(), t.getBlokace(), t.getIdPrispevku(), t.getPriorita());
+                showDialog("Příspěvěk úspěšně aktualizován");
+            } catch (SQLException ex) {
+                Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
     }
 
     private void setEditPostMenuData(Prispevek currPrispevek) throws SQLException {
-        editPostController.updateDataSet(currPrispevek, 
-                getListOfPriorities(getRoleUzivatele(dbHelper.getCurrentUser().getIdUzivatele())), 
+        editPostController.updateDataSet(currPrispevek,
+                getListOfPriorities(getRoleUzivatele(dbHelper.getCurrentUser().getIdUzivatele())),
                 currPrispevek.getPriorita());
     }
 
@@ -1756,7 +1816,7 @@ public class FXMLMainSceneController implements Initializable {
     @FXML
     private void handleMenuItemPridatStudijniPlanAction(ActionEvent event) {
         try {
-            loadAddCurriculumMenu(getStudijniObory(), getPredmety(), null);
+            loadAddCurriculumMenu(getStudijniObory(), null);
         } catch (SQLException ex) {
             Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
         }

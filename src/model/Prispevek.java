@@ -35,6 +35,7 @@ public class Prispevek {
         this.idAutora = idAutora;
         this.nazev = nazev;
         this.jmenoAutora = jmenoAutora;
+        this.idRodice = -1;
     }
 
     public Prispevek(String obsahPrispevku, LocalDateTime casOdeslani, int idAutora, int idRodice) {
@@ -51,6 +52,7 @@ public class Prispevek {
         this.priorita = priorita;
         this.idAutora = idAutora;
         this.nazev = nazev;
+        this.idRodice = -1;
     }
     
     public Prispevek(String obsahPrispevku, LocalDateTime casOdeslani, int blokace, int priorita, int idAutora, String nazev, String jmenoAutora) {
@@ -61,6 +63,7 @@ public class Prispevek {
         this.idAutora = idAutora;
         this.nazev = nazev;
         this.jmenoAutora = jmenoAutora;
+        this.idRodice = -1;
     }
     
     public Prispevek(String obsahPrispevku, LocalDateTime casOdeslani, int blokace, int priorita, int idAutora, String nazev, int idRodice) {
@@ -82,6 +85,7 @@ public class Prispevek {
         this.idAutora = idAutora;
         this.nazev = nazev;
         this.jmenoAutora = jmenoAutora;
+        this.idRodice = -1;
     }
 
     public String getObsahPrispevku() {
@@ -143,7 +147,9 @@ public class Prispevek {
     public int getIdRodice() {
         return idRodice;
     }
-    
-    
+
+    public void setIdRodice(int idRodice) {
+        this.idRodice = idRodice;
+    }
 
 }

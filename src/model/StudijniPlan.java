@@ -52,6 +52,22 @@ public class StudijniPlan {
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
+
+    public void setIdPlanu(int idPlanu) {
+        this.idPlanu = idPlanu;
+    }
+
+    public void setNazev(String nazev) {
+        this.nazev = nazev;
+    }
+
+    public void setIdOboru(int idOboru) {
+        this.idOboru = idOboru;
+    }
+
+    public void setPopis(String popis) {
+        this.popis = popis;
+    }
     
     public String toString(){
         return String.format("Název plánu: %s Popis: %s", nazev, popis);

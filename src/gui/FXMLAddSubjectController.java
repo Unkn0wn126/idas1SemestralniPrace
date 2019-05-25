@@ -7,6 +7,7 @@ package gui;
 
 import gui.customcells.PickCurriculumListCell;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -15,6 +16,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -37,12 +39,15 @@ public class FXMLAddSubjectController implements Initializable {
 
     private ObservableList<StudijniPlan> plany = FXCollections.observableArrayList();
 
-    private Consumer<ActionEvent> btnSaveAction;
+    private Consumer<Predmet> updateAction;
+    private Consumer<Predmet> addAction;
     private Consumer<ActionEvent> btnCancelAction;
 
     private Predmet currPredmet;
 
     private boolean updating;
+    private int numOfErrors;
+    private boolean inputInserted;
 
     @FXML
     private ListView<StudijniPlan> listViewPlany;
@@ -52,13 +57,16 @@ public class FXMLAddSubjectController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        inputInserted = false;
+        numOfErrors = 0;
+
         listViewPlany.setItems(plany);
         listViewPlany.setCellFactory((param) -> {
             return new PickCurriculumListCell();
         });
     }
 
-    public void setPlanyData(List<StudijniPlan> planyAll) { // TODO: Přidávat všechny plány a zaškrtnout ty, do kterých patří
+    public void setPlanyData(List<StudijniPlan> planyAll) {
         this.plany.clear();
         this.plany.addAll(planyAll);
         this.currPredmet = null;
@@ -67,7 +75,7 @@ public class FXMLAddSubjectController implements Initializable {
     }
 
     public void setPlanyData(List<StudijniPlan> planyAll,
-            List<StudijniPlan> planySelected, Predmet currPredmet) { // TODO: Přidávat všechny plány a zaškrtnout ty, do kterých patří
+            List<StudijniPlan> planySelected, Predmet currPredmet) {
 
         for (StudijniPlan plan : planyAll) {
             plan.setSelected(planySelected.stream().anyMatch((t) -> {
@@ -77,7 +85,7 @@ public class FXMLAddSubjectController implements Initializable {
 
         this.plany.clear();
         this.plany.addAll(planyAll);
-        
+
         this.currPredmet = currPredmet;
         updating = true;
         updateViews();
@@ -91,29 +99,62 @@ public class FXMLAddSubjectController implements Initializable {
 
     public String getPopis() throws IllegalArgumentException {
         String popis = tfPopis.getText();
+        if (popis == null) {
+            return null;
+        }
         if (popis.length() > 300) {
-            throw new IllegalArgumentException("Popis může být dlouhý "
+            showAlert("Popis může být dlouhý "
                     + "maximálně 300 znaků včetně");
+            numOfErrors++;
         }
         return popis;
     }
 
     public String getZkratkaPredmetu() throws IllegalArgumentException {
         String zkratka = tfZkratkaPredmetu.getText();
-        if (zkratka.length() > 5 || zkratka.length() == 0) {
-            throw new IllegalArgumentException("Zkratka může být dlouhá "
+        if (zkratka == null) {
+            showAlert("Zkratka může být dlouhá "
                     + "maximálně 5 znaků včetně a nesmí být prázdná");
+            numOfErrors++;
+            return null;
+        }
+        if (zkratka.length() > 5 || zkratka.length() == 0) {
+            showAlert("Zkratka může být dlouhá "
+                    + "maximálně 5 znaků včetně a nesmí být prázdná");
+            numOfErrors++;
         }
         return zkratka;
     }
 
     public String getNazevPredmetu() throws IllegalArgumentException {
         String nazev = tfNazevPredmetu.getText();
-        if (nazev.length() > 100 || nazev.length() == 0) {
-            throw new IllegalArgumentException("Název může být dlouhý "
+        if (nazev == null) {
+            showAlert("Název může být dlouhý "
                     + "maximálně 100 znaků včetně a nesmí být prázdný");
+            numOfErrors++;
+            return null;
+        }
+        if (nazev.length() > 100 || nazev.length() == 0) {
+            showAlert("Název může být dlouhý "
+                    + "maximálně 100 znaků včetně a nesmí být prázdný");
+            numOfErrors++;
         }
         return nazev;
+    }
+
+    public List<StudijniPlan> getSeznamPlanu() {
+        List<StudijniPlan> selectedPlany = new ArrayList<>();
+        for (StudijniPlan studijniPlan : plany) {
+            if (studijniPlan.isSelected()) {
+                selectedPlany.add(studijniPlan);
+            }
+        }
+        if (selectedPlany.size() < 1) {
+            showAlert("Musíte vybrat alespoň jeden příslušný studijní plán");
+            numOfErrors++;
+        }
+
+        return selectedPlany;
     }
 
     public void clearInputs() {
@@ -122,19 +163,50 @@ public class FXMLAddSubjectController implements Initializable {
         tfZkratkaPredmetu.setText(null);
     }
 
-    public void setBtnSaveAction(Consumer<ActionEvent> btnSaveAction) {
-        this.btnSaveAction = btnSaveAction;
+    public void setUpdateAction(Consumer<Predmet> updateAction) {
+        this.updateAction = updateAction;
+    }
+
+    public void setAddAction(Consumer<Predmet> addAction) {
+        this.addAction = addAction;
     }
 
     public void setBtnCancelAction(Consumer<ActionEvent> btnCancelAction) {
         this.btnCancelAction = btnCancelAction;
     }
 
+    public boolean isInputInserted() {
+        return inputInserted;
+    }
+
     @FXML
     private void handleBtnUlozitAction(ActionEvent event) {
-        if (btnSaveAction != null) {
-            btnSaveAction.accept(event);
+        inputInserted = false;
+        numOfErrors = 0;
+        String nazev = getNazevPredmetu();
+        String zkratka = getZkratkaPredmetu();
+        String popis = getPopis();
+        getSeznamPlanu();
+
+        if (numOfErrors == 0) {
+            if (updating) {
+                if (updateAction != null) {
+                    this.currPredmet.setNazevPredmetu(nazev);
+                    this.currPredmet.setPopis(popis);
+                    this.currPredmet.setZkratkaPredmetu(zkratka);
+                    updateAction.accept(this.currPredmet);
+                    inputInserted = true;
+                }
+            } else {
+                if (addAction != null) {
+                    Predmet pr = new Predmet(nazev, zkratka, popis);
+                    addAction.accept(pr);
+                    inputInserted = true;
+                }
+
+            }
         }
+
     }
 
     @FXML
@@ -142,6 +214,20 @@ public class FXMLAddSubjectController implements Initializable {
         if (btnCancelAction != null) {
             btnCancelAction.accept(event);
         }
+    }
+
+    /**
+     * Zobrazí dialog s errorem
+     *
+     * @param text text erroru
+     */
+    private void showAlert(String text) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setContentText(text);
+        alert.setHeaderText(null);
+
+        alert.showAndWait();
     }
 
 }

@@ -14,6 +14,7 @@ public class Role {
     private String jmenoRole;
     private String opravneni;
     private String poznamka;
+    private boolean selected;
 
     public Role(int idRole, String jmenoRole, String opravneni, String poznamka) {
         this.idRole = idRole;
@@ -36,6 +37,14 @@ public class Role {
 
     public String getPoznamka() {
         return poznamka;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
     
     public String toString(){

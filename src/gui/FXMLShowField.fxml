@@ -91,7 +91,7 @@
                                  <children>
                                     <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                                        <image>
-                                          <Image url="@../source/field_avatar.png" />
+                                          <Image url="@../source/field_avatar_big.png" />
                                        </image>
                                     </ImageView>
                                  </children>

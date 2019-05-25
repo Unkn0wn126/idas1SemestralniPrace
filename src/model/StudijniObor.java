@@ -26,6 +26,13 @@ public class StudijniObor {
         this.akreditaceDo = akreditaceDo;
     }
 
+    public StudijniObor(String nazev, String zkratka, String popis, LocalDate akreditaceDo) {
+        this.nazev = nazev;
+        this.zkratka = zkratka;
+        this.popis = popis;
+        this.akreditaceDo = akreditaceDo;
+    }
+
     public int getIdOboru() {
         return idOboru;
     }

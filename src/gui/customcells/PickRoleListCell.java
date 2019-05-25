@@ -36,6 +36,7 @@ public class PickRoleListCell extends ListCell<Role> {
 
     private Role role;
 
+
     @Override
     protected void updateItem(Role item, boolean empty) {
         super.updateItem(item, empty);
@@ -56,7 +57,13 @@ public class PickRoleListCell extends ListCell<Role> {
             }
 
             role = item;
-
+            
+            cbAddRole.setSelected(role.isSelected());
+            
+            cbAddRole.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                role.setSelected(newValue);
+            });
+            
             lblName.setText(role.getJmenoRole());
             lblOpravneni.setText(role.getOpravneni());
             lblPoznamka.setText(role.getPoznamka());

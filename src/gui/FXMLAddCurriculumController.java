@@ -5,9 +5,7 @@
  */
 package gui;
 
-import gui.customcells.PickSubjectListCell;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -17,10 +15,9 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import model.Predmet;
 import model.StudijniObor;
 import model.StudijniPlan;
 
@@ -43,58 +40,38 @@ public class FXMLAddCurriculumController implements Initializable {
     private Consumer<ActionEvent> btnCancelAction;
 
     private ObservableList<StudijniObor> studijniObory = FXCollections.observableArrayList();
-    private ObservableList<Predmet> predmety = FXCollections.observableArrayList();
-    private List<Predmet> currPredmety;
 
     private StudijniPlan currPlan;
     boolean updating;
-
-    @FXML
-    private ListView<Predmet> listViewPredmety;
+    private int numOfErrors;
+    private boolean inputInserted;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        currPredmety = new ArrayList<>();
-        
+        numOfErrors = 0;
+        inputInserted = false;
+
         cbObor.setItems(studijniObory);
 
-        listViewPredmety.setItems(predmety);
-        listViewPredmety.setCellFactory((param) -> {
-            return new PickSubjectListCell();
-        });
     }
 
-    public void setDataset(List<StudijniObor> obory, List<Predmet> predmety) {
+    public void setDataset(List<StudijniObor> obory) {
         this.studijniObory.clear();
         this.studijniObory.addAll(obory);
-
-        this.predmety.clear();
-        this.predmety.addAll(predmety);
 
         this.currPlan = null;
         updating = false;
-        
+
         clearViews();
     }
 
-    public void setDataset(List<StudijniObor> obory, List<Predmet> predmety, StudijniPlan currPlan, List<Predmet> currPredmety) {
-        this.currPredmety.clear();
-        this.currPredmety.addAll(predmety);
-        
-        for (Predmet predmet : predmety) {
-            predmet.setSelected(currPredmety.stream().anyMatch((t) -> {
-                return predmet.getIdPredmetu() == t.getIdPredmetu();
-            }));
-        }
-        
+    public void setDataset(List<StudijniObor> obory, StudijniPlan currPlan) {
+
         this.studijniObory.clear();
         this.studijniObory.addAll(obory);
-
-        this.predmety.clear();
-        this.predmety.addAll(predmety);
 
         this.currPlan = currPlan;
         updating = true;
@@ -107,11 +84,11 @@ public class FXMLAddCurriculumController implements Initializable {
         List<StudijniObor> obor = studijniObory.stream().filter((t) -> {
             return currPlan.getIdOboru() == t.getIdOboru();
         }).collect(Collectors.toList());
-        
+
         cbObor.getSelectionModel().select(obor.get(0));
     }
-    
-    private void clearViews(){
+
+    private void clearViews() {
         tfNazev.clear();
         tfPopis.clear();
         cbObor.getSelectionModel().selectFirst();
@@ -119,46 +96,41 @@ public class FXMLAddCurriculumController implements Initializable {
 
     public String getNazev() throws IllegalArgumentException {
         String nazev = tfNazev.getText();
-        if (nazev.length() > 50 || nazev.length() == 0) {
-            throw new IllegalArgumentException("Název nesmí být prázdný "
+        if (nazev == null) {
+            showAlert("Název nesmí být prázdný "
                     + "a musí být do 50 znaků včetně");
+            numOfErrors++;
+            return null;
         }
-        return tfNazev.getText();
+        if (nazev.length() > 50 || nazev.length() == 0) {
+            showAlert("Název nesmí být prázdný "
+                    + "a musí být do 50 znaků včetně");
+            numOfErrors++;
+        }
+        return nazev;
     }
 
     public String getPopis() throws IllegalArgumentException {
         String popis = tfPopis.getText();
         if (popis.length() > 300) {
-            throw new IllegalArgumentException("Popis musí být dlouhý"
+            showAlert("Popis musí být dlouhý"
                     + " do 300 znaků včetně");
+            numOfErrors++;
         }
-        return tfPopis.getText();
+        return popis;
     }
 
     public StudijniObor getObor() throws IllegalArgumentException {
         StudijniObor obor = cbObor.getValue();
         if (obor == null) {
-            throw new IllegalArgumentException("Neplatný obor");
+            showAlert("Neplatný obor");
+            numOfErrors++;
         }
-        return cbObor.getValue();
+        return obor;
     }
-    
-    public List<Predmet> getSelectedPredmety(){
-        boolean inputOk = predmety.stream().anyMatch((t) -> {
-            return t.isSelected();
-        });
-        if (inputOk) {
-            List<Predmet> outputPredmety = new ArrayList<>();
-            for (Predmet predmet : predmety) {
-                if (predmet.isSelected()) {
-                    outputPredmety.add(predmet);
-                }
-            }
-            
-            return outputPredmety;
-        }
-        
-        return null;
+
+    public boolean isInputInserted() {
+        return inputInserted;
     }
 
     public void setUpdateAction(Consumer<StudijniPlan> updateAction) {
@@ -181,14 +153,27 @@ public class FXMLAddCurriculumController implements Initializable {
 
     @FXML
     private void handleBtnUlozitAction(ActionEvent event) {
-        if (updating) {
-            if (updateAction != null) {
-                updateAction.accept(currPlan);
-            }
-        } else {
-            if (addAction != null) {
-                StudijniPlan plan = new StudijniPlan(tfNazev.getText(), cbObor.getValue().getIdOboru(), tfPopis.getText());
-                addAction.accept(plan);
+        inputInserted = false;
+        numOfErrors = 0;
+        String nazev = getNazev();
+        String popis = getPopis();
+        StudijniObor obor = getObor();
+
+        if (numOfErrors == 0) {
+            if (updating) {
+                if (updateAction != null) {
+                    this.currPlan.setIdOboru(obor.getIdOboru());
+                    this.currPlan.setNazev(nazev);
+                    this.currPlan.setPopis(popis);
+                    updateAction.accept(currPlan);
+                    inputInserted = true;
+                }
+            } else {
+                if (addAction != null) {
+                    StudijniPlan plan = new StudijniPlan(nazev, obor.getIdOboru(), popis);
+                    addAction.accept(plan);
+                    inputInserted = true;
+                }
             }
         }
 
@@ -199,6 +184,20 @@ public class FXMLAddCurriculumController implements Initializable {
         if (btnCancelAction != null) {
             btnCancelAction.accept(event);
         }
+    }
+
+    /**
+     * Zobrazí dialog s errorem
+     *
+     * @param text text erroru
+     */
+    private void showAlert(String text) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setContentText(text);
+        alert.setHeaderText(null);
+
+        alert.showAndWait();
     }
 
 }

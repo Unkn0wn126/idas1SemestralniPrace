@@ -13,6 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -68,10 +69,10 @@ public class PostListCell extends ListCell<Prispevek> {
     private boolean isAdmin;
     private boolean canEdit;
 
-    public PostListCell(Consumer<Prispevek> btnOdeslatAction, 
-            Uzivatel currentUser, boolean isAdmin, 
-            Consumer<Prispevek> btnEditovatAction, 
-            Consumer<Prispevek> btnZablokovatAction, 
+    public PostListCell(Consumer<Prispevek> btnOdeslatAction,
+            Uzivatel currentUser, boolean isAdmin,
+            Consumer<Prispevek> btnEditovatAction,
+            Consumer<Prispevek> btnZablokovatAction,
             Consumer<Prispevek> btnSmazatAction) {
         this.btnOdeslatAction = btnOdeslatAction;
         this.btnEditovatAction = btnEditovatAction;
@@ -105,9 +106,9 @@ public class PostListCell extends ListCell<Prispevek> {
 
             listViewReplies.setItems(komentare);
             listViewReplies.setCellFactory((param) -> {
-                return new PostListCell(this.btnOdeslatAction, 
-                        currentUser, isAdmin, 
-                        this.btnEditovatAction, 
+                return new PostListCell(this.btnOdeslatAction,
+                        currentUser, isAdmin,
+                        this.btnEditovatAction,
                         this.btnZablokovatAction, this.btnSmazatAction);
             });
             komentare.clear();
@@ -121,14 +122,22 @@ public class PostListCell extends ListCell<Prispevek> {
 
             canEdit = currentUser.getIdUzivatele() == item.getIdAutora();
 
-            btnEditovat.setDisable(!canEdit);
+            btnEditovat.setDisable(!canEdit || item.getBlokace() != 0);
 
-            btnSmazat.setDisable(!isAdmin);
+            btnSmazat.setDisable(!canEdit || item.getBlokace() != 0);
             btnZablokovat.setDisable(!isAdmin);
 
-            String casOdeslani = item.getCasOdeslani().format(DateTimeFormatter.ISO_DATE_TIME);
-            lblTime.setText(casOdeslani);
-            taMessage.setText(item.getObsahPrispevku());
+            if (item.getBlokace() != 1) {
+                String casOdeslani = item.getCasOdeslani().format(DateTimeFormatter.ISO_DATE_TIME);
+                lblTime.setText(casOdeslani);
+                taMessage.setText(item.getObsahPrispevku());
+                lblName.setText(item.getJmenoAutora());
+            }else{
+                lblName.setText("Zablokováno");
+                lblPostName.setText("Zablokováno");
+                lblTime.setText("Zablokováno");
+                taMessage.setText("Zablokováno");
+            }
 
             setGraphic(gridPane);
             setPrefHeight(gridPane.getPrefHeight());
@@ -137,12 +146,14 @@ public class PostListCell extends ListCell<Prispevek> {
 
     @FXML
     private void handleBtnOdeslatAction(ActionEvent event) {
-        if (taReply.getText().length() > 0) { // TODO: Přidat kontrolu vstupu
+        if (taReply.getText().length() > 0 && taReply.getText().length() <= 1000) {
             if (btnOdeslatAction != null) {
                 Prispevek pr = new Prispevek(taReply.getText(), LocalDateTime.now(), currentUser.getIdUzivatele(), prispevek.getIdPrispevku());
                 btnOdeslatAction.accept(pr);
                 taReply.clear();
             }
+        }else{
+            showAlert("Text nesmí být prázdný a může být dlouhý maximálně 100 znaků");
         }
     }
 
@@ -165,6 +176,20 @@ public class PostListCell extends ListCell<Prispevek> {
         if (btnSmazatAction != null) {
             btnSmazatAction.accept(prispevek);
         }
+    }
+    
+    /**
+     * Zobrazí dialog s errorem
+     *
+     * @param text text erroru
+     */
+    private void showAlert(String text) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setContentText(text);
+        alert.setHeaderText(null);
+
+        alert.showAndWait();
     }
 
 }

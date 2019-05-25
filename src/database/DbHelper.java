@@ -43,6 +43,7 @@ public class DbHelper {
 
     // Statements for uzivatele start
     private final String CV_UZIVATELE_POHLED = "CREATE OR REPLACE VIEW UZIVATELE_POHLED AS SELECT * FROM UZIVATELE";
+    private final String SELECT_LAST_UZIVATEL_ID = "SELECT max (id_uzivatele) FROM UZIVATELE_POHLED";
     private final String SET_UZIVATEL_ONLINE = "UPDATE UZIVATELE SET PRIHLASEN = 1 WHERE ID_UZIVATELE = ?";
     private final String SET_UZIVATEL_OFFLINE = "UPDATE UZIVATELE SET PRIHLASEN = 0 WHERE ID_UZIVATELE = ?";
     private final String SELECT_UZIVATEL_ONLINE = "SELECT prihlasen FROM STAVY_ONLINE WHERE ID_UZIVATELE = ?";
@@ -50,6 +51,7 @@ public class DbHelper {
     private final String SET_UZIVATEL_ZABLOKOVAN = "UPDATE UZIVATELE SET BLOKACE = ? WHERE ID_UZIVATELE = ?";
     private final String SELECT_UZIVATELE_ALL = "SELECT * FROM UZIVATELE_POHLED";
     private final String SELECT_UZIVATEL_BY_ID = "SELECT * FROM UZIVATELE_POHLED WHERE id_uzivatele = ?";
+    private final String SELECT_HESLO_UZIVATELE = "SELECT * FROM HESLA_UZIVATELU WHERE id_uzivatele = ?";
     private final String SELECT_JMENO_UZIVATEL_BY_ID = "SELECT * FROM UZIVATEL_JMENO_PRIJMENI WHERE id_uzivatele = ?";
     private final String SELECT_UZIVATEL_BY_ID_KONTAKTU = "SELECT DISTINCT uzp2.id_uzivatele, uzp2.jmeno, uzp2.prijmeni, uzp2.rok_studia, uzp2.eml, uzp2.blokace, uzp2.poznamka"
             + " FROM KONTAKTY_UZIVATELU ku"
@@ -60,13 +62,15 @@ public class DbHelper {
     private final String SELECT_UZIVATEL_BY_ATTRIBUTE = "SELECT * FROM UZIVATELE_POHLED WHERE UPPER(jmeno) LIKE UPPER(?) OR UPPER(prijmeni) LIKE UPPER(?)";
     private final String SELECT_UZIVATEL_LOGIN = "SELECT * FROM UZIVATELE_POHLED WHERE login = ? AND heslo = ?";
     private final String SELECT_UZIVATELE_COUNT = "SELECT COUNT(*) from UZIVATELE_POHLED";
-    private final String INSERT_UZIVATEL = "INSERT INTO UZIVATELE(login, heslo, jmeno, prijmeni, rok_studia, eml, blokace, poznamka) VALUES (?,?,?,?,?,?,?,?)";
+    private final String INSERT_UZIVATEL = "INSERT INTO UZIVATELE(login, heslo, jmeno, prijmeni, rok_studia, eml, blokace, poznamka, prihlasen) VALUES (CONCAT('st', LPAD(UZIVATELE_LOGIN_SEQ.nextval, 5, 0)),?,?,?,?,?,?,?,?)";
     private final String DELETE_UZIVATEL = "DELETE FROM UZIVATELE WHERE id_uzivatele = ?";
-    private final String UPDATE_UZIVATEL = "UPDATE UZIVATELE SET  JMENO = ?, PRIJMENI = ?, ROK_STUDIA = ?, EML = ?, BLOKACE = ?, POZNAMKA = ? HESLO = ? WHERE id_uzivatele = ?";
+    private final String UPDATE_UZIVATEL = "UPDATE UZIVATELE SET  JMENO = ?, PRIJMENI = ?, ROK_STUDIA = ?, EML = ?, BLOKACE = ?, POZNAMKA = ?, HESLO = ? WHERE id_uzivatele = ?";
     // Statements for uzivatele end
 
     // Statements for role start
     private final String SELECT_ROLE = "SELECT * FROM UZIVATELE_ROLE WHERE ID_UZIVATELE = ?";
+    private final String INSERT_ROLE_UZIVATELE = "INSERT INTO ROLE_UZIVATELU(ROLE_ID_ROLE, UZIVATELE_ID_UZIVATELE) VALUES (?, ?)";
+    private final String DELETE_ROLE_UZIVATELE = "DELETE FROM ROLE_UZIVATELU WHERE UZIVATELE_ID_UZIVATELE = ?";
     private final String SELECT_ROLE_ALL = "SELECT * FROM ROLE";
     // Statements for role end
 
@@ -135,6 +139,7 @@ public class DbHelper {
     private final String INSERT_STUDIJNI_PLANY_UZIVATELU = "INSERT INTO STUDIJNI_PLANY_UZIVATELU(UZIVATELE_ID_UZIVATELE, SP_ID_PLANU) VALUES (?, ?)";
     private final String DELETE_STUDIJNI_PLANY_UZIVATELU_BY_UZIVATEL = "DELETE FROM STUDIJNI_PLANY_UZIVATELU WHERE UZIVATELE_ID_UZIVATELE = ?";
     private final String DELETE_STUDIJNI_PLANY_UZIVATELU_BY_SP = "DELETE FROM STUDIJNI_PLANY_UZIVATELU WHERE SP_ID_PLANU = ?";
+    private final String DELETE_PREDMETY_SP_BY_SP_ID = "DELETE FROM PREDMETY_STUDIJNICH_PLANU WHERE SP_ID_PLANU = ?";
     private final String DELETE_STUDIJNI_PLAN = "DELETE FROM STUDIJNI_PLANY WHERE id_planu = ?";
     private final String UPDATE_STUDIJNI_PLAN = "UPDATE STUDIJNI_PLANY SET nazev = ?, popis = ?, so_id_oboru = ? where id_planu = ?";
     // Statements for studijniPlany end
@@ -151,13 +156,16 @@ public class DbHelper {
 
     // Statements for predmety start
     private final String CV_PREDMETY_POHLED = "CREATE OR REPLACE VIEW PREDMETY_POHLED AS SELECT * FROM PREDMETY";
+    private final String SELECT_LAST_PREDMET_ID = "SELECT max (id_predmetu) FROM PREDMETY_POHLED";
     private final String SELECT_PREDMETY = "SELECT * FROM PREDMETY_POHLED";
     private final String SELECT_PREDMETY_SP = "SELECT * FROM PREDMETY_SP WHERE ID_PLANU = ?";
     private final String SELECT_PREDMETY_UZIVATELE = "SELECT * FROM PREDMETY_UZIVATELE WHERE ID_UZIVATELE = ?";
     private final String SELECT_PREDMET = "SELECT * FROM PREDMETY_POHLED WHERE id_predmetu = ?";
     private final String SELECT_PREDMET_BY_ATTRIBUTE = "SELECT * FROM PREDMETY_POHLED WHERE UPPER(zkratka_predmetu) LIKE UPPER(?) OR UPPER(nazev_predmetu) LIKE UPPER(?)";
     private final String INSERT_PREDMET = "INSERT INTO PREDMETY(nazev_predmetu,zkratka_predmetu,popis) VALUES (?,?,?)";
+    private final String INSERT_PREDMET_SP = "INSERT INTO PREDMETY_STUDIJNICH_PLANU(sp_id_planu, predmety_id_predmetu) VALUES (?,?)";
     private final String DELETE_PREDMET = "DELETE FROM PREDMETY WHERE id_predmetu = ?";
+    private final String DELETE_PREDMET_SP_BY_PREDMET_ID = "DELETE FROM PREDMETY_STUDIJNICH_PLANU WHERE predmety_id_predmetu = ?";
     private final String UPDATE_PREDMET_NAZEV = "UPDATE PREDMETY SET nazev_predmetu = ? where id_predmetu = ?";
     private final String UPDATE_PREDMET = "UPDATE PREDMETY SET nazev_predmetu = ?, zkratka_predmetu = ?, popis = ?  where id_predmetu = ?";
     // Statements for predmety end
@@ -176,7 +184,8 @@ public class DbHelper {
     private final String INSERT_KOMENTAR = "INSERT INTO PRISPEVKY(obsah_prispevku, cas_odeslani, blokace, priorita_prispevku, id_autora, prispevky_id_prispevku) VALUES (?,?,?,?,?,?)";
     private final String INSERT_PRISPEVEK_SKUPINY = "INSERT INTO SKUPINY(PRISPEVKY_ID_PRISPEVKU, SP_ID_PLANU) VALUES (?,?)";
     private final String DELETE_PRISPEVEK = "DELETE FROM PRISPEVKY WHERE id_prispevku = ?";
-    private final String UPDATE_PRISPEVEK = "UPDATE PRISPEVKY SET nazev = ?, obsah = ?, blokace = ?, priorita = ?  where id_prispevku = ?";
+    private final String UPDATE_PRISPEVEK_BLOKACE = "UPDATE PRISPEVKY SET BLOKACE = ? WHERE id_prispevku = ?";
+    private final String UPDATE_PRISPEVEK = "UPDATE PRISPEVKY SET nazev = ?, obsah_prispevku = ?, blokace = ?, priorita_prispevku = ?  where id_prispevku = ?";
     // Statements for prispevky end
 
     public DbHelper(Connection con) throws SQLException {
@@ -252,6 +261,18 @@ public class DbHelper {
         prepare.close();
 
         return online;
+    }
+
+    public String selectHesloUzivatele(int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SELECT_HESLO_UZIVATELE);
+        prepare.setInt(1, idUzivatele);
+        ResultSet result = prepare.executeQuery();
+        result.next();
+        String heslo = result.getString("heslo");
+        result.close();
+        prepare.close();
+
+        return heslo;
     }
 
     /**
@@ -349,6 +370,21 @@ public class DbHelper {
         result.close();
         prepare.close();
         return listSelect;
+    }
+
+    public void updateUzivatel(String jmeno, String prijmeni, int rokStudia, String email, int blokace, String poznamka, String heslo, int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(UPDATE_UZIVATEL, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        prepare.setString(1, jmeno);
+        prepare.setString(2, prijmeni);
+        prepare.setInt(3, rokStudia);
+        prepare.setString(4, email);
+        prepare.setInt(5, blokace);
+        prepare.setString(6, poznamka);
+        prepare.setString(7, heslo);
+        prepare.setInt(8, idUzivatele);
+
+        prepare.execute();
+        con.commit();
     }
 
     /**
@@ -505,6 +541,16 @@ public class DbHelper {
         con.commit();
     }
 
+    private int selectLastUzivatelId() throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SELECT_LAST_UZIVATEL_ID);
+        ResultSet res = prepare.executeQuery();
+        res.next();
+        int id = res.getInt(1);
+        res.close();
+        prepare.close();
+        return id;
+    }
+
     /**
      * Zaregistruje uživatele
      *
@@ -519,7 +565,19 @@ public class DbHelper {
      * @throws SQLException
      */
     public void registerUser(String name, String surname, String password, String eml, String poznamka, Integer rocnik, List<StudijniPlan> studijniPlan, List<Role> roleUzivatele) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(INSERT_UZIVATEL, ResultSet.CLOSE_CURSORS_AT_COMMIT); // TODO Předělat příkaz insert_uzivatel, dodat přidání do rolí uživatelů a studijních plánů uživatelů
+        insertUzivatel(name, surname, password, eml, poznamka, rocnik);
+        int idUzivatele = selectLastUzivatelId();
+        for (Role role : roleUzivatele) {
+            insertRoleUzivatele(role.getIdRole(), idUzivatele);
+        }
+
+        for (StudijniPlan plan : studijniPlan) {
+            insertStudijniPlanUzivatele(plan.getIdPlanu(), idUzivatele);
+        }
+    }
+
+    private void insertUzivatel(String name, String surname, String password, String eml, String poznamka, Integer rocnik) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(INSERT_UZIVATEL, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.setString(1, password);
         prepare.setString(2, name);
         prepare.setString(3, surname);
@@ -527,6 +585,7 @@ public class DbHelper {
         prepare.setString(5, eml);
         prepare.setInt(6, 0);
         prepare.setString(7, poznamka);
+        prepare.setInt(8, 0);
         prepare.execute();
         con.commit();
     }
@@ -562,6 +621,21 @@ public class DbHelper {
         prepare.close();
 
         return listSelect;
+    }
+
+    public void insertRoleUzivatele(int idRole, int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(INSERT_ROLE_UZIVATELE, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        prepare.setInt(1, idRole);
+        prepare.setInt(2, idUzivatele);
+        prepare.execute();
+        con.commit();
+    }
+
+    public void deleteRoleUzivatele(int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(DELETE_ROLE_UZIVATELE, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        prepare.setInt(1, idUzivatele);
+        prepare.execute();
+        con.commit();
     }
 
     /**
@@ -617,12 +691,12 @@ public class DbHelper {
         prepare.setInt(1, idUzivatele);
         ResultSet result = prepare.executeQuery();
         result.next();
-        
+
         int idKontaktu = result.getInt("id_konaktu");
-        
+
         result.close();
         prepare.close();
-        
+
         return idKontaktu;
     }
 
@@ -729,7 +803,7 @@ public class DbHelper {
     public void odebratZKontaktu(int idKontaktu, int idUzivatele) throws SQLException {
         int idRemoteUzivatele = selectUzivatelByIdKontaktu(idKontaktu).getIdUzivatele();
         int idLocalContact = selectContactIdByUserId(idUzivatele);
-        
+
         deleteUserContact(idKontaktu, idUzivatele);
         deleteUserContact(idLocalContact, idRemoteUzivatele);
     }
@@ -1136,15 +1210,43 @@ public class DbHelper {
         con.commit();
     }
 
+    public void insertStudijniPlanUzivatele(int idPlanu, int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(INSERT_STUDIJNI_PLANY_UZIVATELU, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        prepare.setInt(1, idUzivatele);
+        prepare.setInt(2, idPlanu);
+        prepare.execute();
+        con.commit();
+    }
+
     /**
      * Vymaže obor z databáze
      *
-     * @param idOboru id oboru pro smazání
+     * @param idPlanu id oboru pro smazání
      * @throws SQLException
      */
-    public void deleteStudijniPlan(int idOboru) throws SQLException {
+    public void deleteStudijniPlan(int idPlanu) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(DELETE_STUDIJNI_PLAN);
-        prepare.setInt(1, idOboru);
+        prepare.setInt(1, idPlanu);
+        prepare.execute();
+        con.commit();
+    }
+
+    public void deleteStudijniPlanUzivatele(int idUzivatele) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(DELETE_STUDIJNI_PLANY_UZIVATELU_BY_UZIVATEL, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        prepare.setInt(1, idUzivatele);
+        prepare.execute();
+        con.commit();
+    }
+
+    /**
+     * Vymaže obor z databáze
+     *
+     * @param idPlanu id oboru pro smazání
+     * @throws SQLException
+     */
+    public void deletePredmetSpBySpId(int idPlanu) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(DELETE_PREDMETY_SP_BY_SP_ID);
+        prepare.setInt(1, idPlanu);
         prepare.execute();
         con.commit();
     }
@@ -1154,14 +1256,15 @@ public class DbHelper {
      *
      * @param nazev název studijního plánu
      * @param popis popis studijního plánu
-     * @param id_prispevku id studijního plánu
+     * @param idPlanu id studijního plánu
      * @throws SQLException
      */
-    public void updateStudijniPlan(String nazev, String popis, int id_prispevku) throws SQLException {
+    public void updateStudijniPlan(String nazev, String popis, int idOboru, int idPlanu) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(UPDATE_STUDIJNI_PLAN);
         prepare.setString(1, nazev);
         prepare.setString(2, popis);
-        prepare.setInt(3, id_prispevku);
+        prepare.setInt(3, idOboru);
+        prepare.setInt(4, idPlanu);
 
         prepare.execute();
         con.commit();
@@ -1289,15 +1392,15 @@ public class DbHelper {
      * @param nazev název oboru
      * @param popis popis oboru
      * @param akreditaceDo akreditace do
-     * @param id_prispevku id oboru
+     * @param idOboru id oboru
      * @throws SQLException
      */
-    public void updateObor(String nazev, String popis, LocalDate akreditaceDo, int id_prispevku) throws SQLException {
+    public void updateObor(String nazev, String popis, LocalDate akreditaceDo, int idOboru) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(UPDATE_OBOR);
         prepare.setString(1, nazev);
         prepare.setString(2, popis);
         prepare.setDate(3, Date.valueOf(akreditaceDo));
-        prepare.setInt(4, id_prispevku);
+        prepare.setInt(4, idOboru);
 
         prepare.execute();
         con.commit();
@@ -1427,12 +1530,39 @@ public class DbHelper {
      * @throws SQLException
      */
     public void insertPredmet(String nazev, String zkratka, String popis) throws SQLException {
-        PreparedStatement prepare = con.prepareStatement(INSERT_PREDMET);
+        PreparedStatement prepare = con.prepareStatement(INSERT_PREDMET, ResultSet.CLOSE_CURSORS_AT_COMMIT);
         prepare.setString(1, nazev);
         prepare.setString(2, zkratka);
         prepare.setString(3, popis);
         prepare.execute();
         con.commit();
+    }
+
+    public void insertPredmetSp(int idPlanu, int idPredmetu) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(INSERT_PREDMET_SP, ResultSet.CLOSE_CURSORS_AT_COMMIT);
+        prepare.setInt(1, idPlanu);
+        prepare.setInt(2, idPredmetu);
+        prepare.execute();
+        con.commit();
+    }
+
+    private int selectLastPredmetId() throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(SELECT_LAST_PREDMET_ID);
+        ResultSet res = prepare.executeQuery();
+        res.next();
+        int id = res.getInt(1);
+        res.close();
+        prepare.close();
+        return id;
+    }
+
+    public void vlozPredmet(String nazev, String zkratka, String popis, List<Integer> idPlanu) throws SQLException {
+        insertPredmet(nazev, zkratka, popis);
+        int idPredmetu = selectLastPredmetId();
+        for (Integer integer : idPlanu) {
+            insertPredmetSp(integer, idPredmetu);
+        }
+
     }
 
     /**
@@ -1443,6 +1573,19 @@ public class DbHelper {
      */
     public void deletePredmet(int idPredmetu) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(DELETE_PREDMET);
+        prepare.setInt(1, idPredmetu);
+        prepare.execute();
+        con.commit();
+    }
+
+    /**
+     * Vymaže předmět z databáze
+     *
+     * @param idPredmetu id předmětu pro smazání
+     * @throws SQLException
+     */
+    public void deletePredmetSPByPredmetId(int idPredmetu) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(DELETE_PREDMET_SP_BY_PREDMET_ID);
         prepare.setInt(1, idPredmetu);
         prepare.execute();
         con.commit();
@@ -1652,12 +1795,29 @@ public class DbHelper {
      * @param id_prispevku id příspěvku
      * @throws SQLException
      */
-    public void updatePrispevek(String nazev, String obsah, int blokace, int id_prispevku) throws SQLException {
+    public void updatePrispevek(String nazev, String obsah, int blokace, int id_prispevku, int priorita) throws SQLException {
         PreparedStatement prepare = con.prepareStatement(UPDATE_PRISPEVEK);
         prepare.setString(1, nazev);
         prepare.setString(2, obsah);
         prepare.setInt(3, blokace);
-        prepare.setInt(4, id_prispevku);
+        prepare.setInt(4, priorita);
+        prepare.setInt(5, id_prispevku);
+
+        prepare.execute();
+        con.commit();
+    }
+
+    /**
+     * Aktualizuje příspěvek
+     *
+     * @param blokace blokace příspěvku
+     * @param id_prispevku id příspěvku
+     * @throws SQLException
+     */
+    public void updatePrispevekBlokace(int blokace, int id_prispevku) throws SQLException {
+        PreparedStatement prepare = con.prepareStatement(UPDATE_PRISPEVEK_BLOKACE);
+        prepare.setInt(1, blokace);
+        prepare.setInt(2, id_prispevku);
 
         prepare.execute();
         con.commit();

@@ -23,6 +23,13 @@ public class Predmet {
         this.popis = popis;
         this.selected = false;
     }
+
+    public Predmet(String nazevPredmetu, String zkratkaPredmetu, String popis) {
+        this.nazevPredmetu = nazevPredmetu;
+        this.zkratkaPredmetu = zkratkaPredmetu;
+        this.popis = popis;
+        this.selected = false;
+    }
     
     @Override
     public String toString(){
@@ -47,6 +54,18 @@ public class Predmet {
 
     public boolean isSelected() {
         return selected;
+    }
+
+    public void setNazevPredmetu(String nazevPredmetu) {
+        this.nazevPredmetu = nazevPredmetu;
+    }
+
+    public void setZkratkaPredmetu(String zkratkaPredmetu) {
+        this.zkratkaPredmetu = zkratkaPredmetu;
+    }
+
+    public void setPopis(String popis) {
+        this.popis = popis;
     }
 
     public void setSelected(boolean selected) {

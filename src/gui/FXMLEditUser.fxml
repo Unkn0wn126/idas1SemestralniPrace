@@ -148,7 +148,7 @@
                                     </FlowPane>
                                     <FlowPane alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                        <children>
-                                          <TextField fx:id="tfStareHeslo" />
+                                          <PasswordField fx:id="tfStareHeslo" />
                                        </children>
                                     </FlowPane>
                                     <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="10">
