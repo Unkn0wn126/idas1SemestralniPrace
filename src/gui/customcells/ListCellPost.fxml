@@ -47,7 +47,7 @@
             <FlowPane alignment="CENTER" hgap="20.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0">
                <children>
                   <Button fx:id="btnEditovat" disable="true" mnemonicParsing="false" onAction="#handleBtnEditovatAction" text="Editovat" />
-                  <Button fx:id="btnZablokovat" disable="true" mnemonicParsing="false" onAction="#handleBtnZablokovatAction" text="Zablokovat" />
+                  <Button fx:id="btnZablokovat" disable="true" mnemonicParsing="false" onAction="#handleBtnZablokovatAction" text="Zablokovat/Odblokovat" />
                   <Button fx:id="btnSmazat" disable="true" mnemonicParsing="false" onAction="#handleBtnSmazatAction" text="Smazat" />
                </children>
             </FlowPane>

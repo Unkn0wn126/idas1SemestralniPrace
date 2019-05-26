@@ -90,7 +90,7 @@ public class FXMLGroupFeedController implements Initializable {
         prispevkyPinned.clear();
 
         List<Prispevek> pinned = prispevky.stream().filter((t) -> {
-            return t.getPriorita() > 0;
+            return t.getPriorita() > 0 && t.getBlokace() == 0;
         }).collect(Collectors.toList());
 
         pinned.sort((t, t1) -> {

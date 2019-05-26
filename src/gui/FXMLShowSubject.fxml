@@ -47,27 +47,42 @@
                            <children>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="3">
                                  <children>
-                                    <Label text="Popis:" />
+                                    <Label text="Popis:">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
                                  </children>
                               </FlowPane>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="2">
                                  <children>
-                                    <Label text="Zkratka předmětu:" />
+                                    <Label text="Zkratka předmětu:">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
                                  </children>
                               </FlowPane>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                  <children>
-                                    <Label fx:id="lblZkratka" text="Label" />
+                                    <Label fx:id="lblZkratka" text="Label">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
                                  </children>
                               </FlowPane>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
                                  <children>
-                                    <Label text="Název předmětu:" />
+                                    <Label text="Název předmětu:">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
                                  </children>
                               </FlowPane>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                  <children>
-                                    <Label fx:id="lblNazev" text="Label" />
+                                    <Label fx:id="lblNazev" text="Label">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
                                  </children>
                               </FlowPane>
                               <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">

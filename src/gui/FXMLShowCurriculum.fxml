@@ -47,27 +47,42 @@
                            <children>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
                                  <children>
-                                    <Label text="Název:" />
+                                    <Label text="Název:">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
                                  </children>
                               </FlowPane>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                  <children>
-                                    <Label fx:id="lblNazev" text="Label" textAlignment="JUSTIFY" wrapText="true" />
+                                    <Label fx:id="lblNazev" text="Label" textAlignment="JUSTIFY" wrapText="true">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
                                  </children>
                               </FlowPane>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="2">
                                  <children>
-                                    <Label text="Studijní obor:" />
+                                    <Label text="Studijní obor:">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
                                  </children>
                               </FlowPane>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                  <children>
-                                    <Label fx:id="lblObor" style="-fx-cursor: hand;" text="Label" textFill="#1700ff" underline="true" />
+                                    <Label fx:id="lblObor" style="-fx-cursor: hand;" text="Label" textFill="#1700ff" underline="true">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
                                  </children>
                               </FlowPane>
                               <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="3">
                                  <children>
-                                    <Label text="Popis:" />
+                                    <Label text="Popis:">
+                                       <font>
+                                          <Font size="14.0" />
+                                       </font></Label>
                                  </children>
                               </FlowPane>
                               <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">

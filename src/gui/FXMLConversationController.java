@@ -18,6 +18,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
@@ -67,23 +68,21 @@ public class FXMLConversationController implements Initializable {
         });
 
         listView.addEventFilter(MouseEvent.MOUSE_PRESSED, (event) -> {
-            switch (event.getButton()) {
-                case PRIMARY:
-                    event.consume();
-                    break;
-            }
+            event.consume();
         });
     }
 
     @FXML
     private void handleBtnOdeslatAction(ActionEvent event) throws SQLException {
-        if (!tAMessage.getText().isEmpty() && tAMessage.getText().length() > 0) {
+        if (!tAMessage.getText().isEmpty() && tAMessage.getText().length() > 0 && tAMessage.getLength() <= 500) {
             if (poslatZpravuAction != null) {
                 poslatZpravuAction.accept(new Zprava(tAMessage.getText(),
                         LocalDateTime.now(), jmenoLocalUzivatele));
             }
             tAMessage.clear();
             listView.scrollTo(zpravy.size() - 1);
+        } else {
+            showAlert("Zpráva nesmí být prázdná a nesmí být delší než 500 znaků");
         }
     }
 
@@ -143,6 +142,20 @@ public class FXMLConversationController implements Initializable {
         builder.append(prijemci.get(prijemci.size() - 1).getJmeno());
 
         lblName.setText(builder.toString());
+    }
+
+    /**
+     * Zobrazí dialog s errorem
+     *
+     * @param text text erroru
+     */
+    private void showAlert(String text) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setContentText(text);
+        alert.setHeaderText(null);
+
+        alert.showAndWait();
     }
 
 }

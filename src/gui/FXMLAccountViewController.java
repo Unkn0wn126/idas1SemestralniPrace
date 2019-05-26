@@ -200,9 +200,10 @@ public class FXMLAccountViewController implements Initializable {
      * Updatuje data pro zobrazení podle uživatele
      *
      * @param uzivatel uživatel, jehož data se mají zobrazit
-     * @param role
-     * @param studijniPlany
-     * @param predmety
+     * @param role seznam rolí
+     * @param studijniPlany seznam studijních plánů
+     * @param predmety seznam předmětů
+     * @param isAdmin statut admina
      */
     public void updateView(Uzivatel uzivatel, List<Role> role, List<StudijniPlan> studijniPlany, List<Predmet> predmety, boolean isAdmin) {
         setUzivatel(uzivatel);

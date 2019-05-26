@@ -248,7 +248,7 @@ public class FXMLMainSceneController implements Initializable {
         // Při kliknutí na kontakt se načte konverzace s daným kontaktem
         contactsController.setSelectedContactChangedAction((t) -> {
             if (t.size() == 1 && t.get(0).getBlokace() != 0) {
-                showDialog("Uživatel je zabloková adminem síťě. "
+                showDialog("Uživatel je zablokován adminem sítě. "
                         + "Posílat mu zprávy nyní nebude mít příliš velký efekt.");
             }
             loadConversationMenu(t);
@@ -670,9 +670,10 @@ public class FXMLMainSceneController implements Initializable {
      */
     private void setSubjectListMenuActions() {
         subjectsListController.setDeleteAction((t) -> {
-            System.out.println("Mažu: " + t.toString());
             try {
                 deletePredmet(t.getIdPredmetu());
+                showDialog("Předmět byl úspěšně smazán");
+                loadSubjectListMenu(getPredmety());
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -724,9 +725,10 @@ public class FXMLMainSceneController implements Initializable {
         });
 
         curriculumListController.setDeleteCurriculumAction((t) -> {
-            System.out.println("Mažu: " + t.toString());
             try {
                 deletePlan(t.getIdPlanu());
+                showDialog("Studijní plán úspěšně smazán");
+                loadCurriculumListMenu(getStudijniPlany());
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -1319,6 +1321,7 @@ public class FXMLMainSceneController implements Initializable {
             try {
                 dbHelper.deletePredmet(t.getIdPredmetu());
                 showDialog("Předmět úspěšně smazán");
+                loadCurriculumListMenu(getStudijniPlany());
             } catch (SQLException ex) {
                 Logger.getLogger(FXMLMainSceneController.class.getName()).log(Level.SEVERE, null, ex);
             }

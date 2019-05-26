@@ -19,7 +19,7 @@
    <children>
       <FlowPane alignment="CENTER" prefHeight="200.0" prefWidth="200.0">
          <children>
-            <Label fx:id="lblTitle" text="Seznam všech předmětů:" />
+            <Label fx:id="lblTitle" text="Seznam předmětů:" />
          </children>
       </FlowPane>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
